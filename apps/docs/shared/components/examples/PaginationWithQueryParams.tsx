@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { Pagination } from '@workspace/ui/components/Pagination'
-import { useQueryState, parseAsInteger } from 'nuqs'
-import { Suspense } from 'react'
+import { Pagination } from '@workspace/ui/components/Pagination';
+import { useQueryState, parseAsInteger } from 'nuqs';
+import { Suspense } from 'react';
 
 /**
  * nuqs uses useSearchParams under the hood, and in Next.js
@@ -11,15 +11,15 @@ import { Suspense } from 'react'
  */
 
 function Component() {
-    const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(0))
+  const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(0));
 
-    return <Pagination pageCount={10} value={page} onChange={setPage} />
+  return <Pagination pageCount={10} value={page} onChange={setPage} />;
 }
 
 export function PaginationWithQueryParams() {
-    return (
-        <Suspense fallback={<div className="h-8" />}>
-            <Component />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={<div className="h-8" />}>
+      <Component />
+    </Suspense>
+  );
 }

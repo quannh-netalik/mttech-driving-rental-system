@@ -13,13 +13,13 @@ You might be used to placing all validation logic directly within the form decla
 
 ```tsx
 const form = useForm({
-    // We won't handle validation this way
-    resolver: zodResolver(
-        z.object({
-            email: z.string(),
-            password: z.string(),
-        }),
-    ),
+  // We won't handle validation this way
+  resolver: zodResolver(
+    z.object({
+      email: z.string(),
+      password: z.string(),
+    }),
+  ),
 })
 ```
 

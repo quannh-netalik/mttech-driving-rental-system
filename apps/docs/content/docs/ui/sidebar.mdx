@@ -10,13 +10,9 @@ sourceCode: https://github.com/henry-phm/base-stack/blob/main/packages/ui/src/co
 You can view this demo in fullscreen mode <Link href="/layout-preview/dashboard/history" target="_blank">here</Link>.
 
 <div className="grid mt-4">
-    <div className="overflow-hidden border rounded-xl shadow-lg">
-        <iframe
-            src="/layout-preview/dashboard/history"
-            style={{ width: '1000px', height: '600px' }}
-            title="Sidebar Demo"
-        />
-    </div>
+  <div className="overflow-hidden border rounded-xl shadow-lg">
+    <iframe src="/layout-preview/dashboard/history" style={{ width: '1000px', height: '600px' }} title="Sidebar Demo" />
+  </div>
 </div>
 
 ---
@@ -30,9 +26,9 @@ This is the sidebar component from `shadcn`, with some adjustments to make it ea
 - The <Link href="https://github.com/henry-phm/base-stack/blob/main/apps/next/src/shared/layouts/DashboardLayout.tsx" target="_blank">`DashboardLayout`</Link> is pre-configured in each app, so you can use it out of the box.
 
 <MdxTip>
-    When you set up the project, a **sidebar layout** is already configured for each app in
-    `shared/layouts/DashboardLayout.tsx`. This file handles active link highlighting separately for each routing
-    library. See the following examples for how to use it with both routing libraries.
+  When you set up the project, a **sidebar layout** is already configured for each app in
+  `shared/layouts/DashboardLayout.tsx`. This file handles active link highlighting separately for each routing library.
+  See the following examples for how to use it with both routing libraries.
 </MdxTip>
 
 ### `Next.js`
@@ -45,14 +41,14 @@ import { DashboardLayout } from '@/shared/layouts/DashboardLayout'
 import { cookies } from 'next/headers'
 
 interface LayoutProps {
-    children: React.ReactNode
+  children: React.ReactNode
 }
 
 export default async function Layout({ children }: LayoutProps) {
-    const cookieStore = await cookies()
-    const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
+  const cookieStore = await cookies()
+  const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
 
-    return <DashboardLayout defaultOpen={defaultOpen}>{children}</DashboardLayout>
+  return <DashboardLayout defaultOpen={defaultOpen}>{children}</DashboardLayout>
 }
 ```
 
@@ -64,14 +60,14 @@ import { DashboardLayout } from '@/shared/layouts/DashboardLayout'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/dashboard')({
-    component: RouteComponent,
+  component: RouteComponent,
 })
 
 function RouteComponent() {
-    return (
-        <DashboardLayout>
-            <Outlet />
-        </DashboardLayout>
-    )
+  return (
+    <DashboardLayout>
+      <Outlet />
+    </DashboardLayout>
+  )
 }
 ```

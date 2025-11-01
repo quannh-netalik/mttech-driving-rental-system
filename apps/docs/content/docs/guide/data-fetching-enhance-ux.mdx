@@ -35,18 +35,18 @@ const postQuery = useQuery(api.post.detail(postId))
 const post = postQuery.data?.data
 
 if (postQuery.isLoading) {
-    return <Spinner />
+  return <Spinner />
 }
 
 if (postQuery.isError) {
-    return <Error />
+  return <Error />
 }
 
 return (
-    <div className="space-y-4">
-        <h1 className="text-3xl font-bold">{post?.title}</h1>
-        <p>{post?.content}</p>
-    </div>
+  <div className="space-y-4">
+    <h1 className="text-3xl font-bold">{post?.title}</h1>
+    <p>{post?.content}</p>
+  </div>
 )
 ```
 
@@ -62,11 +62,11 @@ Example:
 const [search] = useQueryState('search', parseAsString.withDefault(''))
 
 const postsQuery = useQuery({
-    queryKey: [posts, 'list', q],
-    queryFn: ({ signal }) => {
-        return this.client.get('/post', { params: { q }, signal })
-    },
-    placeholderData: keepPreviousData,
+  queryKey: [posts, 'list', q],
+  queryFn: ({ signal }) => {
+    return this.client.get('/post', { params: { q }, signal })
+  },
+  placeholderData: keepPreviousData,
 })
 
 useNProgress({ isFetching: postsQuery.isFetching })
@@ -96,7 +96,7 @@ const exportMutation = useMutation({ mutationFn })
 ```
 
 2. For form submissions, wrap the entire form with `LoadingOverlay`, for example:
-    <ComponentPreview name="RecFormWithLoading" className="max-w-[350px] mx-auto" />
+   <ComponentPreview name="RecFormWithLoading" className="max-w-[350px] mx-auto" />
 
 ## Use Optimistic UI
 

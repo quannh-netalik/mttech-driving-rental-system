@@ -77,16 +77,16 @@ Use **function declaration** for components (not arrow functions):
 ```tsx
 // ✅ Good: Function declaration for components
 export function UserList() {
-    return <div>List</div>
+  return <div>List</div>
 }
 
 export function UserProfile({ userId }: Props) {
-    return <div>Profile</div>
+  return <div>Profile</div>
 }
 
 // ❌ Avoid: Arrow function for components
 export const UserList = () => {
-    return <div>List</div>
+  return <div>List</div>
 }
 ```
 
@@ -96,28 +96,28 @@ Use **arrow functions** for event handlers, methods, and callbacks:
 
 ```tsx
 export function UserList() {
-    // ✅ Good: Arrow functions for handlers and methods
-    const handleClick = (id: string) => {
-        console.log('Clicked user:', id)
-    }
+  // ✅ Good: Arrow functions for handlers and methods
+  const handleClick = (id: string) => {
+    console.log('Clicked user:', id)
+  }
 
-    const fetchUserData = async () => {
-        return await api.getUsers()
-    }
+  const fetchUserData = async () => {
+    return await api.getUsers()
+  }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+  }
 
-    // ✅ Good: Arrow functions for callbacks
-    return (
-        <div>
-            {users.map(user => (
-                <UserCard key={user.id} user={user} />
-            ))}
-            <button onClick={() => handleClick(user.id)}>Click me</button>
-        </div>
-    )
+  // ✅ Good: Arrow functions for callbacks
+  return (
+    <div>
+      {users.map(user => (
+        <UserCard key={user.id} user={user} />
+      ))}
+      <button onClick={() => handleClick(user.id)}>Click me</button>
+    </div>
+  )
 }
 ```
 
@@ -173,47 +173,47 @@ Organize your component code in a consistent order for better readability:
 
 ```tsx
 export function UserProfile({ userId, isActive }: Props) {
-    // 1. State hooks (useState, useReducer)
-    const [selectedTab, setSelectedTab] = useState(0)
-    const [isEditing, setIsEditing] = useState(false)
+  // 1. State hooks (useState, useReducer)
+  const [selectedTab, setSelectedTab] = useState(0)
+  const [isEditing, setIsEditing] = useState(false)
 
-    // 2. Data fetching hooks (useQuery, custom data hooks)
-    const queryClient = useQueryClient()
-    const userQuery = useQuery({
-        queryKey: ['user', userId],
-        queryFn: () => fetchUser(userId),
-    })
+  // 2. Data fetching hooks (useQuery, custom data hooks)
+  const queryClient = useQueryClient()
+  const userQuery = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId),
+  })
 
-    // 3. Derived state and variables
-    const isAuthenticated = userQuery.data
+  // 3. Derived state and variables
+  const isAuthenticated = userQuery.data
 
-    // 4. Event handlers and functions (arrow functions)
-    const handleTabChange = (index: number) => {
-        setSelectedTab(index)
+  // 4. Event handlers and functions (arrow functions)
+  const handleTabChange = (index: number) => {
+    setSelectedTab(index)
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Handle submit
+  }
+
+  // 5. Side effects (useEffect)
+  useEffect(() => {
+    if (shouldAutoRefresh) {
+      const interval = setInterval(() => {
+        queryClient.invalidateQueries(['user', userId])
+      }, 30000)
+      return () => clearInterval(interval)
     }
+  }, [userId, shouldAutoRefresh, queryClient])
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        // Handle submit
-    }
+  // 6. Early returns
+  if (userQuery.isLoading) return <LoadingSpinner />
+  if (userQuery.error) return <ErrorMessage error={userQuery.error} />
+  if (!userQuery.data) return <EmptyState message="No user found" />
 
-    // 5. Side effects (useEffect)
-    useEffect(() => {
-        if (shouldAutoRefresh) {
-            const interval = setInterval(() => {
-                queryClient.invalidateQueries(['user', userId])
-            }, 30000)
-            return () => clearInterval(interval)
-        }
-    }, [userId, shouldAutoRefresh, queryClient])
-
-    // 6. Early returns
-    if (userQuery.isLoading) return <LoadingSpinner />
-    if (userQuery.error) return <ErrorMessage error={userQuery.error} />
-    if (!userQuery.data) return <EmptyState message="No user found" />
-
-    // 7. Return JSX
-    return <div>{/* Component JSX */}</div>
+  // 7. Return JSX
+  return <div>{/* Component JSX */}</div>
 }
 ```
 
@@ -226,12 +226,12 @@ Use **named exports** over default exports in most cases for better IDE support,
 ```tsx
 // ✅ Preferred: Named export
 export function UserCard() {
-    return <div>User Card</div>
+  return <div>User Card</div>
 }
 
 // ❌ Avoid: Default export (unless necessary)
 export default function UserCard() {
-    return <div>User Card</div>
+  return <div>User Card</div>
 }
 ```
 
@@ -240,7 +240,7 @@ export default function UserCard() {
 ```tsx
 // Acceptable for Next.js pages
 export default function HomePage() {
-    return <div>Home</div>
+  return <div>Home</div>
 }
 
 // Acceptable for lazy loading
@@ -253,23 +253,23 @@ Use early returns to reduce nesting and improve code readability. Handle edge ca
 
 ```tsx
 export function UserProfile({ userId }: { userId: string }) {
-    const userQuery = useQuery({
-        queryKey: ['user', userId],
-        queryFn: () => fetchUser(userId),
-    })
+  const userQuery = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId),
+  })
 
-    // Early returns for edge cases
-    if (userQuery.isLoading) return <LoadingSpinner />
-    if (userQuery.error) return <ErrorMessage error={userQuery.error} />
-    if (!userQuery.data) return <EmptyState message="No user found" />
+  // Early returns for edge cases
+  if (userQuery.isLoading) return <LoadingSpinner />
+  if (userQuery.error) return <ErrorMessage error={userQuery.error} />
+  if (!userQuery.data) return <EmptyState message="No user found" />
 
-    // Main component logic with minimal nesting
-    return (
-        <div className="user-profile">
-            <h1>{userQuery.data.name}</h1>
-            <p>{userQuery.data.email}</p>
-        </div>
-    )
+  // Main component logic with minimal nesting
+  return (
+    <div className="user-profile">
+      <h1>{userQuery.data.name}</h1>
+      <p>{userQuery.data.email}</p>
+    </div>
+  )
 }
 ```
 
@@ -278,19 +278,19 @@ This is cleaner than deeply nested conditional rendering:
 ```tsx
 // ❌ Avoid: Deeply nested conditions
 return (
-    <div>
-        {userQuery.isLoading ? (
-            <LoadingSpinner />
-        ) : userQuery.error ? (
-            <ErrorMessage />
-        ) : userQuery.data ? (
-            <div className="user-profile">
-                <h1>{userQuery.data.name}</h1>
-            </div>
-        ) : (
-            <EmptyState />
-        )}
-    </div>
+  <div>
+    {userQuery.isLoading ? (
+      <LoadingSpinner />
+    ) : userQuery.error ? (
+      <ErrorMessage />
+    ) : userQuery.data ? (
+      <div className="user-profile">
+        <h1>{userQuery.data.name}</h1>
+      </div>
+    ) : (
+      <EmptyState />
+    )}
+  </div>
 )
 ```
 
@@ -312,33 +312,33 @@ When logic becomes intricate with more than two outcomes, it's clearer to use ea
 ```tsx
 // ✅ Recommended: Early returns for complex flows
 export function Dashboard() {
-    const userQuery = useQuery({
-        /* ... */
-    })
+  const userQuery = useQuery({
+    /* ... */
+  })
 
-    if (userQuery.isLoading) return <Spinner />
-    if (userQuery.error) return <ErrorPage />
-    if (!userQuery.data) return <EmptyState />
-    if (!userQuery.data.hasAccess) return <AccessDenied />
+  if (userQuery.isLoading) return <Spinner />
+  if (userQuery.error) return <ErrorPage />
+  if (!userQuery.data) return <EmptyState />
+  if (!userQuery.data.hasAccess) return <AccessDenied />
 
-    return <DashboardContent data={userQuery.data} />
+  return <DashboardContent data={userQuery.data} />
 }
 
 // ❌ Not recommended: Multiple nested ternaries
 return (
-    <div>
-        {userQuery.isLoading ? (
-            <Spinner />
-        ) : userQuery.error ? (
-            <ErrorPage />
-        ) : !userQuery.data ? (
-            <EmptyState />
-        ) : !userQuery.data.hasAccess ? (
-            <AccessDenied />
-        ) : (
-            <DashboardContent />
-        )}
-    </div>
+  <div>
+    {userQuery.isLoading ? (
+      <Spinner />
+    ) : userQuery.error ? (
+      <ErrorPage />
+    ) : !userQuery.data ? (
+      <EmptyState />
+    ) : !userQuery.data.hasAccess ? (
+      <AccessDenied />
+    ) : (
+      <DashboardContent />
+    )}
+  </div>
 )
 ```
 

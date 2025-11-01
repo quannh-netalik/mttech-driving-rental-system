@@ -44,36 +44,36 @@ Each API module is a class that encapsulates related API calls. Here's an exampl
 // packages/lib/src/api/sdk/post.api.ts
 
 export class PostApi {
-    private readonly BASE_PATH = '/posts'
+  private readonly BASE_PATH = '/posts'
 
-    constructor(private readonly client: AxiosInstance) {}
+  constructor(private readonly client: AxiosInstance) {}
 
-    list(params: GetPostListParams) {
-        return queryOptions({
-            queryKey: [this.BASE_PATH, 'list', params],
-            queryFn: ({ signal }) => {
-                return this.client.get<Array<Post>>(this.BASE_PATH, { params, signal })
-            },
-            placeholderData: keepPreviousData,
-        })
-    }
+  list(params: GetPostListParams) {
+    return queryOptions({
+      queryKey: [this.BASE_PATH, 'list', params],
+      queryFn: ({ signal }) => {
+        return this.client.get<Array<Post>>(this.BASE_PATH, { params, signal })
+      },
+      placeholderData: keepPreviousData,
+    })
+  }
 
-    detail(id: string) {
-        return queryOptions({
-            queryKey: [this.BASE_PATH, 'detail', id],
-            queryFn: () => {
-                return this.client.get<Post>(`${this.BASE_PATH}/${id}`)
-            },
-        })
-    }
+  detail(id: string) {
+    return queryOptions({
+      queryKey: [this.BASE_PATH, 'detail', id],
+      queryFn: () => {
+        return this.client.get<Post>(`${this.BASE_PATH}/${id}`)
+      },
+    })
+  }
 
-    create() {
-        return mutationOptions({
-            mutationFn: (post: CreatePostDto) => {
-                return this.client.post(this.BASE_PATH, post)
-            },
-        })
-    }
+  create() {
+    return mutationOptions({
+      mutationFn: (post: CreatePostDto) => {
+        return this.client.post(this.BASE_PATH, post)
+      },
+    })
+  }
 }
 ```
 
@@ -89,13 +89,13 @@ import { ExampleApi } from './sdk/example.api'
 import { PostApi } from './sdk/post.api'
 
 export class Api {
-    example: ExampleApi
-    post: PostApi
+  example: ExampleApi
+  post: PostApi
 
-    constructor(private readonly client: AxiosInstance) {
-        this.example = new ExampleApi(this.client)
-        this.post = new PostApi(this.client)
-    }
+  constructor(private readonly client: AxiosInstance) {
+    this.example = new ExampleApi(this.client)
+    this.post = new PostApi(this.client)
+  }
 }
 ```
 
@@ -113,9 +113,9 @@ import { Api } from '@workspace/lib/api'
 export type * from '@workspace/lib/api'
 
 export const api = new Api(
-    axios.create({
-        baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
-    }),
+  axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
+  }),
 )
 ```
 
@@ -128,9 +128,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api-client'
 
 export function PostDetail({ postId }: { postId: string }) {
-    const postQuery = useQuery(api.post.detail(postId))
-    const data = postQuery.data
-    // render data
+  const postQuery = useQuery(api.post.detail(postId))
+  const data = postQuery.data
+  // render data
 }
 ```
 
