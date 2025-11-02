@@ -2,9 +2,15 @@
 
 import { Button } from '@workspace/ui/components/Button';
 import { toast } from '@workspace/ui/components/Sonner';
-import { ThemeSwitcher } from '@/shared/components/ThemeSwitcher';
+import { Theme, ThemeSwitcher } from '@/shared/components/ThemeSwitcher';
+
+import LogoMTTech from '@workspace/ui/components/LogoMTTech';
+
+import { useTheme } from 'next-themes';
 
 export default function Page() {
+  const { theme } = useTheme();
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center max-w-2xl mx-auto px-4">
@@ -27,6 +33,8 @@ export default function Page() {
         >
           Welcome
         </Button>
+
+        <LogoMTTech theme={theme as Theme} />
       </div>
     </div>
   );
