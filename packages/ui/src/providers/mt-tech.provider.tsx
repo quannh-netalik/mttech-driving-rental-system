@@ -3,7 +3,7 @@
 import '@workspace/ui/hooks/use-nprogress';
 import 'nprogress/nprogress.css';
 import { I18nProvider as ReactAriaI18nProvider } from 'react-aria-components';
-import { Toaster } from 'components/sonner';
+import { Toaster } from '@workspace/ui/components/sonner';
 
 interface MTTechProviderProps {
   children: React.ReactNode;
