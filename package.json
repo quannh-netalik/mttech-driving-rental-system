@@ -7,19 +7,31 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier . --write",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "cz": "cz",
+    "commitlint": "commitlint --edit"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@commitlint/types": "^20.0.0",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "lefthook": "^1.11.8",
     "prettier": "^3.6.2",
     "tsx": "^4.20.6",
     "turbo": "^2.5.5",
-    "typescript": "^5.9.2",
-    "lefthook": "^1.11.8"
+    "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {
     "node": ">=20"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
