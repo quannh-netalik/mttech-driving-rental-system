@@ -2,9 +2,27 @@
 
 import { Button } from '@workspace/ui/components/Button';
 import { toast } from '@workspace/ui/components/Sonner';
-import { ThemeSwitcher } from '@/shared/components/ThemeSwitcher';
+import { Theme, ThemeSwitcher } from '@/shared/components/ThemeSwitcher';
+
+import LogoMTTech from '@workspace/ui/components/LogoMTTech';
+
+import { useTheme } from 'next-themes';
+
+const colors = {
+  [Theme.DARK]: {
+    primary: '#FFFFFF',
+    secondary: '#E32324',
+  },
+  [Theme.LIGHT]: {
+    primary: '#1C1C1C',
+    secondary: '#E32324',
+  },
+} as const;
 
 export default function Page() {
+  const { theme } = useTheme();
+  const { primary, secondary } = colors[(theme as Theme) || Theme.LIGHT]!;
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center max-w-2xl mx-auto px-4">
@@ -27,6 +45,8 @@ export default function Page() {
         >
           Welcome
         </Button>
+
+        <LogoMTTech primary={primary} secondary={secondary} />
       </div>
     </div>
   );
