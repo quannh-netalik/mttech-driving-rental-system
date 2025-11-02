@@ -1,12 +1,12 @@
 'use client';
 
 import * as React from 'react';
+import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import {
   Controller,
   FormProvider,
   useFormContext,
-  UseFormReturn,
   useFormState,
   type ControllerProps,
   type FieldPath,
@@ -14,8 +14,7 @@ import {
 } from 'react-hook-form';
 
 import { cn } from '@workspace/ui/lib/utils';
-import { Label } from '@workspace/ui/components/Field';
-import { LabelProps } from 'react-aria-components';
+import { Label } from '@workspace/ui/components/label';
 
 const Form = FormProvider;
 
@@ -70,33 +69,24 @@ type FormItemContextValue = {
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
-function FormItem({ className, flow = 'column', ...props }: React.ComponentProps<'div'> & { flow?: 'row' | 'column' }) {
+function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
   const id = React.useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div
-        data-slot="form-item"
-        className={cn(
-          'flex gap-2',
-          flow === 'column' && 'flex-col',
-          flow === 'row' && 'flex-row items-center',
-          className,
-        )}
-        {...props}
-      />
+      <div data-slot="form-item" className={cn('grid gap-2', className)} {...props} />
     </FormItemContext.Provider>
   );
 }
 
-function FormLabel({ className, ...props }: LabelProps) {
+function FormLabel({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
   const { error, formItemId } = useFormField();
 
   return (
     <Label
       data-slot="form-label"
       data-error={!!error}
-      className={cn('whitespace-nowrap', className)}
+      className={cn('data-[error=true]:text-destructive', className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -124,7 +114,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
     <p
       data-slot="form-description"
       id={formDescriptionId}
-      className={cn('text-muted-foreground text-xs', className)}
+      className={cn('text-muted-foreground text-sm', className)}
       {...props}
     />
   );
@@ -139,38 +129,10 @@ function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   }
 
   return (
-    <p
-      data-slot="form-message"
-      id={formMessageId}
-      className={cn('text-destructive-foreground text-xs', className)}
-      {...props}
-    >
+    <p data-slot="form-message" id={formMessageId} className={cn('text-destructive text-sm', className)} {...props}>
       {body}
     </p>
   );
 }
 
-function setSubmitErrors(form: UseFormReturn<any>, error: Record<string, string>) {
-  try {
-    Object.entries(error).forEach(([key, value]) => {
-      form.setError(key, { message: value });
-    });
-
-    // focus the first error
-    form.setFocus(Object.keys(error)[0] as string);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export {
-  useFormField,
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-  FormField,
-  setSubmitErrors,
-};
+export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };

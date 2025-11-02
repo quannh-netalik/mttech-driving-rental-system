@@ -1,7 +1,11 @@
+'use client';
+
 import { FC } from 'react';
+import { useTheme } from 'next-themes';
+import { useMounted } from '@workspace/ui/hooks/use-mounted';
 
 interface LogoMTTechProps {
-  theme: 'light' | 'dark';
+  size?: number | string;
 }
 
 const colors = {
@@ -15,15 +19,24 @@ const colors = {
   },
 } as const;
 
-const LogoMTTech: FC<LogoMTTechProps> = ({ theme }) => {
-  const { primary, secondary } = colors[theme];
+type Theme = keyof typeof colors;
+
+const LogoMTTech: FC<LogoMTTechProps> = ({ size = '100%' }) => {
+  const { theme = 'light' } = useTheme();
+
+  const mounted = useMounted();
+  if (!mounted) {
+    return;
+  }
+
+  const { primary, secondary } = colors[theme as Theme];
 
   return (
     <svg
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
-      width="100%"
-      height="100%"
+      width={size}
+      height={size}
       viewBox="0 0 1024 1024"
       role="img"
       aria-label="Miền Trung Tech Logo - Dịch vụ thuê xe tập lái trực tuyến"

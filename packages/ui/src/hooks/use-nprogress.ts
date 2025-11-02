@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import { useEffect } from 'react';
 import NProgressJs from 'nprogress';
 
 NProgressJs.configure({
@@ -8,8 +10,8 @@ NProgressJs.configure({
     '<div class="bar bg-primary-foreground! h-[3px]!" role="bar"><div class="peg"></div></div><div class="spinner" role="spinner"><div class="spinner-icon"></div></div>',
 });
 
-function useNProgress({ isFetching }: { isFetching: boolean }) {
-  React.useEffect(() => {
+export const useNProgress = ({ isFetching }: { isFetching: boolean }) => {
+  useEffect(() => {
     setTimeout(() => {
       if (isFetching) {
         NProgressJs.start();
@@ -22,6 +24,4 @@ function useNProgress({ isFetching }: { isFetching: boolean }) {
       NProgressJs.done();
     };
   }, [isFetching]);
-}
-
-export { useNProgress };
+};
