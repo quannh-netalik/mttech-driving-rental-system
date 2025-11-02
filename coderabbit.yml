@@ -1,0 +1,282 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: 'en-US'
+early_access: false
+enable_free_tier: true
+
+reviews:
+  profile: 'chill'
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: '@coderabbitai summary'
+  auto_title_instructions: 'Provide a concise, high-level summary of the changes. Focus on the core purpose of the pull request and identify any significant architectural changes, potential risks, or key improvements.'
+  auto_title_placeholder: '@coderabbitai'
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  sequence_diagrams: true
+
+  auto_apply_labels: true
+
+  # Path filters - exclude unnecessary files
+  path_filters:
+    - '!**/*.lock'
+    - '!**/*.md'
+    - '!**/dist/**'
+    - '!**/build/**'
+    - '!**/.next/**'
+    - '!**/node_modules/**'
+    - '!**/*.config.js'
+    - '!**/*.config.ts'
+    - '!**/coverage/**'
+    - '!**/.turbo/**'
+
+  # Path-specific review instructions
+  path_instructions:
+    # Next.js Frontend (App Router & Pages)
+    - path: 'apps/**/app/**/*.{ts,tsx}'
+      instructions: |
+        Review Next.js App Router code with focus on:
+        - Proper Server/Client Component distinction (minimize 'use client' usage)
+        - Correct usage of async Server Components for data fetching
+        - Proper metadata API usage for SEO
+        - Loading.tsx and Error.tsx boundary implementations
+        - Streaming and Suspense patterns
+        - Route segment config (dynamic, revalidate, etc.)
+        - Type-safe usage of searchParams and params
+
+    - path: 'apps/**/components/**/*.{ts,tsx}'
+      instructions: |
+        Review React/Next.js components for:
+        - Proper TypeScript prop typing (avoid 'any', use interfaces)
+        - Component composition and reusability
+        - Performance: proper memoization (memo, useMemo, useCallback) when needed
+        - Accessibility: ARIA labels, semantic HTML, keyboard navigation
+        - Tailwind best practices: use @apply sparingly, prefer utility classes
+        - shadcn/ui integration: proper component imports and customization
+        - Client state management efficiency (minimize useState/useEffect)
+        - Proper error boundaries and loading states
+
+    - path: 'apps/**/actions/**/*.ts'
+      instructions: |
+        Review Next.js Server Actions for:
+        - Proper 'use server' directive placement
+        - Input validation using Zod or similar
+        - Error handling with try-catch and proper error responses
+        - Type-safe return values
+        - Security: authentication/authorization checks
+        - Database transaction handling
+        - Revalidation strategies (revalidatePath, revalidateTag)
+
+    # NestJS Backend
+    - path: 'apps/api/**/*.controller.ts'
+      instructions: |
+        Review NestJS Controllers for:
+        - RESTful API design principles
+        - Proper HTTP method decorators (@Get, @Post, @Put, @Delete)
+        - DTO validation with class-validator decorators
+        - Proper use of @Body, @Param, @Query decorators with types
+        - Guard usage for authentication/authorization
+        - Swagger/OpenAPI documentation decorators
+        - Exception handling with built-in HTTP exceptions
+        - Proper status code responses
+
+    - path: 'apps/api/**/*.service.ts'
+      instructions: |
+        Review NestJS Services for:
+        - SOLID principles adherence
+        - Proper dependency injection patterns
+        - Business logic separation from controllers
+        - Error handling with custom exceptions
+        - Transaction management for database operations
+        - Logging best practices
+        - Testability: avoid tight coupling
+        - Type safety in method signatures and returns
+
+    - path: 'apps/api/**/*.entity.ts'
+      instructions: |
+        Review TypeORM Entities for:
+        - Proper entity decorators (@Entity, @Column, @PrimaryGeneratedColumn)
+        - Relationship definitions (@OneToMany, @ManyToOne, etc.)
+        - Avoid eager loading by default (use explicit relations in queries)
+        - Index definitions for query optimization (@Index)
+        - Column types matching database schema
+        - Proper use of nullable, default values
+        - Avoid circular dependencies in imports
+        - Entity naming conventions (PascalCase)
+
+    - path: 'apps/api/**/*.repository.ts'
+      instructions: |
+        Review TypeORM Repository patterns for:
+        - Custom repository implementation when needed
+        - Query builder usage for complex queries
+        - Proper transaction handling
+        - Explicit relation loading (avoid N+1 queries)
+        - Error handling for database operations
+        - Method naming clarity (findOneOrFail vs find)
+        - Performance: use select() to limit returned fields
+        - Pagination implementation
+
+    - path: 'apps/api/**/*.dto.ts'
+      instructions: |
+        Review DTOs for:
+        - class-validator decorators for validation
+        - class-transformer decorators for serialization
+        - Separation of Create/Update/Response DTOs
+        - Proper TypeScript typing (no 'any')
+        - Swagger decorators for API documentation
+        - Immutability considerations (readonly properties)
+
+    - path: 'apps/api/**/*.module.ts'
+      instructions: |
+        Review NestJS Modules for:
+        - Proper module organization and encapsulation
+        - Correct imports/exports declarations
+        - Provider registration patterns
+        - Avoid circular dependencies between modules
+        - Global vs Feature module considerations
+        - ConfigModule integration for environment variables
+
+    - path: 'apps/api/**/*.guard.ts'
+      instructions: |
+        Review Guards for:
+        - Proper CanActivate interface implementation
+        - JWT/Session validation logic
+        - Role-based authorization implementation
+        - Error handling with UnauthorizedException
+        - Request context access patterns
+
+    - path: 'apps/api/**/*.middleware.ts'
+      instructions: |
+        Review Middleware for:
+        - Proper NestMiddleware interface implementation
+        - Request/Response manipulation patterns
+        - Next function invocation
+        - Error handling
+        - Logging and monitoring
+
+    # Shared Packages (Turborepo)
+    - path: 'packages/**/*.{ts,tsx}'
+      instructions: |
+        Review shared package code for:
+        - Clear package boundaries and exports
+        - Type-safe public API surface
+        - Minimal dependencies (avoid unnecessary package bloat)
+        - Documentation for public APIs
+        - Versioning considerations
+        - Tree-shaking friendly exports
+        - No environment-specific code (should work in all apps)
+
+    - path: 'packages/ui/**/*.{ts,tsx}'
+      instructions: |
+        Review shared UI components for:
+        - Framework-agnostic design when possible
+        - Proper TypeScript generics for flexibility
+        - Accessibility built-in (ARIA, keyboard support)
+        - Consistent styling patterns
+        - Storybook documentation if available
+        - Proper prop typing with defaults
+
+    - path: 'packages/config/**/*.{ts,js}'
+      instructions: |
+        Review shared configuration for:
+        - Environment-agnostic setup
+        - Type-safe configuration exports
+        - ESLint/Prettier/TSConfig consistency
+        - Documentation of config options
+
+    # Database Migrations
+    - path: 'apps/api/migrations/**/*.ts'
+      instructions: |
+        Review database migrations for:
+        - Reversible operations (proper down() implementation)
+        - Data integrity during migration
+        - Index creation for performance
+        - Proper column types and constraints
+        - Foreign key relationships
+        - No data loss operations
+
+    # Tests
+    - path: '**/*.spec.ts'
+      instructions: |
+        Review unit tests for:
+        - Test coverage of critical paths
+        - Proper mocking of dependencies
+        - Clear test descriptions (describe/it blocks)
+        - Arrange-Act-Assert pattern
+        - Edge case coverage
+        - Test isolation (no shared state)
+
+    - path: '**/*.e2e-spec.ts'
+      instructions: |
+        Review E2E tests for:
+        - Complete user flow coverage
+        - Proper test data setup/teardown
+        - Database transaction rollback
+        - API endpoint testing
+        - Authentication flow testing
+        - Error scenario coverage
+
+  # Tools configuration
+  tools:
+    ruff:
+      enabled: false
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: false
+    github-checks:
+      enabled: true
+    languagetool:
+      enabled: false
+      enabled_only: false
+      level: 'default'
+    biome:
+      enabled: false
+    hadolint:
+      enabled: false
+    swiftlint:
+      enabled: false
+    phpstan:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    yamllint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    checkov:
+      enabled: false
+    detekt:
+      enabled: false
+    eslint:
+      enabled: true
+    semgrep:
+      enabled: true
+    rubocop:
+      enabled: false
+    buf:
+      enabled: false
+    regal:
+      enabled: false
+    actionlint:
+      enabled: true
+    pmd:
+      enabled: false
+
+# Custom review instructions
+tone_instructions: 'Expert fullstack reviewer for Next.js v16, NestJS, TypeORM, PostgreSQL, Turborepo. Focus: strict TypeScript typing, Server Components, proper DTOs/validation, avoid N+1 queries, security (auth/input validation), performance, and testing.'
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: 'global'
+  issues:
+    scope: 'global'
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - './coderabbit-instruction.md'
