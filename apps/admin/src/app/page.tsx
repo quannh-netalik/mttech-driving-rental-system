@@ -8,20 +8,8 @@ import LogoMTTech from '@workspace/ui/components/LogoMTTech';
 
 import { useTheme } from 'next-themes';
 
-const colors = {
-  [Theme.DARK]: {
-    primary: '#FFFFFF',
-    secondary: '#E32324',
-  },
-  [Theme.LIGHT]: {
-    primary: '#1C1C1C',
-    secondary: '#E32324',
-  },
-} as const;
-
 export default function Page() {
   const { theme } = useTheme();
-  const { primary, secondary } = colors[(theme as Theme) || Theme.LIGHT]!;
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -46,7 +34,7 @@ export default function Page() {
           Welcome
         </Button>
 
-        <LogoMTTech primary={primary} secondary={secondary} />
+        <LogoMTTech theme={theme as Theme} />
       </div>
     </div>
   );
