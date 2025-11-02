@@ -1,16 +1,11 @@
 'use client';
 
-import { Button } from '@workspace/ui/components/Button';
-import { toast } from '@workspace/ui/components/Sonner';
-import { Theme, ThemeSwitcher } from '@/shared/components/ThemeSwitcher';
-
-import LogoMTTech from '@workspace/ui/components/LogoMTTech';
-
-import { useTheme } from 'next-themes';
+import { ThemeSwitcher } from '@/shared/components/ThemeSwitcher';
+import { toast } from '@workspace/ui/components/sonner';
+import { Button } from '@workspace/ui/components/button';
+import LogoMTTech from '@workspace/ui/components/logo-mt-tech';
 
 export default function Page() {
-  const { theme } = useTheme();
-
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center max-w-2xl mx-auto px-4">
@@ -24,8 +19,8 @@ export default function Page() {
           size="lg"
           className="mt-6"
           onClick={() =>
-            toast.success({
-              title: 'Welcome to Next.js',
+            toast('Welcome to Next.js', {
+              position: 'top-right',
               description:
                 'You have successfully launched the starter project. Explore and start building your next great idea!',
             })
@@ -34,7 +29,7 @@ export default function Page() {
           Welcome
         </Button>
 
-        <LogoMTTech theme={theme as Theme} />
+        <LogoMTTech />
       </div>
     </div>
   );

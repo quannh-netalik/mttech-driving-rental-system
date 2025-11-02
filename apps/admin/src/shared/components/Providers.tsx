@@ -4,7 +4,7 @@ import React from 'react';
 import { ThemeProvider } from 'next-themes';
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { BsProvider } from '@workspace/ui/components/Provider';
+import { MTTechProvider } from '@workspace/ui/providers/mt-tech.provider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,13 +28,13 @@ const queryClient = new QueryClient({
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <BsProvider>
-      <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange enableColorScheme>
+    <MTTechProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange enableColorScheme>
         <QueryClientProvider client={queryClient}>
           {children}
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </ThemeProvider>
-    </BsProvider>
+    </MTTechProvider>
   );
 }
