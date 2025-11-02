@@ -10,12 +10,12 @@ prepare-commit-msg:
   commands:
     commitzen:
       interactive: true
-      run: yarn run cz --hook # Or npx cz --hook
+      run: pnpm run cz --hook # Or npx cz --hook
       env:
-        LEFTHOOK: "0"
+        LEFTHOOK: '0'
 
 # Validate commit messages
 commit-msg:
   commands:
     'lint commit message':
-      run: yarn run commitlint --edit {1}
+      run: npx --no-install commitlint --edit "$1"
