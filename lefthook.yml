@@ -4,3 +4,18 @@ pre-commit:
       glob: '*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}'
       run: npx prettier --write {staged_files}
       stage_fixed: true
+
+# Build commit messages
+prepare-commit-msg:
+  commands:
+    commitzen:
+      interactive: true
+      run: yarn run cz --hook # Or npx cz --hook
+      env:
+        LEFTHOOK: "0"
+
+# Validate commit messages
+commit-msg:
+  commands:
+    'lint commit message':
+      run: yarn run commitlint --edit {1}
