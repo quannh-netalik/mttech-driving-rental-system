@@ -1,285 +1,162 @@
 'use client';
 
-import { CheckIcon, ChevronDownIcon, XIcon } from 'lucide-react';
-import React from 'react';
-import type { ListBoxItemProps } from 'react-aria-components';
-import {
-  Select,
-  SelectProps,
-  Autocomplete,
-  ListBox,
-  ListBoxItem,
-  SelectValue,
-  useFilter,
-  SelectStateContext,
-  ListLayout,
-  Virtualizer,
-} from 'react-aria-components';
+import * as React from 'react';
+import * as SelectPrimitive from '@radix-ui/react-select';
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+
 import { cn } from '@workspace/ui/lib/utils';
-import { Button } from '@workspace/ui/components/Button';
-import { Popover } from '@workspace/ui/components/Popover';
-import { BsSearchField } from '@workspace/ui/components/Searchfield';
-import { Badge } from '@workspace/ui/components/Badge';
 
-interface BsSelectOption {
-  id: string | number;
-  name: string;
+function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {
+  return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
-interface BsSelectProps<T extends BsSelectOption, M extends 'single' | 'multiple'>
-  extends Omit<SelectProps<T, M>, 'children'> {
-  /**
-   * The array of options to display in the select dropdown.
-   */
-  options?: Iterable<T>;
-
-  /**
-   * If true, enables a search field for filtering options.
-   */
-  isSearchable?: boolean;
-
-  /**
-   * Custom render function for the selected value display.
-   */
-  renderValue?: (value: T) => React.ReactNode;
-
-  /**
-   * Custom render function for each option in the dropdown.
-   */
-  renderOption?: (item: T) => React.ReactNode;
-
-  /**
-   * The maximum number of badges to display. To show all badges, set to Infinity.
-   */
-  maxVisibleBadges?: number;
-
-  /**
-   * If true, the clear button will be shown.
-   */
-  isClearable?: boolean;
-
-  /**
-   * The class name of the select.
-   */
-  className?: string;
-
-  /**
-   * The class name of the popover.
-   */
-  popoverClassName?: string;
-
-  /**
-   * The message to display when there are no options found.
-   */
-  emptyMessage?: string;
+function SelectGroup({ ...props }: React.ComponentProps<typeof SelectPrimitive.Group>) {
+  return <SelectPrimitive.Group data-slot="select-group" {...props} />;
 }
 
-export function BsSelect<T extends BsSelectOption, M extends 'single' | 'multiple' = 'single'>({
-  options,
-  renderOption,
-  renderValue,
-  isClearable,
-  maxVisibleBadges = 2,
-  placeholder = 'Select',
-  isSearchable = false,
-  popoverClassName,
+function SelectValue({ ...props }: React.ComponentProps<typeof SelectPrimitive.Value>) {
+  return <SelectPrimitive.Value data-slot="select-value" {...props} />;
+}
+
+function SelectTrigger({
   className,
-  emptyMessage = 'No results found',
+  size = 'default',
+  children,
   ...props
-}: BsSelectProps<T, M>) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const selectionMode = props.selectionMode ?? 'single';
-
+}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
+  size?: 'sm' | 'default';
+}) {
   return (
-    <Select<T, M>
-      isOpen={isOpen}
-      onOpenChange={isOpen => {
-        if (!isOpen) {
-          setIsOpen(false);
-        }
-      }}
-      aria-label="Select"
-      isInvalid={(props as any)['aria-invalid']}
-      className={cn('group w-full relative', className)}
+    <SelectPrimitive.Trigger
+      data-slot="select-trigger"
+      data-size={size}
+      className={cn(
+        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        className,
+      )}
       {...props}
     >
-      <Button
-        variant="outline"
+      {children}
+      <SelectPrimitive.Icon asChild>
+        <ChevronDownIcon className="size-4 opacity-50" />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+  );
+}
+
+function SelectContent({
+  className,
+  children,
+  position = 'popper',
+  align = 'center',
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  return (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Content
+        data-slot="select-content"
         className={cn(
-          'justify-between w-full pr-2 h-auto py-[5px] min-h-8 font-normal text-start',
-          'group-data-[invalid]:border-destructive group-data-[disabled]:opacity-80',
-          'hover:bg-background-secondary',
+          'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md',
+          position === 'popper' &&
+            'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
+          className,
         )}
-        onClick={() => setIsOpen(!isOpen)}
+        position={position}
+        align={align}
+        {...props}
       >
-        <SelectValue<T> className="truncate">
-          {({ isPlaceholder, selectedItems }) => {
-            if (isPlaceholder) {
-              // If placeholder is not set, return an empty div
-              if (!placeholder) {
-                return (
-                  <div className="opacity-0" aria-hidden="true">
-                    &nbsp;
-                  </div>
-                );
-              }
-
-              return <div className="text-muted-foreground">{placeholder}</div>;
-            }
-
-            if (selectionMode === 'single') {
-              const selectedItem = selectedItems[0];
-
-              if (!selectedItem) return null;
-
-              return renderValue ? renderValue(selectedItem) : selectedItem?.name;
-            }
-
-            if (selectionMode === 'multiple') {
-              return (
-                <div className="flex-1 flex gap-1 flex-wrap">
-                  {selectedItems?.slice(0, maxVisibleBadges).map(item => {
-                    if (!item) return null;
-
-                    return (
-                      <Badge key={item.id} variant="secondary" className="pr-0.5 grid grid-cols-[1fr_16px]">
-                        <div className="truncate">{renderValue ? renderValue(item) : item.name}</div>
-                        <BadgeClearButton data={item} />
-                      </Badge>
-                    );
-                  })}
-
-                  {/* Remaining badges count */}
-                  {!!selectedItems?.length && selectedItems.length > maxVisibleBadges && (
-                    <Badge variant="secondary">
-                      <span>{`+${selectedItems?.length - maxVisibleBadges}`}</span>
-                    </Badge>
-                  )}
-                </div>
-              );
-            }
-          }}
-        </SelectValue>
-        <ChevronDownIcon className="w-4 h-4 text-muted-foreground" />
-      </Button>
-      {isClearable && <SelectClearButton />}
-      <Popover className={cn('!max-h-[350px] w-(--trigger-width) flex flex-col p-1.5 gap-1', popoverClassName)}>
-        <ItemsWrapper isSearchable={isSearchable}>
-          <Virtualizer
-            layout={ListLayout}
-            layoutOptions={{
-              estimatedRowHeight: 32,
-            }}
-          >
-            <ListBox
-              items={options}
-              className="outline-hidden overflow-auto flex-1 scroll-pb-1"
-              renderEmptyState={() => {
-                return (
-                  <div className="text-muted-foreground text-sm text-center h-8 flex items-center justify-center">
-                    {emptyMessage}
-                  </div>
-                );
-              }}
-            >
-              {item => <BsSelectItem renderOption={renderOption}>{item.name}</BsSelectItem>}
-            </ListBox>
-          </Virtualizer>
-        </ItemsWrapper>
-      </Popover>
-    </Select>
+        <SelectScrollUpButton />
+        <SelectPrimitive.Viewport
+          className={cn(
+            'p-1',
+            position === 'popper' &&
+              'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1',
+          )}
+        >
+          {children}
+        </SelectPrimitive.Viewport>
+        <SelectScrollDownButton />
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
   );
 }
 
-interface ItemsWrapperProps {
-  children: React.ReactNode;
-  isSearchable: boolean;
-}
-
-function ItemsWrapper({ children, isSearchable }: ItemsWrapperProps) {
-  const { contains } = useFilter({ sensitivity: 'base' });
-
-  return isSearchable ? (
-    <Autocomplete filter={contains}>
-      <BsSearchField autoFocus className="ring-0! border " /> {children}
-    </Autocomplete>
-  ) : (
-    children
-  );
-}
-
-function BsSelectItem<T extends BsSelectOption>(
-  props: ListBoxItemProps & {
-    children: string;
-    renderOption?: (item: T) => React.ReactNode;
-  },
-) {
+function SelectLabel({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Label>) {
   return (
-    <ListBoxItem
+    <SelectPrimitive.Label
+      data-slot="select-label"
+      className={cn('text-muted-foreground px-2 py-1.5 text-xs', className)}
       {...props}
-      textValue={props.children}
-      className={cn(
-        'cursor-pointer group flex items-center select-none gap-2 py-1.5 px-2 outline-hidden rounded-sm text-popover-foreground',
-        'data-[focus-visible]:bg-neutral-500/15 data-focused:bg-primary! data-focused:text-white!',
-      )}
-    >
-      {({ isSelected }) => (
-        <>
-          <div className="text-sm flex-1 font-normal group-selected:font-medium overflow-hidden">
-            <div className="truncate">{props.renderOption ? props.renderOption(props.value as T) : props.children}</div>
-          </div>
-          <div className="w-5 flex items-center justify-center text-primary-foreground group-data-focused:text-white">
-            {isSelected && <CheckIcon size={16} />}
-          </div>
-        </>
-      )}
-    </ListBoxItem>
+    />
   );
 }
 
-function SelectClearButton() {
-  const state = React.useContext(SelectStateContext);
-  const value = state?.value as string | Array<number | string>;
-
-  if (!value || value.length === 0) return null;
-
+function SelectItem({ className, children, ...props }: React.ComponentProps<typeof SelectPrimitive.Item>) {
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={e => {
-        e.stopPropagation();
-        state?.setValue(null);
-      }}
+    <SelectPrimitive.Item
+      data-slot="select-item"
       className={cn(
-        'size-6! flex items-center justify-center z-10 rounded bg-background-secondary text-muted-foreground hover:bg-background-tertiary',
-        'absolute right-1 top-1/2 -translate-y-1/2',
-        'transition-opacity opacity-0 group-hover:opacity-100',
+        "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        className,
       )}
+      {...props}
     >
-      <XIcon className="size-4" />
-    </div>
+      <span className="absolute right-2 flex size-3.5 items-center justify-center">
+        <SelectPrimitive.ItemIndicator>
+          <CheckIcon className="size-4" />
+        </SelectPrimitive.ItemIndicator>
+      </span>
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
   );
 }
 
-function BadgeClearButton({ data }: { data: BsSelectOption }) {
-  const state = React.useContext(SelectStateContext);
-  const value = state?.value as string | Array<number | string>;
-
-  if (!Array.isArray(value)) return null;
-
+function SelectSeparator({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Separator>) {
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      className="size-4! flex items-center justify-center z-10 rounded bg-transparent hover:bg-neutral-400/15"
-      onClick={e => {
-        e.stopPropagation();
-        const newKeys = value.filter(v => v !== data.id);
-        state?.setValue(newKeys);
-      }}
-    >
-      <XIcon className="size-2.5!" />
-    </div>
+    <SelectPrimitive.Separator
+      data-slot="select-separator"
+      className={cn('bg-border pointer-events-none -mx-1 my-1 h-px', className)}
+      {...props}
+    />
   );
 }
+
+function SelectScrollUpButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {
+  return (
+    <SelectPrimitive.ScrollUpButton
+      data-slot="select-scroll-up-button"
+      className={cn('flex cursor-default items-center justify-center py-1', className)}
+      {...props}
+    >
+      <ChevronUpIcon className="size-4" />
+    </SelectPrimitive.ScrollUpButton>
+  );
+}
+
+function SelectScrollDownButton({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>) {
+  return (
+    <SelectPrimitive.ScrollDownButton
+      data-slot="select-scroll-down-button"
+      className={cn('flex cursor-default items-center justify-center py-1', className)}
+      {...props}
+    >
+      <ChevronDownIcon className="size-4" />
+    </SelectPrimitive.ScrollDownButton>
+  );
+}
+
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+};

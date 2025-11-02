@@ -1,7 +1,7 @@
 'use client';
 
-import { useMounted } from '@/shared/hooks/useMounted';
-import { Button } from '@workspace/ui/components/Button';
+import { Button } from '@workspace/ui/components/button';
+import { useMounted } from '@workspace/ui/hooks/use-mounted';
 import { MoonStar, SunIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 

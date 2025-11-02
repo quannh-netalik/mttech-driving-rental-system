@@ -1,113 +1,100 @@
-'use client';
+import * as React from 'react';
+import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import React from 'react';
-import ReactPaginate from 'react-paginate';
 import { cn } from '@workspace/ui/lib/utils';
-import { BsSelect } from '@workspace/ui/components/Select';
-import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
+import { Button, buttonVariants } from '@workspace/ui/components/button';
 
-const baseClass =
-  'cursor-pointer select-none text-[13px] font-medium flex w-8 h-8 items-center justify-center rounded-sm hover:bg-background-secondary';
-
-interface PaginationProps {
-  /**
-   * The current page, starting from 1
-   */
-  value?: number;
-
-  /**
-   * The function to call when the page index changes
-   */
-  onChange?: (value: number) => void;
-
-  /**
-   * The total number of pages
-   */
-  pageCount: number;
-}
-
-function Pagination({ value: controlledValue, onChange: controlledOnChange, pageCount }: PaginationProps) {
-  const [uncontrolledValue, setUncontrolledValue] = React.useState<number | undefined>(controlledValue);
-
-  const value = controlledValue ?? uncontrolledValue;
-  const onChange = controlledOnChange ?? setUncontrolledValue;
-
-  const isMobile = useIsMobile();
-
+function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   return (
-    <ReactPaginate
-      forcePage={(value || 1) - 1}
-      onPageChange={data => onChange?.(data.selected + 1)}
-      pageCount={pageCount}
-      previousLabel={<ChevronLeft className="w-4 h-4" />}
-      nextLabel={<ChevronRight className="w-4 h-4" />}
-      pageRangeDisplayed={isMobile ? 0 : 2}
-      marginPagesDisplayed={isMobile ? 0 : 1}
-      containerClassName="flex items-center justify-center gap-1"
-      pageLinkClassName={baseClass}
-      activeLinkClassName={cn(baseClass, 'bg-background-secondary shadow-sm border  text-foreground')}
-      previousLinkClassName={baseClass}
-      nextLinkClassName={baseClass}
-      breakLinkClassName={baseClass}
-      disabledLinkClassName="opacity-50 cursor-not-allowed! hover:bg-transparent!"
-      breakLabel="..."
-      breakClassName="block"
+    <nav
+      role="navigation"
+      aria-label="pagination"
+      data-slot="pagination"
+      className={cn('mx-auto flex w-full justify-center', className)}
+      {...props}
     />
   );
 }
 
-interface PaginationPageSizeSelectorProps {
-  /**
-   * The currently selected value (controlled).
-   */
-  value?: number;
-
-  /**
-   * Callback fired when the value changes.
-   */
-  onChange?: (value: number) => void;
-
-  /**
-   * The default value (uncontrolled).
-   */
-  defaultValue?: number;
-
-  /**
-   * The list of selectable options.
-   */
-  options?: number[];
+function PaginationContent({ className, ...props }: React.ComponentProps<'ul'>) {
+  return <ul data-slot="pagination-content" className={cn('flex flex-row items-center gap-1', className)} {...props} />;
 }
 
-function PaginationPageSizeSelector({
-  value: controlledValue,
-  onChange: controlledOnChange,
-  defaultValue,
-  options = [5, 10, 20, 50, 100],
-}: PaginationPageSizeSelectorProps) {
-  const [uncontrolledValue, setUncontrolledValue] = React.useState<number | undefined>(defaultValue || options[0]);
+function PaginationItem({ ...props }: React.ComponentProps<'li'>) {
+  return <li data-slot="pagination-item" {...props} />;
+}
 
-  const value = controlledValue ?? uncontrolledValue;
-  const onChange = controlledOnChange ?? setUncontrolledValue;
+type PaginationLinkProps = {
+  isActive?: boolean;
+} & Pick<React.ComponentProps<typeof Button>, 'size'> &
+  React.ComponentProps<'a'>;
 
+function PaginationLink({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) {
   return (
-    <div className="flex items-center gap-2">
-      <BsSelect
-        value={value}
-        onChange={value => onChange?.(Number(value || 0))}
-        options={options.map(option => ({
-          id: option,
-          name: option.toString(),
-        }))}
-        placeholder=""
-        isClearable={false}
-        className="min-w-[66px]"
-        popoverClassName="w-[90px]"
-      />
-      <span className="text-xs text-muted-foreground whitespace-nowrap">Items per page</span>
-    </div>
+    <a
+      aria-current={isActive ? 'page' : undefined}
+      data-slot="pagination-link"
+      data-active={isActive}
+      className={cn(
+        buttonVariants({
+          variant: isActive ? 'outline' : 'ghost',
+          size,
+        }),
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
-export { Pagination, PaginationPageSizeSelector };
-export type { PaginationPageSizeSelectorProps, PaginationProps };
+function PaginationPrevious({ className, ...props }: React.ComponentProps<typeof PaginationLink>) {
+  return (
+    <PaginationLink
+      aria-label="Go to previous page"
+      size="default"
+      className={cn('gap-1 px-2.5 sm:pl-2.5', className)}
+      {...props}
+    >
+      <ChevronLeftIcon />
+      <span className="hidden sm:block">Previous</span>
+    </PaginationLink>
+  );
+}
+
+function PaginationNext({ className, ...props }: React.ComponentProps<typeof PaginationLink>) {
+  return (
+    <PaginationLink
+      aria-label="Go to next page"
+      size="default"
+      className={cn('gap-1 px-2.5 sm:pr-2.5', className)}
+      {...props}
+    >
+      <span className="hidden sm:block">Next</span>
+      <ChevronRightIcon />
+    </PaginationLink>
+  );
+}
+
+function PaginationEllipsis({ className, ...props }: React.ComponentProps<'span'>) {
+  return (
+    <span
+      aria-hidden
+      data-slot="pagination-ellipsis"
+      className={cn('flex size-9 items-center justify-center', className)}
+      {...props}
+    >
+      <MoreHorizontalIcon className="size-4" />
+      <span className="sr-only">More pages</span>
+    </span>
+  );
+}
+
+export {
+  Pagination,
+  PaginationContent,
+  PaginationLink,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+};
