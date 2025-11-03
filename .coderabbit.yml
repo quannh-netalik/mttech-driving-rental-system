@@ -8,13 +8,14 @@ reviews:
   profile: 'chill'
   request_changes_workflow: false
   high_level_summary: true
-  high_level_summary_placeholder: '@coderabbitai summary'
   auto_title_instructions: 'Provide a concise, high-level summary of the changes. Focus on the core purpose of the pull request and identify any significant architectural changes, potential risks, or key improvements.'
-  auto_title_placeholder: '@coderabbitai'
-  poem: false
+  poem: true
   review_status: true
-  collapse_walkthrough: true
+  collapse_walkthrough: false
   sequence_diagrams: true
+
+  auto_review:
+    enabled: true
 
   auto_apply_labels: true
 
