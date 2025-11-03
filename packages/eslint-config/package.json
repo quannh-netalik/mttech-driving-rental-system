@@ -6,11 +6,13 @@
   "exports": {
     "./base": "./base.js",
     "./next-js": "./next.js",
+    "./nest-js": "./nest.js",
     "./react-internal": "./react-internal.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@next/eslint-plugin-next": "^15.4.5",
+    "@types/eslint-config-prettier": "^6.11.3",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@typescript-eslint/parser": "^8.39.0",
     "eslint": "^9.35.0",
