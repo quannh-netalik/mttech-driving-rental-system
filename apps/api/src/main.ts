@@ -3,14 +3,22 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import compression from 'compression';
 import helmet from 'helmet';
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 
 import { AppModule } from './app/app.module';
 import { LoggingModule } from './modules/logging';
 import appConfig, { AppConfigOptions } from './app/app.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
+
+  // register global logger
+  const logger = LoggingModule.useLogger(app);
+
+  // get listen port
+  const { env, port } = app.get<AppConfigOptions>(appConfig.KEY);
 
   app.enableShutdownHooks();
 
@@ -22,13 +30,10 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   app.disable('x-powered-by');
-  app.enableCors();
-
-  // register global logger
-  const logger = LoggingModule.useLogger(app);
-
-  // get listen port
-  const { env, port } = app.get<AppConfigOptions>(appConfig.KEY);
+  app.enableCors({
+    origin: [],
+    credentials: true,
+  });
 
   process.on('unhandledRejection', (reason) => {
     logger.error(`Unhandled Rejection: ${inspect(reason)}`);
