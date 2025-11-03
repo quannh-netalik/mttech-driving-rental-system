@@ -2,7 +2,7 @@ import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
-import path from 'path';
+import { baseConfig } from './base.js';
 
 /**
  * ESLint configuration for NestJS backend
@@ -19,11 +19,9 @@ export const nestJsConfig = [
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: path.join(process.cwd(), 'tsconfig.json'),
-        tsconfigRootDir: process.cwd(),
+        projectService: true,
         sourceType: 'module',
         ecmaVersion: 'latest',
-        EXPERIMENTAL_useProjectService: true,
       },
       globals: {
         ...globals.node,
@@ -47,7 +45,5 @@ export const nestJsConfig = [
         },
       ],
     },
-
-    ignores: ['dist/**', '.eslintrc.js'],
   },
 ];
