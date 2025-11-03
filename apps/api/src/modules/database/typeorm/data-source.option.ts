@@ -11,9 +11,9 @@ export const AppDataSource: DataSourceOptions = {
   password: process.env.DB_PASS,
   synchronize: false, // disable when production
   logging: ['schema', 'info', 'warn'],
-  entities: ['dist/**/*.entity.{js,ts}'],
   namingStrategy: new SnakeNamingStrategy(),
-  migrations: [join(__dirname, 'migrations/*.{ts,js}')],
+  entities: [join(__dirname, '../../../../dist/**/*.entity.js')],
+  migrations: [join(__dirname, '../migrations/*.js')],
   extra: {
     idleTimeoutMillis: 1000, // close idle clients after 1 second
     maxUses: 7500, // close (and replace) a connection after it has been used 7500 times (see below for discussion)
