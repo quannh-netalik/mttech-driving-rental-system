@@ -1,6 +1,8 @@
 import type { DataSourceOptions } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { join } from 'node:path';
+
+import { createRedisOptions } from '@/modules/redis';
 import { ConfigGetter, EnvConfigGetter } from './data-source.util';
 
 export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions {
@@ -17,9 +19,16 @@ export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions
     entities: [join(__dirname, '../../..', '/**/*.entity.js')],
     migrations: [join(__dirname, '..', 'migrations/*.js')],
     extra: {
-      idleTimeoutMillis: 30000,
+      idleTimeoutMillis: 1000,
       maxUses: 7500,
-      connectionTimeoutMillis: 2000,
+      connectionTimeoutMillis: 1000,
+    },
+    cache: {
+      duration: +(process.env.TYPEORM_CACHE_DURATION || 60000), // 1 minute,
+      alwaysEnabled: false,
+      ignoreErrors: true,
+      type: 'ioredis',
+      options: createRedisOptions(),
     },
   };
 }
