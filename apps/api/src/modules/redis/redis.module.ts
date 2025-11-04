@@ -1,19 +1,21 @@
 import { Global, Module } from '@nestjs/common';
-import { RedisModule as NestRedisIOModule } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 
 import { RedisService } from './redis.service';
-import { createRedisOptions } from './redis.util';
 import { RedisFactory } from './redis.factory';
 
 @Global()
 @Module({
-  imports: [
-    NestRedisIOModule.forRoot({
-      type: 'single',
-      options: createRedisOptions(),
-    }),
+  imports: [],
+  providers: [
+    RedisFactory,
+    {
+      provide: Redis,
+      useFactory: (redisFactory: RedisFactory) => redisFactory.getClient(),
+      inject: [RedisFactory],
+    },
+    RedisService,
   ],
-  providers: [RedisService, RedisFactory],
   exports: [RedisService],
 })
 export class RedisModule {}
