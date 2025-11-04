@@ -1,6 +1,8 @@
 import { Provider } from '@nestjs/common';
 import { TypeOrmHealthIndicator } from '@nestjs/terminus';
 
+import { RedisHealthIndicator } from './indicators';
+
 const timeout = 5000;
 
 export const DatabaseHealthCheckProvider: Provider = {
@@ -11,4 +13,14 @@ export const DatabaseHealthCheckProvider: Provider = {
   },
 
   inject: [TypeOrmHealthIndicator],
+};
+
+export const RedisHealthCheckProvider: Provider = {
+  provide: Symbol.for('Health.Redis'),
+
+  useFactory: (redis: RedisHealthIndicator) => {
+    return () => redis.isHealthy('redis', { timeout });
+  },
+
+  inject: [RedisHealthIndicator],
 };

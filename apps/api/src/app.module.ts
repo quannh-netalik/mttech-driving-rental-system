@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { LoggingModule } from '@/modules/logging';
 import { RedisModule } from '@/modules/redis';
 import { DatabaseModule } from '@/modules/database';
-import { DatabaseHealthCheckProvider, HealthModule } from '@/modules/health';
+import { DatabaseHealthCheckProvider, HealthModule, RedisHealthCheckProvider } from '@/modules/health';
 import * as configs from './config';
 
 @Module({
@@ -39,7 +39,7 @@ import * as configs from './config';
     }),
     RedisModule,
     DatabaseModule,
-    HealthModule.forRoot([DatabaseHealthCheckProvider]),
+    HealthModule.forRoot([DatabaseHealthCheckProvider, RedisHealthCheckProvider]),
   ],
   controllers: [],
   providers: [],

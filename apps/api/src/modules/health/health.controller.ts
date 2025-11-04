@@ -1,9 +1,6 @@
 import { Controller, Get, Inject } from '@nestjs/common';
-import {
-  HealthCheck,
-  HealthCheckService,
-  HealthIndicatorFunction,
-} from '@nestjs/terminus';
+import { HealthCheck, HealthCheckService, HealthIndicatorFunction } from '@nestjs/terminus';
+
 import { HEALTH_CHECKS } from './health.constant';
 
 @Controller('health')
