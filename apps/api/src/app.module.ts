@@ -5,18 +5,17 @@ import { Request, Response } from 'express';
 import { LoggingModule } from '@/modules/logging';
 import { DatabaseHealthCheckProvider, HealthModule } from '@/modules/health';
 import { DatabaseModule } from '@/modules/database';
-
-import appConfig from './app.config';
-import { APP_NAME } from './app.constant';
+import * as configs from './config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig],
+      cache: true,
+      isGlobal: true,
+      load: [...Object.values(configs)],
     }),
     LoggingModule.forPino({
       pinoHttp: {
-        name: APP_NAME,
         autoLogging: true,
         transport: { target: 'pino-pretty' },
         serializers: {
