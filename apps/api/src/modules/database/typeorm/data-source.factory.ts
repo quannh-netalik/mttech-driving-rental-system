@@ -3,9 +3,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { join } from 'node:path';
 import { ConfigGetter, EnvConfigGetter } from './data-source.util';
 
-export function createDataSourceOptions(
-  config: ConfigGetter,
-): DataSourceOptions {
+export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions {
   return {
     type: 'postgres',
     host: config.getOrThrow<string>('DB_HOST'),
@@ -19,9 +17,9 @@ export function createDataSourceOptions(
     entities: [join(__dirname, '../../..', '/**/*.entity.js')],
     migrations: [join(__dirname, '..', 'migrations/*.js')],
     extra: {
-      idleTimeoutMillis: 1000,
+      idleTimeoutMillis: 30000,
       maxUses: 7500,
-      connectionTimeoutMillis: 1000,
+      connectionTimeoutMillis: 2000,
     },
   };
 }
