@@ -2,6 +2,7 @@ import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { TerminusModule } from '@nestjs/terminus';
 import { HEALTH_CHECKS } from './health.constant';
 import { HealthController } from './health.controller';
+import { extractProviderToken } from './health.util';
 
 @Module({
   imports: [TerminusModule.forRoot({ errorLogStyle: 'pretty' })],
@@ -17,7 +18,7 @@ export class HealthModule {
         {
           provide: HEALTH_CHECKS,
           useFactory: (...checks) => checks,
-          inject: [...providers.map((p: any) => p.provide || p)],
+          inject: providers.map(extractProviderToken),
         },
       ],
     };
