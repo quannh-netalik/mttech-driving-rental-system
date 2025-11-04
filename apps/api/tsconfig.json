@@ -4,7 +4,12 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["src/*"]
+    },
+    "plugins": [
+      {
+        "name": "nest"
+      }
+    ]
   }
 }

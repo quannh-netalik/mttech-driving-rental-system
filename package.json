@@ -19,11 +19,11 @@
     "@workspace/typescript-config": "workspace:*",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
-    "lefthook": "^1.11.8",
+    "lefthook": "^2.0.2",
     "prettier": "^3.6.2",
     "tsx": "^4.20.6",
-    "turbo": "^2.5.5",
-    "typescript": "^5.9.2"
+    "turbo": "^2.6.0",
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@10.20.0",
   "engines": {

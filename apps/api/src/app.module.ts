@@ -1,22 +1,25 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { Request, Response } from 'express';
 
-import appConfig from './app.config';
-import { APP_NAME } from './app.constant';
-import { LoggingModule } from '../modules/logging';
+import { LoggingModule } from '@/modules/logging';
+import { DatabaseHealthCheckProvider, HealthModule } from '@/modules/health';
+import { DatabaseModule } from '@/modules/database';
+import * as configs from './config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig],
+      cache: true,
+      isGlobal: true,
+      load: Object.values(configs),
     }),
     LoggingModule.forPino({
       pinoHttp: {
-        name: APP_NAME,
         autoLogging: true,
         transport: { target: 'pino-pretty' },
         serializers: {
-          req: (req) => ({
+          req: (req: Request) => ({
             id: req.id,
             method: req.method,
             url: req.url,
@@ -24,13 +27,15 @@ import { LoggingModule } from '../modules/logging';
             params: req.params,
             ['user-agent']: req.headers?.['user-agent'],
           }),
-          res: (res) => ({
+          res: (res: Response) => ({
             statusCode: res.statusCode,
           }),
         },
       },
       exclude: ['/metrics', '/health'],
     }),
+    DatabaseModule,
+    HealthModule.forRoot([DatabaseHealthCheckProvider]),
   ],
   controllers: [],
   providers: [],
