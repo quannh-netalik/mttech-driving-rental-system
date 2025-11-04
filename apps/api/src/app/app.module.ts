@@ -1,14 +1,18 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { Request, Response } from 'express';
+
+import { LoggingModule } from '@/modules/logging';
+import { DatabaseModule } from '@/modules/database';
 
 import appConfig from './app.config';
 import { APP_NAME } from './app.constant';
-import { LoggingModule } from '../modules/logging';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [appConfig],
+      envFilePath: ['.env', '.env.local'],
     }),
     LoggingModule.forPino({
       pinoHttp: {
@@ -16,7 +20,7 @@ import { LoggingModule } from '../modules/logging';
         autoLogging: true,
         transport: { target: 'pino-pretty' },
         serializers: {
-          req: (req) => ({
+          req: (req: Request) => ({
             id: req.id,
             method: req.method,
             url: req.url,
@@ -24,13 +28,14 @@ import { LoggingModule } from '../modules/logging';
             params: req.params,
             ['user-agent']: req.headers?.['user-agent'],
           }),
-          res: (res) => ({
+          res: (res: Response) => ({
             statusCode: res.statusCode,
           }),
         },
       },
       exclude: ['/metrics', '/health'],
     }),
+    DatabaseModule,
   ],
   controllers: [],
   providers: [],

@@ -1,3 +1,5 @@
+import './env';
+
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
