@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Request, Response } from 'express';
 
 import { LoggingModule } from '@/modules/logging';
+import { DatabaseHealthCheckProvider, HealthModule } from '@/modules/health';
 import { DatabaseModule } from '@/modules/database';
 
 import appConfig from './app.config';
@@ -36,6 +37,7 @@ import { APP_NAME } from './app.constant';
       exclude: ['/metrics', '/health'],
     }),
     DatabaseModule,
+    HealthModule.forRoot([DatabaseHealthCheckProvider]),
   ],
   controllers: [],
   providers: [],
