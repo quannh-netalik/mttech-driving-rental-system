@@ -12,7 +12,7 @@ import * as configs from './config';
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
-      load: [...Object.values(configs)],
+      load: Object.values(configs),
     }),
     LoggingModule.forPino({
       pinoHttp: {

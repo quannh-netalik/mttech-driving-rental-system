@@ -1,10 +1,10 @@
-import { NestAppConfigOptions } from '@/types';
+import { AppEnvironment, NestAppConfigOptions } from '@/types';
 import { registerAs } from '@nestjs/config';
 
 export const appConfig = registerAs('appConfig', (): NestAppConfigOptions => {
   return {
     // current environment mode
-    env: (process.env.NODE_ENV || 'development').toLowerCase(),
+    env: <AppEnvironment>(process.env.NODE_ENV || 'development').toLowerCase(),
 
     // default listen port
     port: +(process.env.API_PORT || 3030),
