@@ -13,7 +13,6 @@ import { APP_NAME } from './app.constant';
   imports: [
     ConfigModule.forRoot({
       load: [appConfig],
-      envFilePath: ['.env', '.env.local'],
     }),
     LoggingModule.forPino({
       pinoHttp: {
