@@ -30,9 +30,11 @@ export class RedisHealthIndicator {
 
       // Create the health check promise
       const healthCheckPromise = (async () => {
+        const redisKey = `health-check:${key}:${process.pid}`;
         const testValue = Date.now().toString();
-        await this.redisService.set('health-check', testValue);
-        const result = await this.redisService.get('health-check');
+        await this.redisService.set(redisKey, testValue, timeout);
+        const result = await this.redisService.get(redisKey);
+        await this.redisService.del(redisKey);
         return result === testValue;
       })();
 

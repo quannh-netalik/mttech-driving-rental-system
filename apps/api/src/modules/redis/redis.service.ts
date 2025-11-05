@@ -1,6 +1,5 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class RedisService {
@@ -21,7 +20,7 @@ export class RedisService {
   }
 
   public async del(key: string): Promise<boolean> {
-    await this.redis.del(key);
-    return true;
+    const removed = await this.redis.del(key);
+    return removed > 0;
   }
 }

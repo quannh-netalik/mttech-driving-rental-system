@@ -3,6 +3,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { join } from 'node:path';
 
 import { createRedisOptions } from '@/modules/redis';
+
 import { ConfigGetter, EnvConfigGetter } from './data-source.util';
 
 export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions {
