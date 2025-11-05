@@ -3,12 +3,19 @@ import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService {
-  constructor(@Inject(Redis) private readonly redis: Redis) {}
   private readonly logger = new Logger(RedisService.name);
 
+  constructor(@Inject(Redis) private readonly redis: Redis) {}
+
   public async ping(): Promise<boolean> {
-    const result = await this.redis.ping();
-    return result === 'PONG';
+    try {
+      const result = await this.redis.ping();
+      return result === 'PONG';
+    } catch (error) {
+      const stack = error instanceof Error ? error.stack : JSON.stringify(error);
+      this.logger.error('Redis ping operation failed', stack);
+      throw new InternalServerErrorException('Failed to ping Redis');
+    }
   }
 
   public async set<T>(key: string, value: T, ttl?: number): Promise<void> {
@@ -63,7 +70,13 @@ export class RedisService {
   }
 
   public async del(key: string): Promise<boolean> {
-    const removed = await this.redis.del(key);
-    return removed > 0;
+    try {
+      const removed = await this.redis.del(key);
+      return removed > 0;
+    } catch (error) {
+      const stack = error instanceof Error ? error.stack : JSON.stringify(error);
+      this.logger.error(`Redis del operation failed for key "${key}"`, stack);
+      throw new InternalServerErrorException(`Failed to delete data from cache`);
+    }
   }
 }

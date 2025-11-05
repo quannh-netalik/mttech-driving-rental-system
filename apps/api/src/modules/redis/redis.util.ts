@@ -11,6 +11,10 @@ export const createRedisOptions = (): RedisOptions => {
     throw new Error('Invalid REDIS_HOST: must be a non-empty string');
   }
 
+  if (process.env.NODE_ENV === 'production' && !process.env.REDIS_PASSWORD) {
+    throw new Error('REDIS_PASSWORD is required in production environment');
+  }
+
   const keyPrefix = 'mttech-v2-';
 
   // create Redis connection options

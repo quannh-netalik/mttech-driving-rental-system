@@ -24,18 +24,18 @@ export class RedisHealthIndicator {
       const testValue = Date.now();
 
       // Create a promise that resolves to true if Redis operations succeed
-      const healthCheckPromise = new Promise<boolean>(async (resolve, reject) => {
+      const healthCheckPromise = (async (): Promise<boolean> => {
         try {
           const redisKey = `health-check:${key}:${process.pid}:${Date.now()}`;
           // Set TTL longer than timeout to ensure auto-cleanup of orphaned keys
           await this.redisService.set(redisKey, testValue, timeout * 3);
           const result = await this.redisService.get<number>(redisKey);
           await this.redisService.del(redisKey);
-          resolve(result === testValue);
+          return result === testValue;
         } catch (error) {
-          reject(error);
+          throw error;
         }
-      });
+      })();
 
       // Create a timeout promise that rejects after the specified timeout
       const timeoutPromise = new Promise<boolean>((_, reject) => {
