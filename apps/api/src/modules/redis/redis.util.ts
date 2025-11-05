@@ -2,7 +2,7 @@ import { RedisOptions } from 'ioredis';
 
 export const createRedisOptions = (): RedisOptions => {
   const port = Number(process.env.REDIS_PORT || '6379');
-  if (isNaN(port) || port < 1 || port > 65535) {
+  if (Number.isNaN(port) || port < 1 || port > 65535) {
     throw new Error('Invalid REDIS_PORT: must be a number between 1 and 65535');
   }
 
@@ -11,14 +11,13 @@ export const createRedisOptions = (): RedisOptions => {
     throw new Error('Invalid REDIS_HOST: must be a non-empty string');
   }
 
-  const keyPrefix = 'mttech-v1-';
+  const keyPrefix = 'mttech-v2-';
 
   // create Redis connection options
   const opts: RedisOptions = {
     port,
     host,
     password: process.env.REDIS_PASSWORD,
-    lazyConnect: true,
     showFriendlyErrorStack: true,
     autoResubscribe: true,
     enableAutoPipelining: true,

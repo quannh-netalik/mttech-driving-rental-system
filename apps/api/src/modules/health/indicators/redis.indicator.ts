@@ -21,22 +21,28 @@ export class RedisHealthIndicator {
     const timeout = options.timeout ?? DEFAULT_TIMEOUT;
 
     try {
-      // Create a timeout promise
-      const timeoutPromise = new Promise<never>((_, reject) => {
+      const testValue = Date.now();
+
+      // Create a promise that resolves to true if Redis operations succeed
+      const healthCheckPromise = new Promise<boolean>(async (resolve, reject) => {
+        try {
+          const redisKey = `health-check:${key}:${process.pid}:${Date.now()}`;
+          // Set TTL longer than timeout to ensure auto-cleanup of orphaned keys
+          await this.redisService.set(redisKey, testValue, timeout * 3);
+          const result = await this.redisService.get<number>(redisKey);
+          await this.redisService.del(redisKey);
+          resolve(result === testValue);
+        } catch (error) {
+          reject(error);
+        }
+      });
+
+      // Create a timeout promise that rejects after the specified timeout
+      const timeoutPromise = new Promise<boolean>((_, reject) => {
         setTimeout(() => {
           reject(new Error(`Health check failed: timeout after ${timeout}ms`));
         }, timeout);
       });
-
-      // Create the health check promise
-      const healthCheckPromise = (async () => {
-        const redisKey = `health-check:${key}:${process.pid}`;
-        const testValue = Date.now().toString();
-        await this.redisService.set(redisKey, testValue, timeout);
-        const result = await this.redisService.get(redisKey);
-        await this.redisService.del(redisKey);
-        return result === testValue;
-      })();
 
       // Race between timeout and health check
       const isHealthy = await Promise.race([healthCheckPromise, timeoutPromise]);

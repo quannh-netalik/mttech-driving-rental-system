@@ -1,9 +1,9 @@
-import { Injectable, Logger, LoggerService, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, LoggerService, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import Redis, { RedisOptions } from 'ioredis';
 import { createRedisOptions } from './redis.util';
 
 @Injectable()
-export class RedisFactory implements OnModuleDestroy {
+export class RedisFactory implements OnModuleInit {
   private readonly logger: LoggerService = new Logger(Redis.name);
 
   private readonly clients: Set<Redis> = new Set();
@@ -15,9 +15,15 @@ export class RedisFactory implements OnModuleDestroy {
     this.redisClient = this.createRedisClient(options);
   }
 
-  async onModuleDestroy() {
-    for (const redis of this.clients) {
-      await redis.quit();
+  async onModuleInit(): Promise<void> {
+    this.logger.log('Initializing Redis connection...');
+    try {
+      // Test the connection
+      await this.redisClient.ping();
+      this.logger.log('Redis connection initialized successfully');
+    } catch (error) {
+      this.logger.error('Failed to initialize Redis connection', error);
+      throw error; // This will prevent the application from starting
     }
   }
 
@@ -34,21 +40,19 @@ export class RedisFactory implements OnModuleDestroy {
     // bind all events
     client
       .on('connect', () => {
-        this.logger.log(`Connecting to Redis at ${redisHost}`);
+        this.logger.log(`Connected to Redis at ${redisHost}`);
       })
       .on('ready', () => {
         this.logger.log('Redis instance is ready');
       })
       .on('close', () => {
-        this.logger.log('Redis connection closed');
+        this.logger.warn('Redis connection closed');
       })
       .on('error', err => {
-        this.logger.error(err.message || err.toString?.());
+        this.logger.error('Redis connection error:', err);
       });
 
-    // disconnect on module destroy
     this.clients.add(client);
-
     return client;
   }
 }

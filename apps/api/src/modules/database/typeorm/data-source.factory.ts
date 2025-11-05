@@ -20,9 +20,9 @@ export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions
     entities: [join(__dirname, '../../..', '/**/*.entity.js')],
     migrations: [join(__dirname, '..', 'migrations/*.js')],
     extra: {
-      idleTimeoutMillis: 1000,
+      idleTimeoutMillis: 30000,
       maxUses: 7500,
-      connectionTimeoutMillis: 1000,
+      connectionTimeoutMillis: 5000,
     },
     cache: {
       duration: +(process.env.TYPEORM_CACHE_DURATION || 60000), // 1 minute,
