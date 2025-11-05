@@ -33,7 +33,28 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
+  app.use(helmet());
+  app.use(compression());
+  app.disable('x-powered-by');
+  app.enableCors({
+    origin: [`http://localhost:${port}`, `http://127.0.0.1:${port}`],
+    credentials: true,
+  });
+
+  app.set('trust proxy', 1);
+
+  // OpenAPI
+  const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
+    operationIdFactory: (_: string, methodKey: string) => methodKey,
+  });
+  SwaggerModule.setup('docs', app, document, {
+    ui: false,
+  });
+
   app.use(
+    '/docs',
+    // Scalar requires custom config for CSP
+    // Apply only for Scalar Docs
     helmet({
       crossOriginEmbedderPolicy: false,
       contentSecurityPolicy: {
@@ -60,26 +81,6 @@ async function bootstrap() {
         },
       },
     }),
-  );
-  app.use(compression());
-  app.disable('x-powered-by');
-  app.enableCors({
-    origin: [`http://localhost:${port}`, `http://127.0.0.1:${port}`],
-    credentials: true,
-  });
-
-  app.set('trust proxy', 1);
-
-  // OpenAPI
-  const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
-    operationIdFactory: (_: string, methodKey: string) => methodKey,
-  });
-  SwaggerModule.setup('api', app, document, {
-    ui: false,
-  });
-
-  app.use(
-    '/api',
     apiReference({
       theme: 'kepler',
       _integration: 'nestjs',
@@ -102,7 +103,7 @@ async function bootstrap() {
 
   await app.listen(port, async () => {
     logger.log(`🚀 Admin API is running in ${env} stage at: ${host}`);
-    logger.log(`📚 API documentation is running at ${host}/api`);
+    logger.log(`📚 API documentation is running at ${host}/docs`);
   });
 }
 
