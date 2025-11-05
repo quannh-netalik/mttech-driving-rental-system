@@ -1,10 +1,12 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Request, Response } from 'express';
+import { join } from 'node:path';
 
 import { LoggingModule } from '@/modules/logging';
-import { DatabaseHealthCheckProvider, HealthModule } from '@/modules/health';
+import { RedisModule } from '@/modules/redis';
 import { DatabaseModule } from '@/modules/database';
+import { DatabaseHealthCheckProvider, HealthModule, RedisHealthCheckProvider } from '@/modules/health';
 import * as configs from './config';
 
 @Module({
@@ -13,6 +15,7 @@ import * as configs from './config';
       cache: true,
       isGlobal: true,
       load: Object.values(configs),
+      envFilePath: join(__dirname, '..', '.env'),
     }),
     LoggingModule.forPino({
       pinoHttp: {
@@ -34,8 +37,9 @@ import * as configs from './config';
       },
       exclude: ['/metrics', '/health'],
     }),
+    RedisModule,
     DatabaseModule,
-    HealthModule.forRoot([DatabaseHealthCheckProvider]),
+    HealthModule.forRoot([DatabaseHealthCheckProvider, RedisHealthCheckProvider]),
   ],
   controllers: [],
   providers: [],
