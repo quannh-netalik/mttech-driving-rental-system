@@ -31,29 +31,17 @@ export class RedisFactory implements OnModuleInit, OnModuleDestroy {
     this.logger.log('Force disconnecting Redis connections for hot reload...');
 
     // Use Promise.race to implement timeout for each disconnect
-    const disconnectWithTimeout = async (client: Redis) => {
+    const safeDisconnect = (client: Redis): void => {
       try {
-        await Promise.race([
-          new Promise<void>(resolve => {
-            client.disconnect(false);
-            resolve();
-          }),
-          new Promise<void>((_, reject) =>
-            setTimeout(() => reject(new Error('Disconnect timeout')), this.DISCONNECT_TIMEOUT),
-          ),
-        ]);
+        client.disconnect(false);
       } catch (error) {
-        this.logger.error('Failed to initialize Redis connection', error);
-        // If timeout occurs, we've already called disconnect so just log
-        this.logger.warn('Redis disconnect timed out, continuing...');
+        const stack = error instanceof Error ? error.stack : JSON.stringify(error);
+        this.logger.error('Failed to disconnect Redis connection', stack);
       }
     };
 
-    // Disconnect all clients with timeout
-    await Promise.all([...this.clients].map(disconnectWithTimeout));
-
-    // Clear the set immediately
-    this.clients.clear();
+    // Disconnect all clients
+    this.clients.forEach(safeDisconnect);
     this.logger.log('All Redis connections forcefully disconnected');
   }
 
