@@ -4,7 +4,7 @@ import { createRedisOptions } from './redis.util';
 
 @Injectable()
 export class RedisFactory implements OnModuleInit, OnModuleDestroy {
-  private readonly logger: LoggerService = new Logger(Redis.name);
+  private readonly logger: LoggerService = new Logger(RedisFactory.name);
   private readonly DISCONNECT_TIMEOUT = 100; // Very short timeout for hot reload
 
   private readonly clients: Set<Redis> = new Set();
@@ -42,7 +42,8 @@ export class RedisFactory implements OnModuleInit, OnModuleDestroy {
             setTimeout(() => reject(new Error('Disconnect timeout')), this.DISCONNECT_TIMEOUT),
           ),
         ]);
-      } catch (err) {
+      } catch (error) {
+        this.logger.error('Failed to initialize Redis connection', error);
         // If timeout occurs, we've already called disconnect so just log
         this.logger.warn('Redis disconnect timed out, continuing...');
       }
