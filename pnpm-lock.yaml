@@ -138,9 +138,6 @@ importers:
       '@nestjs/typeorm':
         specifier: ^11.0.0
         version: 11.0.0(@nestjs/common@11.1.8(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.27(ioredis@5.8.2)(pg@8.16.3)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3)))
-      '@scalar/nestjs-api-reference':
-        specifier: ^1.0.6
-        version: 1.0.6
       compression:
         specifier: ^1.8.1
         version: 1.8.1
@@ -190,6 +187,9 @@ importers:
       '@nestjs/testing':
         specifier: ^11.1.8
         version: 11.1.8(@nestjs/common@11.1.8(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.8)(@nestjs/platform-express@11.1.8)
+      '@scalar/nestjs-api-reference':
+        specifier: ^1.0.6
+        version: 1.0.6
       '@types/compression':
         specifier: ^1.8.1
         version: 1.8.1

@@ -1,15 +1,23 @@
 import { AppEnvironment, NestAppConfigOptions } from '@/types';
 import { registerAs } from '@nestjs/config';
 
-export const appConfig = registerAs('appConfig', (): NestAppConfigOptions => {
+export const appConfig = registerAs('appConfig', function (): NestAppConfigOptions {
+  // current environment mode
+  const env = <AppEnvironment>(process.env.NODE_ENV || 'development').toLowerCase();
+
+  // default listen port
+  const port = +(process.env.API_PORT || 3030);
+
+  const appHost = process.env.APP_HOST;
+  if (env === 'production' && !appHost) {
+    throw new Error('APP_HOST is required in production');
+  }
+
+  const host = env === 'production' ? process.env.APP_HOST! : `http://localhost:${port}`;
+
   return {
-    // current environment mode
-    env: <AppEnvironment>(process.env.NODE_ENV || 'development').toLowerCase(),
-
-    // default listen port
-    port: +(process.env.API_PORT || 3030),
-
-    // cors config
-    adminPublicUrl: process.env.ADMIN_PUBLIC_URL || 'http://localhost:3030',
+    env,
+    host,
+    port,
   };
 });

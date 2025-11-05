@@ -24,7 +24,7 @@ async function bootstrap() {
   const logger = LoggingModule.useLogger(app);
 
   // get listen port
-  const { env, port } = app.get<NestAppConfigOptions>(appConfig.KEY);
+  const { host, env, port } = app.get<NestAppConfigOptions>(appConfig.KEY);
 
   app.enableShutdownHooks();
 
@@ -47,13 +47,15 @@ async function bootstrap() {
             'fonts.googleapis.com',
             'fonts.scalar.com',
           ],
-          fontSrc: [
-            "'self'",
-            'fonts.gstatic.com',
-            'fonts.scalar.com', // ✅ add this
-          ],
+          fontSrc: ["'self'", 'fonts.gstatic.com', 'fonts.scalar.com'],
           scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'unpkg.com', 'cdn.jsdelivr.net'],
-          connectSrc: ["'self'", 'unpkg.com', 'cdn.jsdelivr.net'],
+          connectSrc: [
+            "'self'",
+            'unpkg.com',
+            'cdn.jsdelivr.net',
+            `http://localhost:${port}`,
+            `http://127.0.0.1:${port}`,
+          ],
           imgSrc: ["'self'", 'data:', 'cdn.jsdelivr.net'],
         },
       },
@@ -62,13 +64,14 @@ async function bootstrap() {
   app.use(compression());
   app.disable('x-powered-by');
   app.enableCors({
-    origin: [],
+    origin: [`http://localhost:${port}`, `http://127.0.0.1:${port}`],
     credentials: true,
   });
 
+  app.set('trust proxy', 1);
+
   // OpenAPI
   const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
-    deepScanRoutes: true,
     operationIdFactory: (_: string, methodKey: string) => methodKey,
   });
   SwaggerModule.setup('api', app, document, {
@@ -97,9 +100,9 @@ async function bootstrap() {
     logger.error(`Unhandled Rejection: ${inspect(reason)}`);
   });
 
-  await app.listen(port, '0.0.0.0', async () => {
-    const appUrl: string = await app.getUrl();
-    logger.log(`🚀 Admin API running in ${env} stage at: ${appUrl}`);
+  await app.listen(port, async () => {
+    logger.log(`🚀 Admin API is running in ${env} stage at: ${host}`);
+    logger.log(`📚 API documentation is running at ${host}/api`);
   });
 }
 
