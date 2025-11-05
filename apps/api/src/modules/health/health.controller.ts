@@ -1,8 +1,10 @@
 import { Controller, Get, Inject } from '@nestjs/common';
-import { HealthCheck, HealthCheckService, HealthIndicatorFunction } from '@nestjs/terminus';
+import { HealthCheck, HealthCheckResult, HealthCheckService, HealthIndicatorFunction } from '@nestjs/terminus';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { HEALTH_CHECKS } from './health.constant';
 
+@ApiTags('Health')
 @Controller('health')
 export class HealthController {
   constructor(
@@ -13,7 +15,10 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
-  check() {
+  @ApiOperation({ summary: 'Check application health status' })
+  @ApiResponse({ status: 200, description: 'Health check passed' })
+  @ApiResponse({ status: 503, description: 'Health check failed' })
+  check(): Promise<HealthCheckResult> {
     return this.health.check(this.checks);
   }
 }
