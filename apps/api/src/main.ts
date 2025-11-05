@@ -48,7 +48,7 @@ async function bootstrap() {
             'fonts.scalar.com',
           ],
           fontSrc: ["'self'", 'fonts.gstatic.com', 'fonts.scalar.com'],
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'unpkg.com', 'cdn.jsdelivr.net'],
+          scriptSrc: ["'self'", "'unsafe-inline'", 'unpkg.com', 'cdn.jsdelivr.net'],
           connectSrc: [
             "'self'",
             'unpkg.com',
