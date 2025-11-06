@@ -14,7 +14,7 @@ export enum UserRole {
 @Unique(['email'])
 export class UserEntity extends BaseEntity {
   @Index()
-  @IsEmail()
+  @ApiProperty()
   @Column({ type: 'varchar', length: 255, nullable: false })
   email!: string;
 
@@ -23,14 +23,15 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: false })
   password!: string;
 
+  @ApiProperty()
   @Column({ type: 'varchar', length: 255, nullable: false })
   firstName!: string;
 
+  @ApiProperty()
   @Column({ type: 'varchar', length: 255, nullable: false })
   lastName!: string;
 
   @ApiProperty({ enum: UserRole, default: UserRole.EXECUTIVE })
-  @IsEnum(UserRole)
   @Column({
     type: 'enum',
     enum: UserRole,
@@ -39,6 +40,7 @@ export class UserEntity extends BaseEntity {
   })
   role!: UserRole;
 
+  @ApiProperty()
   @Expose()
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`;
