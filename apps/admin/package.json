@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@space-man/react-theme-animation": "^1.1.1",
     "@tanstack/react-query": "^5.87.1",
     "@tanstack/react-query-devtools": "^5.87.1",
     "@workspace/lib": "workspace:*",

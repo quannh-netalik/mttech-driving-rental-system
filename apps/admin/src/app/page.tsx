@@ -3,7 +3,6 @@
 import { ThemeSwitcher } from '@/shared/components/ThemeSwitcher';
 import { toast } from '@workspace/ui/components/sonner';
 import { Button } from '@workspace/ui/components/button';
-import LogoMTTech from '@workspace/ui/components/logo-mt-tech';
 
 export default function Page() {
   return (
@@ -28,8 +27,6 @@ export default function Page() {
         >
           Welcome
         </Button>
-
-        <LogoMTTech />
       </div>
     </div>
   );
