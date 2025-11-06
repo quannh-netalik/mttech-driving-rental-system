@@ -6,6 +6,14 @@ import { createRedisOptions } from '@/modules/redis';
 
 import { ConfigGetter, EnvConfigGetter } from './data-source.util';
 
+/**
+ * Build a TypeORM DataSourceOptions object configured for PostgreSQL using values from `config`.
+ *
+ * The returned configuration includes connection credentials and host/port, environment-driven schema synchronization (enabled unless `NODE_ENV` is `'production'`), query logging, snake_case naming strategy, entity and migration file globs, connection pool/timeouts, additional driver `extra` options, and a Redis-backed query cache configured via `createRedisOptions()`.
+ *
+ * @param config - Configuration accessor used to read required database and environment values (e.g., `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`, `NODE_ENV`).
+ * @returns A fully populated `DataSourceOptions` object ready to initialize a TypeORM DataSource for PostgreSQL.
+ */
 export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions {
   return {
     type: 'postgres',
