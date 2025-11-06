@@ -1,7 +1,12 @@
-import { Body, ConflictException, Controller, Post, UnauthorizedException } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import type { Request as ExpressRequest } from 'express';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { UserEntity } from '@/modules/database/entities';
+
 import { AuthService } from './auth.service';
 import { AuthTokensDto, RefreshTokenDto, SignInDto, SignUpDto } from './dto';
+import { EmailAuthGuard } from './guards';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -27,7 +32,9 @@ export class AuthController {
   }
 
   @Post('sign-in')
+  @UseGuards(EmailAuthGuard)
   @ApiOperation({ summary: 'Sign in user' })
+  @ApiBody({ type: SignInDto })
   @ApiResponse({ status: 200, description: 'User successfully authenticated', type: AuthTokensDto })
   @ApiResponse({
     status: 401,
@@ -40,8 +47,8 @@ export class AuthController {
       },
     },
   })
-  async signIn(@Body() signInDto: SignInDto): Promise<AuthTokensDto> {
-    return this.authService.signIn(signInDto);
+  async signIn(@Req() req: ExpressRequest): Promise<AuthTokensDto> {
+    return this.authService.signIn(<UserEntity>req.user);
   }
 
   @Post('refresh-token')

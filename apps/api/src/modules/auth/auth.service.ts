@@ -29,26 +29,24 @@ export class AuthService {
     this.jwtRfTTL = +this.configService.getOrThrow<number>('JWT_RF_TTL');
   }
 
-  async verify({ id }: PayloadDto): Promise<PayloadDto> {
+  async verify({ id }: PayloadDto): Promise<UserEntity> {
     const user = await this.userRepository.findOneByOrFail({ id });
-    if (!user) {
-      throw new UnauthorizedException('User not existed');
-    }
+    this.logger.log(`user:${user.id} has verified successful`);
 
-    const _user = instanceToPlain(user);
-    return <PayloadDto>_user;
+    return user;
   }
 
-  async validateUserForLogin(email: string, password: string): Promise<PayloadDto> {
+  async validateUserForLogin(email: string, password: string): Promise<UserEntity> {
     const user = await this.userRepository.findOneByOrFail({ email });
     const isPasswordMatch = await user.validatePassword(password);
     if (isPasswordMatch) {
-      const _user = instanceToPlain(user);
-      return <PayloadDto>_user;
+      this.logger.log(`user:${user.id} logged in successful`);
+      return user;
     }
 
     throw new UnauthorizedException('User not existed');
   }
+
   async signUp(signUpDto: SignUpDto): Promise<AuthTokensDto> {
     const existingUser = await this.userRepository.findOneBy({ email: signUpDto.email });
     if (existingUser) {
@@ -57,23 +55,11 @@ export class AuthService {
 
     const user = this.userRepository.create(signUpDto);
     const savedUser = await this.userRepository.save(user);
+    this.logger.log(`${user.id} has registered successfully`);
     return this.generateTokens(savedUser);
   }
 
-  async signIn(signInDto: SignInDto): Promise<AuthTokensDto> {
-    const user = await this.userRepository.findOneBy({
-      email: signInDto.email,
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const isPasswordValid = await user.validatePassword(signInDto.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
+  async signIn(user: UserEntity): Promise<AuthTokensDto> {
     return this.generateTokens(user);
   }
 
@@ -104,6 +90,8 @@ export class AuthService {
   }
 
   private async generateTokens(user: UserEntity): Promise<AuthTokensDto> {
+    this.logger.log('starting generating new tokens');
+
     const payload = new PayloadDto(user);
     const _payload = instanceToPlain(payload) as PayloadDto;
 
@@ -120,6 +108,8 @@ export class AuthService {
 
     const hashedRf = await user.getHashedRefreshToken(refreshToken);
     await this.redisService.set(`user:${user.id}:rf`, hashedRf, this.jwtRfTTL * 60 * 1000);
+
+    this.logger.log('generated tokens successfully');
 
     return {
       accessToken,
