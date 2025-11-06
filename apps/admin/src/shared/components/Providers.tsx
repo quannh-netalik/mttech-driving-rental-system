@@ -29,7 +29,7 @@ const queryClient = new QueryClient({
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <MTTechProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange enableColorScheme>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem enableColorScheme>
         <QueryClientProvider client={queryClient}>
           {children}
           <ReactQueryDevtools initialIsOpen={false} />
