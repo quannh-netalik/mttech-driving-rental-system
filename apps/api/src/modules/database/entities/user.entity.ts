@@ -73,22 +73,17 @@ export class UserEntity extends BaseEntity {
     }
   }
 
-  @ApiHideProperty()
-  @Exclude()
-  @Column({ type: 'varchar', length: 1024, nullable: true })
-  refreshToken?: string;
-
-  async setRefreshToken(refreshToken: string): Promise<void> {
+  async getHashedRefreshToken(refreshToken: string): Promise<string> {
     try {
-      this.refreshToken = await argon2.hash(refreshToken);
+      return await argon2.hash(refreshToken);
     } catch (error) {
       throw new Error('Error hashing refresh token');
     }
   }
 
-  async validateRefreshToken(refreshToken: string): Promise<boolean> {
+  async validateRefreshToken(refreshToken: string, hashedRefreshToken: string): Promise<boolean> {
     try {
-      return this.refreshToken ? await argon2.verify(this.refreshToken, refreshToken) : false;
+      return await argon2.verify(hashedRefreshToken, refreshToken);
     } catch (error) {
       throw new Error('Error validating refresh token');
     }

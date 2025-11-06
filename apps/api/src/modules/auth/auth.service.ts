@@ -2,6 +2,7 @@ import { ConflictException, Injectable, Logger, UnauthorizedException } from '@n
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { instanceToPlain } from 'class-transformer';
+import argon2 from 'argon2';
 
 import { UserRepository } from '@/modules/database/repositories';
 import { UserEntity } from '@/modules/database/entities';
@@ -21,10 +22,11 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
   ) {
     this.jwtSecret = this.configService.getOrThrow<string>('JWT_SECRET');
-    this.jwtAcTTL = this.configService.getOrThrow<number>('JWT_AC_TTL');
-    this.jwtRfTTL = this.configService.getOrThrow<number>('JWT_RF_TTL');
+    this.jwtAcTTL = +this.configService.getOrThrow<number>('JWT_AC_TTL');
+    this.jwtRfTTL = +this.configService.getOrThrow<number>('JWT_RF_TTL');
   }
 
   async verify({ id }: PayloadDto): Promise<PayloadDto> {
@@ -59,8 +61,8 @@ export class AuthService {
   }
 
   async signIn(signInDto: SignInDto): Promise<AuthTokensDto> {
-    const user = await this.userRepository.findOne({
-      where: { email: signInDto.email },
+    const user = await this.userRepository.findOneBy({
+      email: signInDto.email,
     });
 
     if (!user) {
@@ -75,20 +77,29 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  async refreshToken(refreshTokenDto: RefreshTokenDto): Promise<AuthTokensDto> {
+  async refreshToken({ refreshToken }: RefreshTokenDto): Promise<AuthTokensDto> {
     try {
-      const decoded = this.jwtService.verify<PayloadDto>(refreshTokenDto.refreshToken, {
+      const decoded = this.jwtService.verify<PayloadDto>(refreshToken, {
         secret: this.jwtSecret,
       });
 
-      const user = await this.userRepository.findOneByOrFail({ id: decoded.id });
-      if (await user.validateRefreshToken(refreshTokenDto.refreshToken)) {
+      const [user, cachedRf] = await Promise.all([
+        this.userRepository.findOneByOrFail({ id: decoded.id }),
+        this.redisService.get(`user::${decoded.id}::rf`),
+      ]);
+
+      if (!cachedRf) {
+        throw new UnauthorizedException('Refresh token has expired');
+      }
+
+      const isRefreshTokenValid = await user.validateRefreshToken(refreshToken, cachedRf);
+      if (!isRefreshTokenValid) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
       return this.generateTokens(user);
     } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw error;
     }
   }
 
@@ -107,8 +118,8 @@ export class AuthService {
       }),
     ]);
 
-    await user.setRefreshToken(refreshToken);
-    await this.userRepository.save(user);
+    const hashedRf = await user.getHashedRefreshToken(refreshToken);
+    await this.redisService.set(`user::${user.id}::rf`, hashedRf, this.jwtRfTTL * 60 * 1000);
 
     return {
       accessToken,
