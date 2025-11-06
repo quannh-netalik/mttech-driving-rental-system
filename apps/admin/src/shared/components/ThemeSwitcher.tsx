@@ -15,7 +15,14 @@ export function ThemeSwitcher() {
   const mounted = useMounted();
 
   return (
-    <Button ref={ref} variant="outline" type="button" size="icon" onClick={toggleTheme}>
+    <Button
+      ref={ref}
+      variant="outline"
+      type="button"
+      size="icon"
+      onClick={toggleTheme}
+      aria-label={theme === Theme.DARK ? 'Đổi nền sáng' : 'Đổi nền tối'}
+    >
       {!mounted && <Loader2 className="animate-spin" />}
       {mounted && (theme === Theme.DARK ? <SunIcon /> : <MoonStar />)}
     </Button>

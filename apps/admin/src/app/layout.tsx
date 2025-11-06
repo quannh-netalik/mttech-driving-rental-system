@@ -1,7 +1,9 @@
 /* eslint-disable @next/next/no-page-custom-font */
-import { Metadata } from 'next';
 import '@workspace/ui/globals.css';
+import { Metadata } from 'next';
+
 import { Providers } from '@/shared/components/Providers';
+import ThemeBackground from '@/shared/components/theme/ThemeBackground';
 
 export const metadata: Metadata = {
   title: 'Miền Trung Tech - Admin',
@@ -42,23 +44,7 @@ export default function RootLayout({
 
       <body>
         <div className="min-h-screen w-full relative">
-          {/* Light Mode Background */}
-          <div
-            className="absolute inset-0 -z-10 transition-opacity duration-500 dark:opacity-0"
-            style={{
-              background: 'radial-gradient(125% 125% at 50% 10%, #fff 40%, #475569 100%)',
-            }}
-          />
-
-          {/* Dark Mode Background */}
-          <div className="absolute inset-0 -z-10 opacity-0 transition-opacity duration-500 dark:opacity-100 bg-[#020617]">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: 'radial-gradient(circle 500px at 50% 200px, #3e3e3e, transparent)',
-              }}
-            />
-          </div>
+          <ThemeBackground />
 
           {/* Content */}
           <Providers>{children}</Providers>
