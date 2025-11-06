@@ -1,6 +1,5 @@
 import { Column, Entity, Index, Unique } from 'typeorm';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum } from 'class-validator';
 import { BaseEntity } from './base.entity';
 import { Exclude, Expose } from 'class-transformer';
 
