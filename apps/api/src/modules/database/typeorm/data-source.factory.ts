@@ -15,6 +15,8 @@ import { ConfigGetter, EnvConfigGetter } from './data-source.util';
  * @returns A fully populated `DataSourceOptions` object ready to initialize a TypeORM DataSource for PostgreSQL.
  */
 export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions {
+  const isProduction = config.get('NODE_ENV') === 'production';
+
   return {
     type: 'postgres',
     host: config.getOrThrow<string>('DB_HOST'),
@@ -22,12 +24,12 @@ export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions
     database: config.getOrThrow<string>('DB_NAME'),
     username: config.getOrThrow<string>('DB_USER'),
     password: config.getOrThrow<string>('DB_PASS'),
-    synchronize: config.get('NODE_ENV') !== 'production',
+    synchronize: !isProduction,
     logging: ['schema', 'info', 'warn'],
     namingStrategy: new SnakeNamingStrategy(),
     poolSize: 10,
     connectTimeoutMS: 5000,
-    entities: [join(__dirname, '../../..', '/**/*.entity.{ts,js}')],
+    entities: [join(__dirname, '..', '/entities/*.entity.{ts,js}')],
     migrations: [join(__dirname, '..', '/migrations/*.ts')],
     extra: {
       idleTimeoutMillis: 30000,

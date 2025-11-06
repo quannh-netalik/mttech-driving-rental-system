@@ -1,7 +1,10 @@
-import { Column, Entity, Index, Unique } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, Unique } from 'typeorm';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { BaseEntity } from './base.entity';
 import { Exclude, Expose } from 'class-transformer';
+import argon2 from 'argon2';
+
+import { BaseEntity } from './base.entity';
+import { Logger } from '@nestjs/common';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -12,6 +15,10 @@ export enum UserRole {
 @Entity({ name: 'users' })
 @Unique(['email'])
 export class UserEntity extends BaseEntity {
+  @Exclude()
+  @ApiHideProperty()
+  logger = new Logger(UserEntity.name);
+
   @Index()
   @ApiProperty()
   @Column({ type: 'varchar', length: 255, nullable: false })
@@ -43,5 +50,61 @@ export class UserEntity extends BaseEntity {
   @Expose()
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`;
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword(): Promise<void> {
+    if (!this.password) {
+      return;
+    }
+
+    if (this.password.startsWith('$argon2')) {
+      return;
+    }
+
+    try {
+      this.password = await argon2.hash(this.password, {
+        type: argon2.argon2id,
+        memoryCost: 2 ** 16, // 64MB
+        timeCost: 3, // Number of iterations
+        parallelism: 1, // Number of threads used
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error('Error hashing password');
+    }
+  }
+
+  async validatePassword(password: string): Promise<boolean> {
+    try {
+      return await argon2.verify(this.password, password);
+    } catch (error) {
+      this.logger.error(error);
+      return false;
+    }
+  }
+
+  async getHashedRefreshToken(refreshToken: string): Promise<string> {
+    try {
+      return await argon2.hash(refreshToken, {
+        type: argon2.argon2id,
+        memoryCost: 2 ** 16,
+        timeCost: 3,
+        parallelism: 1,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error('Error hashing refresh token');
+    }
+  }
+
+  async validateRefreshToken(refreshToken: string, hashedRefreshToken: string): Promise<boolean> {
+    try {
+      return await argon2.verify(hashedRefreshToken, refreshToken);
+    } catch (error) {
+      this.logger.error(error);
+      return false;
+    }
   }
 }
