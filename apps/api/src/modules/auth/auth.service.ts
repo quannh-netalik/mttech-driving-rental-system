@@ -11,11 +11,11 @@ import { AuthTokensDto, PayloadDto, RefreshTokenDto, SignUpDto } from './dto';
 
 @Injectable()
 export class AuthService {
-  private logger = new Logger(AuthService.name);
+  private readonly logger = new Logger(AuthService.name);
 
-  private jwtSecret: string;
-  private jwtAcTTL: number;
-  private jwtRfTTL: number;
+  private readonly jwtSecret: string;
+  private readonly jwtAcTTL: number;
+  private readonly jwtRfTTL: number;
 
   constructor(
     private readonly configService: ConfigService,

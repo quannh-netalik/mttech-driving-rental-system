@@ -4,6 +4,7 @@ import { Exclude, Expose } from 'class-transformer';
 import argon2 from 'argon2';
 
 import { BaseEntity } from './base.entity';
+import { Logger } from '@nestjs/common';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -14,6 +15,10 @@ export enum UserRole {
 @Entity({ name: 'users' })
 @Unique(['email'])
 export class UserEntity extends BaseEntity {
+  @Exclude()
+  @ApiHideProperty()
+  logger = new Logger(UserEntity.name);
+
   @Index()
   @ApiProperty()
   @Column({ type: 'varchar', length: 255, nullable: false })
@@ -66,6 +71,7 @@ export class UserEntity extends BaseEntity {
         parallelism: 1, // Number of threads used
       });
     } catch (error) {
+      this.logger.error(error);
       throw new Error('Error hashing password');
     }
   }
@@ -74,6 +80,7 @@ export class UserEntity extends BaseEntity {
     try {
       return await argon2.verify(this.password, password);
     } catch (error) {
+      this.logger.error(error);
       throw new Error('Error validating password');
     }
   }
@@ -87,6 +94,7 @@ export class UserEntity extends BaseEntity {
         parallelism: 1,
       });
     } catch (error) {
+      this.logger.error(error);
       throw new Error('Error hashing refresh token');
     }
   }
@@ -95,6 +103,7 @@ export class UserEntity extends BaseEntity {
     try {
       return await argon2.verify(hashedRefreshToken, refreshToken);
     } catch (error) {
+      this.logger.error(error);
       throw new Error('Error validating refresh token');
     }
   }
