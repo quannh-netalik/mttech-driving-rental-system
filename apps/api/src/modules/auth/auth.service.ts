@@ -53,7 +53,7 @@ export class AuthService {
       return user;
     }
 
-    throw new UnauthorizedException('User not existed');
+    throw new UnauthorizedException('Invalid credentials');
   }
 
   async signUp(signUpDto: SignUpDto): Promise<AuthTokensDto> {

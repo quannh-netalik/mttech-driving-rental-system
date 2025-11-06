@@ -81,7 +81,7 @@ export class UserEntity extends BaseEntity {
       return await argon2.verify(this.password, password);
     } catch (error) {
       this.logger.error(error);
-      throw new Error('Error validating password');
+      return false;
     }
   }
 
@@ -104,7 +104,7 @@ export class UserEntity extends BaseEntity {
       return await argon2.verify(hashedRefreshToken, refreshToken);
     } catch (error) {
       this.logger.error(error);
-      throw new Error('Error validating refresh token');
+      return false;
     }
   }
 }
