@@ -7,6 +7,8 @@ import { LoggingModule } from '@/modules/logging';
 import { RedisModule } from '@/modules/redis';
 import { DatabaseModule } from '@/modules/database';
 import { DatabaseHealthCheckProvider, HealthModule, RedisHealthCheckProvider } from '@/modules/health';
+import { AuthModule } from '@/modules/auth';
+
 import * as configs from './config';
 
 @Module({
@@ -24,6 +26,8 @@ import * as configs from './config';
         serializers: {
           req: (req: Request) => ({
             id: req.id,
+            ip: req.ip,
+            hostname: req.hostname,
             method: req.method,
             url: req.url,
             query: req.query,
@@ -35,11 +39,12 @@ import * as configs from './config';
           }),
         },
       },
-      exclude: ['/metrics', '/health'],
+      exclude: ['/metrics', '/health', './.well-known'],
     }),
     RedisModule,
     DatabaseModule,
     HealthModule.forRoot([DatabaseHealthCheckProvider, RedisHealthCheckProvider]),
+    AuthModule,
   ],
   controllers: [],
   providers: [],

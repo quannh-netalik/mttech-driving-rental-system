@@ -1,16 +1,17 @@
 import './env';
 
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import compression from 'compression';
 import helmet from 'helmet';
 import { inspect } from 'node:util';
 import { SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { useContainer } from 'class-validator';
 
+import { LoggingModule } from '@/modules/logging';
 import { AppModule } from './app.module';
-import { LoggingModule } from './modules/logging';
 import { appConfig } from './config';
 import { NestAppConfigOptions } from './types';
 import { buildOpenApiConfig } from './utils';
@@ -32,6 +33,19 @@ async function bootstrap() {
     defaultVersion: VERSION_NEUTRAL,
     type: VersioningType.URI,
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidUnknownValues: true,
+      stopAtFirstError: true,
+    }),
+  );
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.use(helmet());
   app.use(compression());
@@ -69,7 +83,7 @@ async function bootstrap() {
             'fonts.scalar.com',
           ],
           fontSrc: ["'self'", 'fonts.gstatic.com', 'fonts.scalar.com'],
-          scriptSrc: ["'self'", "'unsafe-inline'", 'unpkg.com', 'cdn.jsdelivr.net'],
+          scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'unpkg.com', 'cdn.jsdelivr.net'],
           connectSrc: [
             "'self'",
             'unpkg.com',
