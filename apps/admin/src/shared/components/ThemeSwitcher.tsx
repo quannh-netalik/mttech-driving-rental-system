@@ -2,8 +2,8 @@
 
 import { Button } from '@workspace/ui/components/button';
 import { useMounted } from '@workspace/ui/hooks/use-mounted';
-import { MoonStar, SunIcon } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Loader2, MoonStar, SunIcon } from 'lucide-react';
+import { useThemeAnimation } from '@space-man/react-theme-animation';
 
 export enum Theme {
   LIGHT = 'light',
@@ -11,13 +11,20 @@ export enum Theme {
 }
 
 export function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme, ref } = useThemeAnimation();
   const mounted = useMounted();
 
   return (
-    <Button variant="outline" size="icon" onClick={() => setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK)}>
+    <Button
+      ref={ref}
+      variant="outline"
+      type="button"
+      size="icon"
+      onClick={toggleTheme}
+      aria-label={theme === Theme.DARK ? 'Đổi nền sáng' : 'Đổi nền tối'}
+    >
+      {!mounted && <Loader2 className="animate-spin" />}
       {mounted && (theme === Theme.DARK ? <SunIcon /> : <MoonStar />)}
-      {!mounted && <div className="size-3.5" />}
     </Button>
   );
 }

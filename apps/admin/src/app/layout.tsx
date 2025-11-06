@@ -1,7 +1,9 @@
 /* eslint-disable @next/next/no-page-custom-font */
-import { Metadata } from 'next';
 import '@workspace/ui/globals.css';
+import { Metadata } from 'next';
+
 import { Providers } from '@/shared/components/Providers';
+import ThemeBackground from '@/shared/components/theme/ThemeBackground';
 
 export const metadata: Metadata = {
   title: 'Miền Trung Tech - Admin',
@@ -30,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" translate="no" suppressHydrationWarning>
+    <html lang="vi" translate="no" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -41,7 +43,12 @@ export default function RootLayout({
       </head>
 
       <body>
-        <Providers>{children}</Providers>
+        <div className="min-h-screen w-full relative">
+          <ThemeBackground />
+
+          {/* Content */}
+          <Providers>{children}</Providers>
+        </div>
       </body>
     </html>
   );
