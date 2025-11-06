@@ -7,7 +7,7 @@ import { AuthService, PayloadDto } from '@/modules/auth';
 @Injectable()
 export class EmailStrategy extends PassportStrategy(Strategy, 'email') {
   constructor(private readonly authService: AuthService) {
-    super({ usernameField: 'email', passwordField: 'password', session: true });
+    super({ usernameField: 'email', session: true });
   }
 
   async validate(email: string, password: string): Promise<PayloadDto> {

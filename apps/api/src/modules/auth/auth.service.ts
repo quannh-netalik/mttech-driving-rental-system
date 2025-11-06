@@ -36,7 +36,14 @@ export class AuthService {
   }
 
   async validateUserForLogin(email: string, password: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOneByOrFail({ email });
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     const isPasswordMatch = await user.validatePassword(password);
     if (isPasswordMatch) {
       this.logger.log(`user:${user.id} logged in successful`);

@@ -3,7 +3,6 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { join } from 'node:path';
 
 import { createRedisOptions } from '@/modules/redis';
-import { UserEntity } from '@/modules/database/entities';
 
 import { ConfigGetter, EnvConfigGetter } from './data-source.util';
 
@@ -30,7 +29,7 @@ export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions
     namingStrategy: new SnakeNamingStrategy(),
     poolSize: 10,
     connectTimeoutMS: 5000,
-    entities: [UserEntity],
+    entities: [join(__dirname, '..', '/entities/*.entity.{ts,js}')],
     migrations: [join(__dirname, '..', '/migrations/*.ts')],
     extra: {
       idleTimeoutMillis: 30000,
