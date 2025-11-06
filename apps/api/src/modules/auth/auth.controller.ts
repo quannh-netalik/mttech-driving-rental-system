@@ -47,6 +47,16 @@ export class AuthController {
       },
     },
   })
+  @ApiResponse({
+    status: 429,
+    description: 'Too Many Requests',
+    schema: {
+      example: {
+        statusCode: 429,
+        message: 'ThrottlerException: Too Many Requests',
+      },
+    },
+  })
   async signIn(@Req() req: ExpressRequest): Promise<AuthTokensDto> {
     return this.authService.signIn(<UserEntity>req.user);
   }

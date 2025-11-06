@@ -29,7 +29,10 @@ export class AuthService {
   }
 
   async verify({ id }: PayloadDto): Promise<UserEntity> {
-    const user = await this.userRepository.findOneByOrFail({ id });
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
     this.logger.log(`user:${user.id} has verified successful`);
 
     return user;
@@ -76,9 +79,13 @@ export class AuthService {
       });
 
       const [user, cachedRf] = await Promise.all([
-        this.userRepository.findOneByOrFail({ id: decoded.id }),
+        this.userRepository.findOneBy({ id: decoded.id }),
         this.redisService.get(`user:${decoded.id}:rf`),
       ]);
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
 
       if (!cachedRf) {
         throw new UnauthorizedException('Refresh token has expired');
@@ -91,7 +98,15 @@ export class AuthService {
 
       return this.generateTokens(user);
     } catch (error) {
-      throw error;
+      if (error instanceof Error) {
+        this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
+      }
+
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
 

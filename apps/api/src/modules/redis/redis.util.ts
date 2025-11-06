@@ -1,6 +1,6 @@
 import { RedisOptions } from 'ioredis';
 
-export const createRedisOptions = (): RedisOptions => {
+export const createRedisOptions = (keyPrefix: string = 'mttech-v1:'): RedisOptions => {
   const port = Number(process.env.REDIS_PORT || '6379');
   if (Number.isNaN(port) || port < 1 || port > 65535) {
     throw new Error('Invalid REDIS_PORT: must be a number between 1 and 65535');
@@ -14,8 +14,6 @@ export const createRedisOptions = (): RedisOptions => {
   if (process.env.NODE_ENV === 'production' && !process.env.REDIS_PASSWORD) {
     throw new Error('REDIS_PASSWORD is required in production environment');
   }
-
-  const keyPrefix = 'mttech-v2:';
 
   // create Redis connection options
   const opts: RedisOptions = {

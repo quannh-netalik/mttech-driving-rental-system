@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength, IsEnum, IsOptional, IsNotEmpty, Matches, ValidateIf } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsEnum, IsOptional, IsNotEmpty, Matches, IsIn } from 'class-validator';
 import { UserRole } from '@/modules/database/entities/user.entity';
 
 export class SignUpDto {
@@ -33,6 +33,8 @@ export class SignUpDto {
   @ApiProperty({ enum: [UserRole.STAFF, UserRole.EXECUTIVE], default: UserRole.EXECUTIVE })
   @IsEnum(UserRole)
   @IsOptional()
-  @ValidateIf(o => [UserRole.STAFF, UserRole.EXECUTIVE].includes(o.role))
+  @IsIn([UserRole.STAFF, UserRole.EXECUTIVE], {
+    message: 'Role must be either STAFF or EXECUTIVE',
+  })
   role?: UserRole;
 }

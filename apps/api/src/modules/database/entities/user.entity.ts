@@ -80,7 +80,12 @@ export class UserEntity extends BaseEntity {
 
   async getHashedRefreshToken(refreshToken: string): Promise<string> {
     try {
-      return await argon2.hash(refreshToken);
+      return await argon2.hash(refreshToken, {
+        type: argon2.argon2id,
+        memoryCost: 2 ** 16,
+        timeCost: 3,
+        parallelism: 1,
+      });
     } catch (error) {
       throw new Error('Error hashing refresh token');
     }
