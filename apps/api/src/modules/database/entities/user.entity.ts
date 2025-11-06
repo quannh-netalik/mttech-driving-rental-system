@@ -2,6 +2,7 @@ import { Column, Entity, Index, Unique } from 'typeorm';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsEnum } from 'class-validator';
 import { BaseEntity } from './base.entity';
+import { Exclude, Expose } from 'class-transformer';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -18,6 +19,7 @@ export class UserEntity extends BaseEntity {
   email!: string;
 
   @ApiHideProperty()
+  @Exclude()
   @Column({ type: 'varchar', length: 255, nullable: false })
   password!: string;
 
@@ -36,4 +38,9 @@ export class UserEntity extends BaseEntity {
     nullable: false,
   })
   role!: UserRole;
+
+  @Expose()
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
 }
