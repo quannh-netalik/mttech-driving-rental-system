@@ -15,7 +15,7 @@ export const createRedisOptions = (): RedisOptions => {
     throw new Error('REDIS_PASSWORD is required in production environment');
   }
 
-  const keyPrefix = 'mttech-v2-';
+  const keyPrefix = 'mttech-v2:';
 
   // create Redis connection options
   const opts: RedisOptions = {

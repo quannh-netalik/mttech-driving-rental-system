@@ -85,7 +85,7 @@ export class AuthService {
 
       const [user, cachedRf] = await Promise.all([
         this.userRepository.findOneByOrFail({ id: decoded.id }),
-        this.redisService.get(`user::${decoded.id}::rf`),
+        this.redisService.get(`user:${decoded.id}:rf`),
       ]);
 
       if (!cachedRf) {
@@ -119,7 +119,7 @@ export class AuthService {
     ]);
 
     const hashedRf = await user.getHashedRefreshToken(refreshToken);
-    await this.redisService.set(`user::${user.id}::rf`, hashedRf, this.jwtRfTTL * 60 * 1000);
+    await this.redisService.set(`user:${user.id}:rf`, hashedRf, this.jwtRfTTL * 60 * 1000);
 
     return {
       accessToken,
