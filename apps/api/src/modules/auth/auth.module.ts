@@ -14,7 +14,7 @@ import { EmailAuthGuard, JwtAuthGuard } from './guards';
   imports: [
     PassportModule.register({
       defaultStrategy: 'jwt',
-      session: true,
+      session: false,
     }),
     JwtModule.registerAsync({
       inject: [ConfigService],

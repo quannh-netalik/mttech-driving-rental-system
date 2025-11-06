@@ -50,18 +50,23 @@ export class UserEntity extends BaseEntity {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
-    // Only hash the password if it has been modified
-    if (this.password) {
-      try {
-        this.password = await argon2.hash(this.password, {
-          type: argon2.argon2id,
-          memoryCost: 2 ** 16, // 64MB
-          timeCost: 3, // Number of iterations
-          parallelism: 1, // Number of threads used
-        });
-      } catch (error) {
-        throw new Error('Error hashing password');
-      }
+    if (!this.password) {
+      return;
+    }
+
+    if (this.password.startsWith('$argon2')) {
+      return;
+    }
+
+    try {
+      this.password = await argon2.hash(this.password, {
+        type: argon2.argon2id,
+        memoryCost: 2 ** 16, // 64MB
+        timeCost: 3, // Number of iterations
+        parallelism: 1, // Number of threads used
+      });
+    } catch (error) {
+      throw new Error('Error hashing password');
     }
   }
 

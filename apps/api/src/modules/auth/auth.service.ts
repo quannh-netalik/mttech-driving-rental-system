@@ -2,13 +2,12 @@ import { ConflictException, Injectable, Logger, UnauthorizedException } from '@n
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { instanceToPlain } from 'class-transformer';
-import argon2 from 'argon2';
 
 import { UserRepository } from '@/modules/database/repositories';
 import { UserEntity } from '@/modules/database/entities';
 import { RedisService } from '@/modules/redis';
 
-import { AuthTokensDto, PayloadDto, RefreshTokenDto, SignInDto, SignUpDto } from './dto';
+import { AuthTokensDto, PayloadDto, RefreshTokenDto, SignUpDto } from './dto';
 
 @Injectable()
 export class AuthService {

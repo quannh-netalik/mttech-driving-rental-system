@@ -23,7 +23,7 @@ export class AuthController {
       example: {
         statusCode: 409,
         message: 'Email already exists',
-        error: 'Unauthorized',
+        error: 'Conflict',
       },
     },
   })
