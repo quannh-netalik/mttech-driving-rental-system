@@ -27,6 +27,11 @@ generator.generate({
   tsconfigPath: './tsconfig.json',
 });
 
+/**
+ * Bootstraps and starts the NestJS application, configuring global middleware, validation, versioning, OpenAPI documentation, security headers, CORS, logging, and shutdown hooks.
+ *
+ * This function initializes the application container, registers the global logger, applies global pipes and interceptors, configures class-validator DI fallback, enables common middlewares (helmet, compression), sets proxy and CORS policies, generates and mounts the OpenAPI document at /docs with a customized operationIdFactory, attaches a docs-specific middleware stack, registers an unhandled rejection handler, and begins listening on the configured port.
+ */
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
