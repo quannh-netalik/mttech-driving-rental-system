@@ -2,8 +2,7 @@
 
 import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from 'lucide-react';
 import { Toaster as Sonner, type ToasterProps, toast } from 'sonner';
-
-import { useTheme } from '@workspace/ui/providers/theme-provider';
+import { useTheme } from 'next-themes';
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme();
