@@ -5,14 +5,12 @@
   "entryFile": "main",
   "plugins": ["@nestjs/swagger"],
   "compilerOptions": {
-    "plugins": [
-      {
-        "name": "@nestjs/swagger",
-        "options": {
-          "introspectComments": true,
-          "skipAutoHttpCode": true
-        }
-      }
-    ]
-  }
+    "builder": "swc",
+    "typeCheck": true,
+    "deleteOutDir": true,
+    "tsConfigPath": "./tsconfig.json",
+    "watchAssets": true,
+    "plugins": []
+  },
+  "exclude": ["src/metadata.ts"]
 }
