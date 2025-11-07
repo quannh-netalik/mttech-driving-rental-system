@@ -2,7 +2,7 @@ pre-commit:
   commands:
     check:
       glob: '*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}'
-      run: npx prettier --write {staged_files}
+      run: npx prettier --write {files}
       stage_fixed: true
 
 # Build commit messages

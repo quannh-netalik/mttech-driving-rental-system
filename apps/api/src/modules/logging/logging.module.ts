@@ -1,9 +1,4 @@
-import {
-  DynamicModule,
-  INestApplicationContext,
-  LoggerService,
-  Module,
-} from '@nestjs/common';
+import { DynamicModule, INestApplicationContext, LoggerService, Module } from '@nestjs/common';
 import { Logger, LoggerModule, Params } from 'nestjs-pino';
 import { LOGGING_LOGGER } from './logging.constant';
 

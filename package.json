@@ -33,5 +33,9 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "@commitlint/format": "^20.0.0",
+    "conventional-changelog-atom": "^5.0.0"
   }
 }

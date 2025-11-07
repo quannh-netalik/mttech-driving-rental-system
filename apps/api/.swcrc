@@ -7,7 +7,7 @@
       "decorators": true,
       "dynamicImport": false
     },
-    "target": "es2023",
+    "target": "es2024",
     "baseUrl": "./",
     "transform": {
       "legacyDecorator": true,
