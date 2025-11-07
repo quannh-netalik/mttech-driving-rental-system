@@ -16,6 +16,17 @@ import { appConfig } from './config';
 import { NestAppConfigOptions } from './types';
 import { buildOpenApiConfig } from './utils';
 
+import { PluginMetadataGenerator } from '@nestjs/cli/lib/compiler/plugins/plugin-metadata-generator';
+import { ReadonlyVisitor } from '@nestjs/swagger/dist/plugin';
+
+const generator = new PluginMetadataGenerator();
+generator.generate({
+  visitors: [new ReadonlyVisitor({ introspectComments: true, pathToSource: __dirname })],
+  outputDir: __dirname,
+  watch: true,
+  tsconfigPath: './tsconfig.json',
+});
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
