@@ -63,6 +63,8 @@ async function bootstrap() {
   app.disable('x-powered-by');
   app.enableCors({
     origin: [`http://localhost:${port}`, `http://127.0.0.1:${port}`],
+    methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     credentials: true,
   });
 
