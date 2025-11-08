@@ -94,8 +94,8 @@ export function ThemeProvider({
         {`
           try {
             const theme = localStorage.getItem('theme');
-            const isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            document.documentElement.classList.toggle('dark', isDark);
+            const isDark = theme === 'dark' || (!theme && globalThis.matchMedia('(prefers-color-scheme: dark)').matches);
+            globalThis.document.documentElement.classList.toggle('dark', isDark);
           } catch {}
         `}
       </ScriptOnce>

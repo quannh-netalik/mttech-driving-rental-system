@@ -1,3 +1,12 @@
+/**
+ * ThemeBackground renders decorative gradient backgrounds for light and dark modes.
+ * Automatically adjusts based on the `dark` class applied to the document root.
+ *
+ * @example
+ * ```tsx
+ * <ThemeBackground />
+ * ```
+ */
 export function ThemeBackground() {
   return (
     <>
