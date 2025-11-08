@@ -3,6 +3,7 @@
   "display": "NestJS",
   "extends": "./base.json",
   "compilerOptions": {
+    "plugins": [{ "name": "nest" }],
     "target": "ES2023",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
