@@ -12,6 +12,7 @@ export function ThemeBackground() {
     <>
       {/* Light Mode Background */}
       <div
+        aria-hidden="true"
         className="absolute inset-0 -z-10 transition-opacity duration-500 dark:opacity-0"
         style={{
           background: 'radial-gradient(125% 125% at 50% 10%, #fff 40%, #475569 100%)',
@@ -19,7 +20,10 @@ export function ThemeBackground() {
       />
 
       {/* Dark Mode Background */}
-      <div className="absolute inset-0 -z-10 bg-[#020617] opacity-0 transition-opacity duration-500 dark:opacity-100">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[#020617] opacity-0 transition-opacity duration-500 dark:opacity-100"
+      >
         <div
           className="absolute inset-0"
           style={{
