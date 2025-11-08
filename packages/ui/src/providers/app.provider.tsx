@@ -1,13 +1,12 @@
-import React from 'react';
+import { ThemeProvider } from '@workspace/ui/providers/theme.provider';
+import type React from 'react';
 import { Toaster } from 'sonner';
 
-import { ThemeProvider } from '@workspace/ui/providers/theme.provider';
-
 export function AppProvider({ children }: { readonly children: React.ReactNode }) {
-  return (
-    <ThemeProvider defaultTheme="system">
-      {children}
-      <Toaster richColors />
-    </ThemeProvider>
-  );
+	return (
+		<ThemeProvider defaultTheme="system">
+			{children}
+			<Toaster richColors />
+		</ThemeProvider>
+	);
 }

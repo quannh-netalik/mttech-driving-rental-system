@@ -12,11 +12,11 @@
     "commitlint": "commitlint --edit"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.4",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@commitlint/format": "^20.0.0",
     "@commitlint/types": "^20.0.0",
-    "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "commitizen": "^4.3.1",
     "conventional-changelog-atom": "^5.0.0",
