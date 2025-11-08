@@ -1,10 +1,11 @@
-import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import type { HttpArgumentsHost } from '@nestjs/common/interfaces';
-import type { Request, Response } from 'express';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { HttpArgumentsHost } from '@nestjs/common/interfaces';
+import { Request, Response } from 'express';
+import { ErrorResponse } from '@/types/error.type';
 
 @Catch()
-export class MTTechExceptionFilter implements ExceptionFilter {
-	private readonly logger = new Logger(MTTechExceptionFilter.name);
+export class HttpExceptionFilter implements ExceptionFilter {
+	private readonly logger = new Logger(HttpExceptionFilter.name);
 
 	catch(exception: Error, host: ArgumentsHost): void {
 		const ctx: HttpArgumentsHost = host.switchToHttp();
@@ -22,7 +23,7 @@ export class MTTechExceptionFilter implements ExceptionFilter {
 			exceptionType = Error.name;
 		}
 
-		this.logger.error({
+		const error: ErrorResponse = {
 			path: request.url,
 			method: request.method,
 			status: httpStatus,
@@ -31,8 +32,10 @@ export class MTTechExceptionFilter implements ExceptionFilter {
 			message: exception.message,
 			requestId: request.correlationId,
 			stack: exception.stack,
-		});
+		};
 
-		response.status(httpStatus).end();
+		this.logger.error(error);
+
+		response.status(httpStatus).json(error);
 	}
 }
