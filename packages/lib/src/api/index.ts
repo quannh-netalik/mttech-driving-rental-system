@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 import { ExampleApi } from './sdk/example.api';
 
 /**
@@ -12,9 +12,9 @@ import { ExampleApi } from './sdk/example.api';
  * api.example.hello()
  */
 export class Api {
-  example: ExampleApi;
+	example: ExampleApi;
 
-  constructor(private readonly client: AxiosInstance) {
-    this.example = new ExampleApi(this.client);
-  }
+	constructor(private readonly client: AxiosInstance) {
+		this.example = new ExampleApi(this.client);
+	}
 }
