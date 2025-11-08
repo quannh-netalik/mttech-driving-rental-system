@@ -1,4 +1,11 @@
 {
+  "name": "@workspace/ui",
+  "private": true,
+  "scripts": {
+    "lint": "eslint . --max-warnings 0"
+  },
+  "type": "module",
+  "version": "0.0.0",
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -64,12 +71,5 @@
     "./hooks/*": "./src/hooks/*.ts",
     "./lib/*": "./src/lib/*.ts",
     "./postcss.config": "./postcss.config.mjs"
-  },
-  "name": "@workspace/ui",
-  "private": true,
-  "scripts": {
-    "lint": "eslint . --max-warnings 0"
-  },
-  "type": "module",
-  "version": "0.0.0"
+  }
 }
