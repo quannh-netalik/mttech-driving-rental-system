@@ -4,7 +4,7 @@ interface LogoMTTechProps {
   size?: number | string;
 }
 
-const LogoMTTech: FC<LogoMTTechProps> = ({ size = '100%' }) => {
+export const LogoMTTech: FC<LogoMTTechProps> = ({ size = '100%' }) => {
   return (
     <svg
       version="1.1"
@@ -93,5 +93,3 @@ const LogoMTTech: FC<LogoMTTechProps> = ({ size = '100%' }) => {
     </svg>
   );
 };
-
-export default LogoMTTech;
