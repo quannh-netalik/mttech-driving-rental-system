@@ -1,14 +1,14 @@
 import './env';
 
+import { ClassSerializerInterceptor, ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { ClassSerializerInterceptor, ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
-import compression from 'compression';
-import helmet from 'helmet';
-import { inspect } from 'node:util';
 import { SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import { useContainer } from 'class-validator';
+import compression from 'compression';
+import helmet from 'helmet';
+import { inspect } from 'node:util';
 
 import { LoggingModule } from '@/modules/logging';
 import { AppModule } from './app.module';
