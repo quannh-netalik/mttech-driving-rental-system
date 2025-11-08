@@ -5,8 +5,8 @@ import { useTheme } from '@workspace/ui/providers/theme.provider';
 import { Loader2, MoonStar, SunIcon } from 'lucide-react';
 
 interface ThemeSwitcherProps {
-  lightModeLabel?: string;
-  darkModeLabel?: string;
+	lightModeLabel?: string;
+	darkModeLabel?: string;
 }
 
 /**
@@ -14,25 +14,28 @@ interface ThemeSwitcherProps {
  * System mode is not included in the toggle cycle.
  */
 export function ThemeSwitcher({
-  lightModeLabel = 'Đổi nền sáng',
-  darkModeLabel = 'Đổi nền tối',
+	lightModeLabel = 'Đổi nền sáng',
+	darkModeLabel = 'Đổi nền tối',
 }: Readonly<ThemeSwitcherProps>) {
-  const { theme, setTheme } = useTheme();
-  const { toggleTheme, ref } = useThemeAnimation();
+	const { theme, setTheme } = useTheme();
+	const { toggleTheme, ref } = useThemeAnimation();
 
-  return (
-    <Button
-      ref={ref}
-      variant="outline"
-      type="button"
-      size="icon"
-      suppressHydrationWarning
-      onClick={() => (setTheme(theme === 'dark' ? 'light' : 'dark'), toggleTheme())}
-      aria-label={theme === 'dark' ? lightModeLabel : darkModeLabel}
-    >
-      <ClientOnly fallback={<Loader2 className="animate-spin" />}>
-        {theme === 'dark' ? <SunIcon /> : <MoonStar />}
-      </ClientOnly>
-    </Button>
-  );
+	return (
+		<Button
+			aria-label={theme === 'dark' ? lightModeLabel : darkModeLabel}
+			onClick={() => {
+				setTheme(theme === 'dark' ? 'light' : 'dark');
+				toggleTheme();
+			}}
+			ref={ref}
+			size="icon"
+			suppressHydrationWarning
+			type="button"
+			variant="outline"
+		>
+			<ClientOnly fallback={<Loader2 className="animate-spin" />}>
+				{theme === 'dark' ? <SunIcon /> : <MoonStar />}
+			</ClientOnly>
+		</Button>
+	);
 }
