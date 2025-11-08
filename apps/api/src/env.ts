@@ -1,8 +1,8 @@
-import 'reflect-metadata';
 import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 import fs from 'node:fs';
 import path from 'node:path';
+import 'reflect-metadata';
 
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebookincubator/create-react-app/issues/637

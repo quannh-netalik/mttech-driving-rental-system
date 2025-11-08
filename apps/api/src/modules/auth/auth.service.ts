@@ -1,10 +1,10 @@
 import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { instanceToPlain } from 'class-transformer';
 
-import { UserRepository } from '@/modules/database/repositories';
 import { UserEntity } from '@/modules/database/entities';
+import { UserRepository } from '@/modules/database/repositories';
 import { RedisService } from '@/modules/redis';
 
 import { AuthTokensDto, PayloadDto, RefreshTokenDto, SignUpDto } from './dto';
@@ -72,7 +72,7 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  async refreshToken({ refreshToken }: RefreshTokenDto): Promise<AuthTokensDto> {
+  async renewRefreshToken({ refreshToken }: RefreshTokenDto): Promise<AuthTokensDto> {
     try {
       const decoded = this.jwtService.verify<PayloadDto>(refreshToken, {
         secret: this.jwtSecret,

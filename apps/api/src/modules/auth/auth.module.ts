@@ -1,20 +1,20 @@
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import Redis from 'ioredis';
-import { ConfigService } from '@nestjs/config';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { Request as ExpressRequest } from 'express';
+import Redis from 'ioredis';
 
-import { createRedisOptions } from '@/modules/redis';
 import { UserRepository } from '@/modules/database/repositories';
+import { createRedisOptions } from '@/modules/redis';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { EmailStrategy, JwtStrategy } from './strategies';
 import { EmailAuthGuard, JwtAuthGuard } from './guards';
+import { EmailStrategy, JwtStrategy } from './strategies';
 
 @Module({
   imports: [

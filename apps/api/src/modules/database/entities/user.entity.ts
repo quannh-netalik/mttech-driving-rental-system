@@ -1,10 +1,10 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, Index, Unique } from 'typeorm';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
 import argon2 from 'argon2';
+import { Exclude, Expose } from 'class-transformer';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, Unique } from 'typeorm';
 
-import { BaseEntity } from './base.entity';
 import { Logger } from '@nestjs/common';
+import { BaseEntity } from './base.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
