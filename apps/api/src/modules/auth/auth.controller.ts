@@ -1,6 +1,6 @@
-import type { Request as ExpressRequest } from 'express';
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import type { Request as ExpressRequest } from 'express';
 
 import { UserEntity } from '@/modules/database/entities';
 
@@ -61,7 +61,7 @@ export class AuthController {
     return this.authService.signIn(<UserEntity>req.user);
   }
 
-  @Post('refresh-token')
+  @Post('renew-refresh-token')
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({ status: 200, description: 'Token successfully refreshed', type: AuthTokensDto })
   @ApiResponse({
@@ -75,7 +75,7 @@ export class AuthController {
       },
     },
   })
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<AuthTokensDto> {
-    return this.authService.refreshToken(refreshTokenDto);
+  async renewRefreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<AuthTokensDto> {
+    return this.authService.renewRefreshToken(refreshTokenDto);
   }
 }

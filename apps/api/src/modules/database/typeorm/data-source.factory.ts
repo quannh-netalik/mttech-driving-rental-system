@@ -1,6 +1,6 @@
+import { join } from 'node:path';
 import type { DataSourceOptions } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import { join } from 'node:path';
 
 import { createRedisOptions } from '@/modules/redis';
 
