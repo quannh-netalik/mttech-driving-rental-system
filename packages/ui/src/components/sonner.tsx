@@ -1,7 +1,7 @@
 'use client';
 
 import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from 'lucide-react';
-import { Toaster as Sonner, type ToasterProps, toast } from 'sonner';
+import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
 import { useTheme } from '@workspace/ui/providers/theme.provider';
 
@@ -32,4 +32,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
   );
 };
 
-export { Toaster, toast };
+export { toast } from 'sonner';
+
+export { Toaster };

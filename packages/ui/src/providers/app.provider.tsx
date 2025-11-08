@@ -3,7 +3,7 @@ import { Toaster } from 'sonner';
 
 import { ThemeProvider } from '@workspace/ui/providers/theme.provider';
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
+export function AppProvider({ children }: { readonly children: React.ReactNode }) {
   return (
     <ThemeProvider defaultTheme="system">
       {children}

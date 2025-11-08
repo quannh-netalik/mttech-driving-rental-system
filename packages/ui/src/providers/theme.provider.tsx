@@ -30,15 +30,15 @@ export function ThemeProvider({
   defaultTheme = 'system',
   storageKey = 'theme',
   ...props
-}: ThemeProviderProps) {
+}: Readonly<ThemeProviderProps>) {
   const [theme, setTheme] = useState<Theme>(() =>
-    typeof window !== 'undefined' ? (localStorage.getItem(storageKey) as Theme) : defaultTheme,
+    typeof globalThis.window !== 'undefined' ? (localStorage.getItem(storageKey) as Theme) : defaultTheme,
   );
 
   const handleMediaQuery = useCallback(
     (e: MediaQueryListEvent | MediaQueryList) => {
       if (theme !== 'system') return;
-      const root = window.document.documentElement;
+      const root = globalThis.document.documentElement;
       const targetTheme = e.matches ? 'dark' : 'light';
       if (!root.classList.contains(targetTheme)) {
         root.classList.remove('light', 'dark');
@@ -50,7 +50,7 @@ export function ThemeProvider({
 
   // Listen for system preference changes
   useEffect(() => {
-    const media = window.matchMedia(MEDIA);
+    const media = globalThis.matchMedia(MEDIA);
 
     media.addEventListener('change', handleMediaQuery);
     handleMediaQuery(media);
@@ -59,13 +59,13 @@ export function ThemeProvider({
   }, [handleMediaQuery]);
 
   useEffect(() => {
-    const root = window.document.documentElement;
+    const root = globalThis.document.documentElement;
 
     let targetTheme: string;
 
     if (theme === 'system') {
       localStorage.removeItem(storageKey);
-      targetTheme = window.matchMedia(MEDIA).matches ? 'dark' : 'light';
+      targetTheme = globalThis.matchMedia(MEDIA).matches ? 'dark' : 'light';
     } else {
       localStorage.setItem(storageKey, theme);
       targetTheme = theme;
