@@ -1,4 +1,3 @@
-import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export interface ErrorResponse {
@@ -35,6 +34,5 @@ export class ErrorResponseDto implements ErrorResponse {
 	requestId!: string;
 
 	@ApiProperty({ description: 'Stack trace (development only)', required: false, nullable: true })
-	@Optional()
-	stack?: string | undefined;
+	stack?: string;
 }
