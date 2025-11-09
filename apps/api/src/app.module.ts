@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { Logger, Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule, OnApplicationShutdown } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { AuthModule } from '@/modules/auth';
@@ -9,7 +9,7 @@ import { LoggingModule } from '@/modules/logging';
 import { RedisModule } from '@/modules/redis';
 
 import * as configs from './config';
-import { getCorrelationId } from './middleware';
+import { getCorrelationId, XCorrelationIdMiddleware } from './middleware';
 
 @Module({
 	imports: [
@@ -50,8 +50,12 @@ import { getCorrelationId } from './middleware';
 	controllers: [],
 	providers: [],
 })
-export class AppModule {
+export class AppModule implements NestModule, OnApplicationShutdown {
 	protected logger = new Logger(AppModule.name);
+
+	configure(consumer: MiddlewareConsumer) {
+		consumer.apply(XCorrelationIdMiddleware).forRoutes('*');
+	}
 
 	onApplicationShutdown(signal: string) {
 		this.logger.warn(`Received signal ${signal}, shutting down`);

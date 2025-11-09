@@ -1,3 +1,4 @@
+import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export interface ErrorResponse {
@@ -8,31 +9,32 @@ export interface ErrorResponse {
 	timestamp: string;
 	message: string;
 	requestId: string;
-	stack: string | undefined;
+	stack?: string | undefined;
 }
 
 export class ErrorResponseDto implements ErrorResponse {
-	@ApiProperty()
+	@ApiProperty({ description: 'Request path', example: '/api/users/123' })
 	path!: string;
 
-	@ApiProperty()
+	@ApiProperty({ description: 'HTTP method', example: 'GET' })
 	method!: string;
 
-	@ApiProperty()
+	@ApiProperty({ description: 'HTTP status code', example: 404 })
 	status!: number;
 
-	@ApiProperty()
+	@ApiProperty({ description: 'Exception type', example: 'HttpException' })
 	exceptionType!: string;
 
-	@ApiProperty()
+	@ApiProperty({ description: 'Error timestamp', example: '2025-11-08T21:42:10.000Z' })
 	timestamp!: string;
 
-	@ApiProperty()
+	@ApiProperty({ description: 'Error message', example: 'Resource not found' })
 	message!: string;
 
-	@ApiProperty()
+	@ApiProperty({ description: 'Request correlation ID', example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' })
 	requestId!: string;
 
-	@ApiProperty()
-	stack!: string | undefined;
+	@ApiProperty({ description: 'Stack trace (development only)', required: false, nullable: true })
+	@Optional()
+	stack?: string | undefined;
 }
