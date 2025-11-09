@@ -33,7 +33,7 @@ import { getCorrelationId, XCorrelationIdMiddleware } from './middleware';
 						query: req.query,
 						params: req.params,
 						correlationId: getCorrelationId(req),
-						userAgent: req.headers?.['user-agent'],
+						'user-agent': req.headers?.['user-agent'],
 					}),
 					res: (res: Response) => ({
 						statusCode: res.statusCode,

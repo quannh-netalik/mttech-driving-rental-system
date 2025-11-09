@@ -76,12 +76,12 @@ async function bootstrap() {
 	const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
 		operationIdFactory: (_: string, methodKey: string) => methodKey,
 	});
-	SwaggerModule.setup('docs', app, document, {
+	SwaggerModule.setup('api/docs', app, document, {
 		ui: false,
 	});
 
 	app.use(
-		'/docs',
+		'/api/docs',
 		// Scalar requires custom config for CSP
 		// Apply only for Scalar Docs
 		helmet({
@@ -131,8 +131,8 @@ async function bootstrap() {
 	});
 
 	await app.listen(port, async () => {
-		logger.log(`🚀 Admin API is running in ${env} stage at: ${host}`);
-		logger.log(`📚 API documentation is running at ${host}/docs`);
+		logger.log(`🚀 Admin API is running in ${env} stage at: ${host}/api`);
+		logger.log(`📚 API documentation is running at ${host}/api/docs`);
 	});
 }
 
