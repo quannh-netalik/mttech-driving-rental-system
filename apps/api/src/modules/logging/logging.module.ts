@@ -7,26 +7,26 @@ import { LOGGING_LOGGER } from './logging.constant';
  **/
 @Module({})
 export class LoggingModule {
-  public static forPino(params: Params = {}): DynamicModule {
-    return {
-      module: LoggingModule,
-      imports: [LoggerModule.forRoot(params)],
-      providers: [{ provide: LOGGING_LOGGER, useExisting: Logger }],
-      exports: [LoggerModule, LOGGING_LOGGER],
-    };
-  }
+	public static forPino(params: Params = {}): DynamicModule {
+		return {
+			module: LoggingModule,
+			imports: [LoggerModule.forRoot(params)],
+			providers: [{ provide: LOGGING_LOGGER, useExisting: Logger }],
+			exports: [LoggerModule, LOGGING_LOGGER],
+		};
+	}
 
-  /**
-   * Set up app logger
-   *
-   * @param app
-   */
-  public static useLogger(app: INestApplicationContext): LoggerService {
-    const logger = app.get<LoggerService>(LOGGING_LOGGER);
+	/**
+	 * Set up app logger
+	 *
+	 * @param app
+	 */
+	public static useLogger(app: INestApplicationContext): LoggerService {
+		const logger = app.get<LoggerService>(LOGGING_LOGGER);
 
-    // use as default logger
-    app.useLogger(logger);
+		// use as default logger
+		app.useLogger(logger);
 
-    return logger;
-  }
+		return logger;
+	}
 }

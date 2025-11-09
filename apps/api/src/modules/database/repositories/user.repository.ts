@@ -6,7 +6,7 @@ import { BaseRepository } from './base.repository';
 
 @Injectable()
 export class UserRepository extends BaseRepository<UserEntity> {
-  constructor(protected readonly entityManager: EntityManager) {
-    super(UserEntity, entityManager);
-  }
+	constructor(protected readonly entityManager: EntityManager) {
+		super(UserEntity, entityManager);
+	}
 }

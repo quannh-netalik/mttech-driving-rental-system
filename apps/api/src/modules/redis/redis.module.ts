@@ -6,16 +6,16 @@ import { RedisService } from './redis.service';
 
 @Global()
 @Module({
-  imports: [],
-  providers: [
-    RedisFactory,
-    {
-      provide: Redis,
-      useFactory: (redisFactory: RedisFactory) => redisFactory.getClient(),
-      inject: [RedisFactory],
-    },
-    RedisService,
-  ],
-  exports: [RedisService],
+	imports: [],
+	providers: [
+		RedisFactory,
+		{
+			provide: Redis,
+			useFactory: (redisFactory: RedisFactory) => redisFactory.getClient(),
+			inject: [RedisFactory],
+		},
+		RedisService,
+	],
+	exports: [RedisService],
 })
 export class RedisModule {}

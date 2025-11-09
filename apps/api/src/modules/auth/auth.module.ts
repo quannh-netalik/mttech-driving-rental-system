@@ -17,49 +17,49 @@ import { EmailAuthGuard, JwtAuthGuard } from './guards';
 import { EmailStrategy, JwtStrategy } from './strategies';
 
 @Module({
-  imports: [
-    ThrottlerModule.forRoot({
-      throttlers: [{ limit: 5, ttl: seconds(60) }],
-      skipIf: context => context.switchToHttp().getRequest<ExpressRequest>().path !== '/auth/sign-in',
-      storage: new ThrottlerStorageRedisService(new Redis(createRedisOptions('mttech-throttle:'))),
-    }),
-    PassportModule.register({
-      defaultStrategy: 'jwt',
-      session: false,
-    }),
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        global: true,
-        secret: config.getOrThrow<string>('JWT_SECRET'),
-        signOptions: { expiresIn: +config.getOrThrow<number>('JWT_AC_TTL') },
-      }),
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    UserRepository,
-    {
-      provide: JwtStrategy,
-      useFactory: (configService: ConfigService, authService: AuthService) => {
-        return new JwtStrategy(configService, authService);
-      },
-      inject: [ConfigService, AuthService],
-    },
-    {
-      provide: EmailStrategy,
-      useFactory: (authService: AuthService) => {
-        return new EmailStrategy(authService);
-      },
-      inject: [AuthService],
-    },
-    EmailAuthGuard,
-    JwtAuthGuard,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+	imports: [
+		ThrottlerModule.forRoot({
+			throttlers: [{ limit: 5, ttl: seconds(60) }],
+			skipIf: context => context.switchToHttp().getRequest<ExpressRequest>().path !== '/auth/sign-in',
+			storage: new ThrottlerStorageRedisService(new Redis(createRedisOptions('mttech-throttle:'))),
+		}),
+		PassportModule.register({
+			defaultStrategy: 'jwt',
+			session: false,
+		}),
+		JwtModule.registerAsync({
+			inject: [ConfigService],
+			useFactory: (config: ConfigService) => ({
+				global: true,
+				secret: config.getOrThrow<string>('JWT_SECRET'),
+				signOptions: { expiresIn: +config.getOrThrow<number>('JWT_AC_TTL') },
+			}),
+		}),
+	],
+	controllers: [AuthController],
+	providers: [
+		AuthService,
+		UserRepository,
+		{
+			provide: JwtStrategy,
+			useFactory: (configService: ConfigService, authService: AuthService) => {
+				return new JwtStrategy(configService, authService);
+			},
+			inject: [ConfigService, AuthService],
+		},
+		{
+			provide: EmailStrategy,
+			useFactory: (authService: AuthService) => {
+				return new EmailStrategy(authService);
+			},
+			inject: [AuthService],
+		},
+		EmailAuthGuard,
+		JwtAuthGuard,
+		{
+			provide: APP_GUARD,
+			useClass: ThrottlerGuard,
+		},
+	],
 })
 export class AuthModule {}

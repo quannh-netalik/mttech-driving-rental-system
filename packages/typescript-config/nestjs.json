@@ -20,6 +20,7 @@
     "skipLibCheck": true,
     "declaration": true,
     "resolvePackageJsonExports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "isolatedModules": false
   }
 }
