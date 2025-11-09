@@ -11,6 +11,7 @@ declare global {
 			Locals extends Record<string, any> = Record<string, any>,
 		> {
 			correlationId: string;
+      user: UserEntity;
 		}
 	}
 }

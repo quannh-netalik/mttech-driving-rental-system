@@ -6,21 +6,21 @@ import { RedisHealthIndicator } from './indicators';
 const timeout = 5000;
 
 export const DatabaseHealthCheckProvider: Provider = {
-  provide: Symbol.for('Health.Database'),
+	provide: Symbol.for('Health.Database'),
 
-  useFactory: (db: TypeOrmHealthIndicator) => {
-    return () => db.pingCheck('database', { timeout });
-  },
+	useFactory: (db: TypeOrmHealthIndicator) => {
+		return () => db.pingCheck('database', { timeout });
+	},
 
-  inject: [TypeOrmHealthIndicator],
+	inject: [TypeOrmHealthIndicator],
 };
 
 export const RedisHealthCheckProvider: Provider = {
-  provide: Symbol.for('Health.Redis'),
+	provide: Symbol.for('Health.Redis'),
 
-  useFactory: (redis: RedisHealthIndicator) => {
-    return () => redis.isHealthy('redis', { timeout });
-  },
+	useFactory: (redis: RedisHealthIndicator) => {
+		return () => redis.isHealthy('redis', { timeout });
+	},
 
-  inject: [RedisHealthIndicator],
+	inject: [RedisHealthIndicator],
 };

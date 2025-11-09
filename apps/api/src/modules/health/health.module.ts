@@ -9,23 +9,23 @@ import { extractProviderToken } from './health.util';
 import { RedisHealthIndicator } from './indicators';
 
 @Module({
-  imports: [TerminusModule.forRoot({ errorLogStyle: 'pretty' }), RedisModule],
-  controllers: [HealthController],
-  providers: [RedisHealthIndicator],
+	imports: [TerminusModule.forRoot({ errorLogStyle: 'pretty' }), RedisModule],
+	controllers: [HealthController],
+	providers: [RedisHealthIndicator],
 })
 export class HealthModule {
-  public static forRoot(providers: Provider[]): DynamicModule {
-    return {
-      module: HealthModule,
-      providers: [
-        ...providers,
+	public static forRoot(providers: Provider[]): DynamicModule {
+		return {
+			module: HealthModule,
+			providers: [
+				...providers,
 
-        {
-          provide: HEALTH_CHECKS,
-          useFactory: (...checks) => checks,
-          inject: providers.map(extractProviderToken),
-        },
-      ],
-    };
-  }
+				{
+					provide: HEALTH_CHECKS,
+					useFactory: (...checks) => checks,
+					inject: providers.map(extractProviderToken),
+				},
+			],
+		};
+	}
 }
