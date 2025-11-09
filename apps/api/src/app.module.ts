@@ -57,7 +57,7 @@ export class AppModule implements NestModule, OnApplicationShutdown {
 		consumer.apply(XCorrelationIdMiddleware).forRoutes('*');
 	}
 
-	onApplicationShutdown(signal: string) {
-		this.logger.warn(`Received signal ${signal}, shutting down`);
+	onApplicationShutdown(signal?: string) {
+		this.logger.warn(`Received signal ${signal ?? 'unknown'}, shutting down`);
 	}
 }
