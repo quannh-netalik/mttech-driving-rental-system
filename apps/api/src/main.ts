@@ -26,6 +26,15 @@ generator.generate({
 	tsconfigPath: './tsconfig.json',
 });
 
+/**
+ * Bootstraps and starts the NestJS HTTP server for the application.
+ *
+ * Configures global application behavior (logging, API prefix and versioning, validation, serialization,
+ * exception filtering, and dependency container wiring), applies security and performance middleware (helmet,
+ * compression, CORS, proxy trust), generates and mounts OpenAPI documentation at /docs with a CSP-aware
+ * configuration, registers an unhandled rejection handler that logs errors, and begins listening on the
+ * configured port.
+ */
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 		bufferLogs: false,
