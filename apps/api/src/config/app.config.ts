@@ -1,23 +1,24 @@
-import { AppEnvironment, NestAppConfigOptions } from '@/types';
 import { registerAs } from '@nestjs/config';
+import { AppEnvironment, NestAppConfigOptions } from '@/types';
 
-export const appConfig = registerAs('appConfig', function (): NestAppConfigOptions {
-  // current environment mode
-  const env = <AppEnvironment>(process.env.NODE_ENV || 'development').toLowerCase();
+export const appConfig = registerAs('appConfig', (): NestAppConfigOptions => {
+	// current environment mode
+	const env = <AppEnvironment>(process.env.NODE_ENV || 'development').toLowerCase();
 
-  // default listen port
-  const port = +(process.env.API_PORT || 3030);
+	// default listen port
+	const port = +(process.env.API_PORT || 3030);
 
-  const appHost = process.env.APP_HOST;
-  if (env === 'production' && !appHost) {
-    throw new Error('APP_HOST is required in production');
-  }
+	const appHost = process.env.APP_HOST;
+	if (env === 'production' && !appHost) {
+		throw new Error('APP_HOST is required in production');
+	}
 
-  const host = env === 'production' ? process.env.APP_HOST! : `http://localhost:${port}`;
+	// biome-ignore lint/style/noNonNullAssertion: having null check above
+	const host = env === 'production' ? process.env.APP_HOST! : `http://localhost:${port}`;
 
-  return {
-    env,
-    host,
-    port,
-  };
+	return {
+		env,
+		host,
+		port,
+	};
 });
