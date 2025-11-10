@@ -35,7 +35,7 @@ const mockWindow = <typeof globalThis.window>{
 	location: { href: '' },
 };
 
-global.window = mockWindow;
+globalThis.window = mockWindow;
 
 describe('HttpClient', () => {
 	let httpClient: HttpClient;
@@ -452,9 +452,7 @@ describe('HttpClient', () => {
 			});
 
 			// Fire 5 requests at the same time
-			const requests = Array(5)
-				.fill(null)
-				.map(() => httpClient.get('/protected'));
+			const requests = new Array(5).fill(null).map(() => httpClient.get('/protected'));
 			await Promise.all(requests);
 
 			// Should only refresh token once despite multiple concurrent 401s

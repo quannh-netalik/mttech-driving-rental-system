@@ -1,12 +1,13 @@
-import { afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, vi } from 'vitest';
 
 // Setup DOM-like environment for tests
 const mockWindow = {
 	location: { href: '' },
 };
-// Setup global mocks
-vi.stubGlobal('window', mockWindow);
-// Cleanup after tests
+
+beforeEach(() => {
+	vi.stubGlobal('window', mockWindow);
+});
 
 afterEach(() => {
 	vi.unstubAllGlobals();

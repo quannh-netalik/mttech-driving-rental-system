@@ -10,6 +10,14 @@ const StorageKeys = {
  * Type-safe wrapper for localStorage operations with error handling
  */
 class LocalStorageService {
+	private isLocalStorageAvailable(): boolean {
+		try {
+			return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+		} catch {
+			return false;
+		}
+	}
+
 	/**
 	 * Safely retrieves an item from localStorage
 	 * @param key - The storage key to retrieve
@@ -17,6 +25,11 @@ class LocalStorageService {
 	 */
 	private getItem(key: string): string | null {
 		try {
+			if (!this.isLocalStorageAvailable()) {
+				console.warn('localStorage is not available');
+				return null;
+			}
+
 			return localStorage.getItem(key);
 		} catch (error) {
 			console.error(`Error reading from localStorage (key: ${key}):`, error);
