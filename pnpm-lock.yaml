@@ -91,7 +91,7 @@ importers:
         version: 0.553.0(react@19.2.0)
       nitro:
         specifier: npm:nitro-nightly@latest
-        version: nitro-nightly@3.0.1-20251110-005841-4cf1b533(chokidar@4.0.3)(ioredis@5.8.2)(lru-cache@11.2.2)(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6))(rollup@4.53.1)
+        version: nitro-nightly@3.0.1-20251110-110934-89e686f1(chokidar@4.0.3)(ioredis@5.8.2)(lru-cache@11.2.2)(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6))(rollup@4.53.1)
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -328,6 +328,9 @@ importers:
       axios:
         specifier: ^1.12.2
         version: 1.13.2
+      nanoid:
+        specifier: ^5.1.6
+        version: 5.1.6
       qs:
         specifier: ^6.14.0
         version: 6.14.0
@@ -6077,6 +6080,11 @@ packages:
     engines: {node: ^18 || >=20}
     hasBin: true
 
+  nanoid@5.1.6:
+    resolution: {integrity: sha512-c7+7RQ+dMB5dPwwCp4ee1/iV/q2P6aK1mTZcfr1BTuVlyW9hJYiMPybJCcnBlQtuSmTIWNeazm/zqNoZSSElBg==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+
   napi-postinstall@0.3.4:
     resolution: {integrity: sha512-PHI5f1O0EP5xJ9gQmFGMS6IZcrVvTjpXjz7Na41gTE7eE2hK11lg04CECCYEEjdc17EV4DO+fkGEtt7TpTaTiQ==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
@@ -6109,11 +6117,11 @@ packages:
     resolution: {integrity: sha512-dBpDMdxv9Irdq66304OLfEmQ9tbNRFnFTuZiLo+bD+r332bBmMJ8GBLXklIXXgxd3+v9+KUnZaUR5PJMa75Gsg==}
     engines: {node: '>= 0.4.0'}
 
-  nf3@0.1.9:
-    resolution: {integrity: sha512-zhqe/2ikL/Jh/FwhHeLUo3Y6P1T8grD72DCkcljb9tR8ZIYQP9dV9C0+zok+EFFnog+p/HPFHiktz8VZD/79Tw==}
+  nf3@0.1.10:
+    resolution: {integrity: sha512-bT6FITvXLd8Z9Qbt0NsMz90diyLNK8H4Sp2vZ9IGLrKxsF5djM+F2vQmR6GyvtlP2y47XMZjjVFpPClgMB8USQ==}
 
-  nitro-nightly@3.0.1-20251110-005841-4cf1b533:
-    resolution: {integrity: sha512-lQzg9TzrnJaCzB93+YkMJGxFNeyreCayKg47CYZztjsbJSyYUtYSiWAae5My9gf7r0w38jW1pp/a4hdM22RPnw==}
+  nitro-nightly@3.0.1-20251110-110934-89e686f1:
+    resolution: {integrity: sha512-YGP8erDAE1idmKS3S3l/xsTo6z6bT/r7m1GXnC3pym7q3uGBmgdiAgzCvGp/9iFPO0y+PeXWgjDdzXL0z+Az2A==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -13808,6 +13816,8 @@ snapshots:
 
   nanoid@5.1.5: {}
 
+  nanoid@5.1.6: {}
+
   napi-postinstall@0.3.4: {}
 
   natural-compare@1.4.0: {}
@@ -13827,16 +13837,16 @@ snapshots:
 
   netmask@2.0.2: {}
 
-  nf3@0.1.9: {}
+  nf3@0.1.10: {}
 
-  nitro-nightly@3.0.1-20251110-005841-4cf1b533(chokidar@4.0.3)(ioredis@5.8.2)(lru-cache@11.2.2)(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6))(rollup@4.53.1):
+  nitro-nightly@3.0.1-20251110-110934-89e686f1(chokidar@4.0.3)(ioredis@5.8.2)(lru-cache@11.2.2)(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6))(rollup@4.53.1):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.1(srvx@0.9.5)
       db0: 0.3.4
       h3: 2.0.1-rc.5(crossws@0.4.1(srvx@0.9.5))
       jiti: 2.6.1
-      nf3: 0.1.9
+      nf3: 0.1.10
       ofetch: 2.0.0-alpha.3
       ohash: 2.0.11
       oxc-minify: 0.96.0
