@@ -1,9 +1,13 @@
 import { TriangleAlertIcon } from 'lucide-react';
 
-export function ErrorMessage({ message }: Readonly<{ message?: string }>) {
+export interface ErrorMessageProps {
+	message?: string;
+}
+
+export function ErrorMessage({ message }: Readonly<ErrorMessageProps>) {
 	return (
 		message && (
-			<span className="text-red-400 text-sm font-medium flex gap-2 items-center">
+			<span aria-live="polite" className="text-red-400 text-sm font-medium flex gap-2 items-center" role="alert">
 				<TriangleAlertIcon size={18} />
 				{message}
 			</span>
