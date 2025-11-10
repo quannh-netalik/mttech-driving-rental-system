@@ -21,7 +21,7 @@ const defaultConfig: AxiosRequestConfig = {
 };
 
 export class HttpClient {
-	private axiosInstance: AxiosInstance;
+	private readonly axiosInstance: AxiosInstance;
 
 	constructor({ baseURL }: Partial<AxiosRequestConfig> = {}) {
 		if (!baseURL) {
@@ -40,11 +40,16 @@ export class HttpClient {
 	private httpInterceptorsRequest(): void {
 		this.axiosInstance.interceptors.request.use(
 			config => {
-				const token = localStorageServices.getAccessToken();
-				config.headers.Authorization = `Bearer ${token}`;
+				const accessToken = localStorageServices.getAccessToken();
+				if (accessToken) {
+					config.headers.Authorization = `Bearer ${accessToken}`;
+				}
+
 				return config;
 			},
-			error => Promise.reject(error),
+			error => {
+				throw Promise.reject(error);
+			},
 		);
 	}
 
@@ -53,7 +58,9 @@ export class HttpClient {
 			response => {
 				return response.data;
 			},
-			async error => Promise.reject(error),
+			async error => {
+				throw Promise.reject(error);
+			},
 		);
 	}
 
