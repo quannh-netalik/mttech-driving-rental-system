@@ -7,6 +7,13 @@ import { useLayout } from '@workspace/ui/providers';
 import { TeamSwitcher } from '../team-switcher';
 import { sidebarData } from './sidebar.config';
 
+/**
+ * Render the application's sidebar composed of a header, navigational groups, footer, and rail.
+ *
+ * Uses layout state to set the sidebar's collapsible behavior and populates header and content from sidebar configuration.
+ *
+ * @returns The rendered sidebar element configured from layout state and sidebar data
+ */
 export function AppSidebar() {
 	const { collapsible } = useLayout();
 	return (

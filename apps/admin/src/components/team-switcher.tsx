@@ -22,6 +22,12 @@ type TeamSwitcherProps = {
 	}[];
 };
 
+/**
+ * Render a sidebar-integrated dropdown that displays the current team and lets the user switch between available teams.
+ *
+ * @param teams - Array of team entries. Each entry must include `name` (string), `Logo` (a React component used as the team's icon), and `plan` (string).
+ * @returns A JSX element containing a sidebar menu item with a team selector dropdown showing the active team, a list of teams to choose from, and an "Add team" action.
+ */
 export function TeamSwitcher({ teams }: TeamSwitcherProps) {
 	const { isMobile } = useSidebar();
 	const [activeTeam, setActiveTeam] = React.useState(teams[0]);
