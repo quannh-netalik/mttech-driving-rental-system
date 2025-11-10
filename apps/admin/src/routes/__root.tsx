@@ -56,6 +56,11 @@ export const Route = createRootRouteWithContext<{
 	component: RootComponent,
 });
 
+/**
+ * Renders the application document shell with a placeholder for nested route content.
+ *
+ * @returns A React element containing the document shell and an <Outlet /> where child routes render.
+ */
 function RootComponent() {
 	return (
 		<RootDocument>
@@ -64,6 +69,17 @@ function RootComponent() {
 	);
 }
 
+/**
+ * Root HTML document that wraps the application UI with providers, theming, development tools, and runtime scripts.
+ *
+ * Renders a complete <html> element with head content and a body that:
+ * - wraps `children` with application providers and theme background,
+ * - mounts TanStack devtools panels,
+ * - includes runtime scripts.
+ *
+ * @param children - Nested route content to render inside the app provider and theme background
+ * @returns The root `<html>` element for the application route
+ */
 function RootDocument({ children }: { readonly children: React.ReactNode }) {
 	return (
 		<html lang="vi" suppressHydrationWarning>

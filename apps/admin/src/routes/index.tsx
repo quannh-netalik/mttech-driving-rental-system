@@ -8,6 +8,13 @@ export const Route = createFileRoute('/')({
 	component: HomePage,
 });
 
+/**
+ * Renders the application's home page with a centered layout, informational header, footer links, and a Suspense-wrapped user action block.
+ *
+ * The user action block is rendered inside a Suspense boundary and displays sign-in state controls and session information when available.
+ *
+ * @returns A React element representing the home page.
+ */
 function HomePage() {
 	return (
 		<div className="flex min-h-svh flex-col items-center justify-center gap-10 p-2">
@@ -54,6 +61,11 @@ function HomePage() {
 	);
 }
 
+/**
+ * Renders UI that reflects the current authentication state: shows a welcome message, dashboard link, and session JSON when a user is signed in, or a sign-in prompt with a login link when not.
+ *
+ * @returns A React element containing either the signed-in view (welcome text, "Go to Dashboard" button, and a JSON session block) or the signed-out view ("You are not signed in." and a "Log in" button).
+ */
 function UserAction() {
 	const { data: user } = useSuspenseQuery(authQueryOptions());
 

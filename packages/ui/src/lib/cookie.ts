@@ -6,7 +6,9 @@
 const DEFAULT_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 /**
- * Get a cookie value by name (uses cookieStore if available)
+ * Retrieve the value of a cookie by name.
+ *
+ * @returns The cookie value if found, or `undefined` when not in a browser environment or when the cookie does not exist.
  */
 export async function getCookie(name: string): Promise<string | undefined> {
 	// If running in a non-browser environment
@@ -31,7 +33,13 @@ export async function getCookie(name: string): Promise<string | undefined> {
 }
 
 /**
- * Set a cookie using the modern Cookie Store API
+ * Sets a cookie with the given name and value.
+ *
+ * Uses the Cookie Store API when available; otherwise falls back to writing to `document.cookie`.
+ *
+ * @param name - Cookie name
+ * @param value - Cookie value
+ * @param maxAge - Lifetime of the cookie in seconds; defaults to `DEFAULT_MAX_AGE` (7 days)
  */
 export async function setCookie(name: string, value: string, maxAge: number = DEFAULT_MAX_AGE): Promise<void> {
 	// Modern API
@@ -55,7 +63,12 @@ export async function setCookie(name: string, value: string, maxAge: number = DE
 }
 
 /**
- * Remove a cookie by deleting it
+ * Remove the cookie with the given name.
+ *
+ * Uses the Cookie Store API when available; otherwise expires the cookie via document.cookie.
+ * Does nothing when not running in a browser environment.
+ *
+ * @param name - The cookie name to remove
  */
 export async function removeCookie(name: string): Promise<void> {
 	// Modern API
