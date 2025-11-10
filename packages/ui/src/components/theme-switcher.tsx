@@ -1,8 +1,7 @@
 import { useThemeAnimation } from '@space-man/react-theme-animation';
-import { ClientOnly } from '@tanstack/react-router';
 import { Button } from '@workspace/ui/components/button';
 import { useTheme } from '@workspace/ui/providers/theme.provider';
-import { Loader2, MoonStar, SunIcon } from 'lucide-react';
+import { MoonStar, SunIcon } from 'lucide-react';
 
 interface ThemeSwitcherProps {
 	lightModeLabel?: string;
@@ -33,9 +32,8 @@ export function ThemeSwitcher({
 			type="button"
 			variant="outline"
 		>
-			<ClientOnly fallback={<Loader2 className="animate-spin" />}>
-				{theme === 'dark' ? <SunIcon /> : <MoonStar />}
-			</ClientOnly>
+			<SunIcon className="dark:hidden" />
+			<MoonStar className="hidden dark:block" />
 		</Button>
 	);
 }

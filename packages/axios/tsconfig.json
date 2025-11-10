@@ -2,8 +2,9 @@
   "extends": "@workspace/typescript-config/react-library.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "outDir": "./dist",
     "paths": {
-      "@workspace/lib/*": ["./src/*"]
+      "@workspace/axios/*": ["./src/*"]
     }
   },
   "include": ["."],
