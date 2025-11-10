@@ -1,6 +1,5 @@
 import { getCookie, setCookie } from '@workspace/ui/lib';
-import { createContext, useContext, useState } from 'react';
-
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 export type Collapsible = 'offcanvas' | 'icon' | 'none';
 
 // Cookie constants following the pattern from sidebar.tsx
@@ -30,23 +29,26 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
 		return (saved as unknown as Collapsible) || DEFAULT_COLLAPSIBLE;
 	});
 
-	const setCollapsible = (newCollapsible: Collapsible) => {
+	const setCollapsible = useCallback((newCollapsible: Collapsible) => {
 		_setCollapsible(newCollapsible);
 		setCookie(LAYOUT_COLLAPSIBLE_COOKIE_NAME, newCollapsible, LAYOUT_COOKIE_MAX_AGE);
-	};
+	}, []);
 
-	const resetLayout = () => {
+	const resetLayout = useCallback(() => {
 		setCollapsible(DEFAULT_COLLAPSIBLE);
-	};
+	}, [setCollapsible]);
 
-	const contextValue: LayoutContextType = {
-		resetLayout,
-		defaultCollapsible: DEFAULT_COLLAPSIBLE,
-		collapsible,
-		setCollapsible,
-	};
+	const contextValue: LayoutContextType = useMemo(
+		() => ({
+			resetLayout,
+			defaultCollapsible: DEFAULT_COLLAPSIBLE,
+			collapsible,
+			setCollapsible,
+		}),
+		[resetLayout, collapsible, setCollapsible],
+	);
 
-	return <LayoutContext value={contextValue}>{children}</LayoutContext>;
+	return <LayoutContext.Provider value={contextValue}>{children}</LayoutContext.Provider>;
 }
 
 // Define the hook for the provider

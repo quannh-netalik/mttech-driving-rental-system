@@ -83,6 +83,7 @@ function LoginForm() {
 							</Label>
 							<Input
 								placeholder="hello@example.com"
+								readOnly={isPending}
 								required
 								type="email"
 								{...register('email')}
@@ -110,6 +111,7 @@ function LoginForm() {
 									{...register('password')}
 								/>
 								<button
+									aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
 									className="absolute mt-9 right-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
 									onClick={() => setShowPassword(!showPassword)}
 									type="button"
@@ -123,7 +125,7 @@ function LoginForm() {
 
 						<Button className="mt-2 w-full cursor-pointer" disabled={isPending} size="lg" type="submit">
 							{isPending && <LoaderCircle className="animate-spin" />}
-							{isPending ? 'Đăng đăng nhập...' : 'Đăng nhập'}
+							{isPending ? 'Đang đăng nhập...' : 'Đăng nhập'}
 						</Button>
 					</div>
 

@@ -40,6 +40,7 @@ export async function setCookie(name: string, value: string, maxAge: number = DE
 		name,
 		value,
 		path: '/',
+		sameSite: 'lax', // or 'strict' for stricter protection
 		expires: Date.now() + maxAge * 1000, // expires takes a timestamp (ms)
 	});
 }
