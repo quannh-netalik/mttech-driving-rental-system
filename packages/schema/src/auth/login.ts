@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 import { vEmail, vPassword } from '../utils';
 
 export const zLoginSchema = z.object({

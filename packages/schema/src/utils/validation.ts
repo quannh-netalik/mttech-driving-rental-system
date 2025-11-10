@@ -1,9 +1,9 @@
-import z from 'zod';
+import { z } from 'zod';
 
 export const regexEmail = /^(?=.{1,}$)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export const regexPassword =
-	/^(?=.*[a-zA-Z])(?=.*\d)(?!.*[ぁ-んァ-ヶー一-龠ａ-ｚＡ-Ｚ０-９])[a-zA-Z\d-_,.@#$%^&*/:;\\+]{3,12}$/;
+	/^(?=.*[a-zA-Z])(?=.*\d)(?!.*[ぁ-んァ-ヶー一-龠ａ-ｚＡ-Ｚ０-９])[a-zA-Z\d-_,.@#$%^&*/:;\\+]{3,30}$/;
 
 export const vEmail = z
 	.string({
@@ -22,10 +22,7 @@ export const vEmail = z
 
 export const vPassword = z
 	.string({
-		error: 'Vui lòng điền email',
-	})
-	.refine(data => data.length > 0, {
-		message: 'Vui lòng điền mật khẩu',
+		error: 'Vui lòng điền mật khẩu',
 	})
 	.refine(data => data.length >= 3, {
 		message: 'Mật khẩu phải có ít nhất 3 ký tự',
