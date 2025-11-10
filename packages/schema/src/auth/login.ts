@@ -1,9 +1,16 @@
 import { z } from 'zod';
 import { vEmail, vPassword } from '../utils';
 
-export const zLoginSchema = z.object({
+export const zLoginRequestSchema = z.object({
 	email: vEmail,
 	password: vPassword,
 });
 
-export type LoginSchema = z.infer<typeof zLoginSchema>;
+export type LoginRequestSchema = z.infer<typeof zLoginRequestSchema>;
+
+export const zLoginResponseSchema = z.object({
+	accessToken: z.string(),
+	refreshToken: z.optional(z.string()),
+});
+
+export type LoginResponseSchema = z.infer<typeof zLoginResponseSchema>;
