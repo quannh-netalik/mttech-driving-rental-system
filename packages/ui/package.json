@@ -2,6 +2,8 @@
   "name": "@workspace/ui",
   "private": true,
   "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev": "tsc --watch",
     "lint": "biome lint ."
   },
   "type": "module",
