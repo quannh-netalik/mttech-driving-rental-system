@@ -27,7 +27,6 @@ const defaultConfig: AxiosRequestConfig = {
 	headers: {
 		Accept: 'application/json, text/plain, */*',
 		'Content-Type': 'application/json',
-		'X-Correlation-Id': crypto.randomUUID(),
 	},
 	paramsSerializer: {
 		serialize: params => qs.stringify(params, { arrayFormat: 'repeat' }),
@@ -78,10 +77,13 @@ export class HttpClient {
 					config.headers.Authorization = `Bearer ${accessToken}`;
 				}
 
+				// Setup request/correlation ID
+				config.headers['X-Correlation-Id'] = crypto.randomUUID();
+
 				return config;
 			},
 			error => {
-				throw Promise.reject(error);
+				return Promise.reject(error);
 			},
 		);
 	}
@@ -96,7 +98,7 @@ export class HttpClient {
 
 				// For all non-401 errors, missing config, or already retried requests, reject immediately
 				if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
-					throw Promise.reject(error);
+					return Promise.reject(error);
 				}
 
 				// Mark this request as retried to prevent infinite loops
@@ -144,7 +146,7 @@ export class HttpClient {
 			return this.axiosInstance(originalRequest);
 		} catch (refreshError) {
 			this.handleRefreshFailure(refreshError);
-			return Promise.reject(refreshError);
+			throw refreshError;
 		} finally {
 			this.isRefreshing = false;
 		}

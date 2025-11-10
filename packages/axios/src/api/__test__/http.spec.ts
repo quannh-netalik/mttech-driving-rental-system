@@ -3,11 +3,6 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock window object before tests
-vi.stubGlobal('window', {
-	location: { href: '' },
-});
-
 // Setup window mock for test environment
 Object.defineProperty(globalThis, 'window', {
 	value: {

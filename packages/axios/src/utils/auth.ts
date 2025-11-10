@@ -12,7 +12,7 @@ const StorageKeys = {
 class LocalStorageService {
 	private isLocalStorageAvailable(): boolean {
 		try {
-			return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+			return typeof globalThis.window !== 'undefined' && typeof globalThis.window.localStorage !== 'undefined';
 		} catch {
 			return false;
 		}
@@ -44,6 +44,11 @@ class LocalStorageService {
 	 */
 	private setItem(key: string, value: string): void {
 		try {
+			if (!this.isLocalStorageAvailable()) {
+				console.warn('localStorage is not available');
+				return;
+			}
+
 			localStorage.setItem(key, value);
 		} catch (error) {
 			console.error(`Error writing to localStorage (key: ${key}):`, error);
@@ -56,6 +61,11 @@ class LocalStorageService {
 	 */
 	private removeItem(key: string): void {
 		try {
+			if (!this.isLocalStorageAvailable()) {
+				console.warn('localStorage is not available');
+				return;
+			}
+
 			localStorage.removeItem(key);
 		} catch (error) {
 			console.error(`Error removing from localStorage (key: ${key}):`, error);
