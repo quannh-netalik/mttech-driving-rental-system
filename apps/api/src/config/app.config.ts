@@ -16,6 +16,7 @@ const host = env === 'production' ? process.env.APP_HOST! : `http://localhost:${
 
 export const appConfig: NestAppConfigOptions = {
 	env,
+	isProduction: env === 'production',
 	host,
 	port,
 };

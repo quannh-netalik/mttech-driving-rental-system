@@ -1,4 +1,4 @@
-import { UserEntity } from "@/modules/database/entities";
+import { UserEntity } from '@/modules/database/entities';
 
 export declare global {
   namespace NodeJS {
@@ -9,15 +9,6 @@ export declare global {
       DATABASE_URL: string;
       JWT_SECRET: string;
     }
-  }
-}
-
-declare module 'http' {
-  interface IncomingMessage {
-    // customProps of pino-http
-    customProps: object;
-    // Request.prototype of fastify
-    originalUrl: string;
   }
 }
 
