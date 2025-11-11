@@ -11,6 +11,5 @@
     "tsConfigPath": "./tsconfig.json",
     "watchAssets": true,
     "plugins": []
-  },
-  "exclude": ["src/metadata.ts"]
+  }
 }

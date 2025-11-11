@@ -1,7 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
-import { Request, Response } from 'express';
-import { ErrorResponse } from '@/types/error.type';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -9,8 +8,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
 	catch(exception: Error, host: ArgumentsHost): void {
 		const ctx: HttpArgumentsHost = host.switchToHttp();
-		const response: Response = ctx.getResponse<Response>();
-		const request: Request = ctx.getRequest<Request>();
+		const request: FastifyRequest = ctx.getRequest<FastifyRequest>();
+		const response: FastifyReply = ctx.getResponse<FastifyReply>();
 
 		let httpStatus: number = HttpStatus.INTERNAL_SERVER_ERROR;
 		let exceptionType: string = '';
@@ -30,12 +29,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 			exceptionType,
 			timestamp: new Date().toISOString(),
 			message: exception.message,
-			requestId: request.correlationId,
+			requestId: request.id,
 			stack: exception.stack,
 		};
 
 		this.logger.error(error);
 
-		response.status(httpStatus).json(error);
+		response.status(httpStatus).send(error);
 	}
 }

@@ -11,5 +11,6 @@
         "name": "nest"
       }
     ]
-  }
+  },
+  "include": ["types/global.d.ts", "src/**/*", "test/**/*"]
 }

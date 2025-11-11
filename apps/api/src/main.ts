@@ -1,139 +1,110 @@
 import './env';
 
 import { inspect } from 'node:util';
+import compression from '@fastify/compress';
+import fastifyCsrf from '@fastify/csrf-protection';
+import helmet from '@fastify/helmet';
+import fastifyRateLimit from '@fastify/rate-limit';
 import { PluginMetadataGenerator } from '@nestjs/cli/lib/compiler/plugins/plugin-metadata-generator';
 import { ClassSerializerInterceptor, ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { SwaggerModule } from '@nestjs/swagger';
 import { ReadonlyVisitor } from '@nestjs/swagger/dist/plugin';
-import { apiReference } from '@scalar/nestjs-api-reference';
 import { useContainer } from 'class-validator';
-import compression from 'compression';
-import helmet from 'helmet';
+import { appConfig } from '@/config';
+import { HttpExceptionFilter } from '@/filters';
 import { LoggingModule } from '@/modules/logging';
+import { buildOpenApiConfig, genReqId } from '@/utils';
 import { AppModule } from './app.module';
-import { appConfig } from './config';
-import { HttpExceptionFilter } from './filters';
-import { NestAppConfigOptions } from './types';
-import { buildOpenApiConfig } from './utils';
 
 const generator = new PluginMetadataGenerator();
 generator.generate({
-	visitors: [new ReadonlyVisitor({ introspectComments: true, pathToSource: __dirname })],
-	outputDir: __dirname,
-	watch: true,
-	tsconfigPath: './tsconfig.json',
+  visitors: [new ReadonlyVisitor({ introspectComments: true, pathToSource: __dirname })],
+  outputDir: __dirname,
+  watch: true,
+  tsconfigPath: './tsconfig.json',
 });
 
+/**
+ * Bootstraps and starts the NestJS application using a Fastify adapter, applying global configuration, security and rate-limit plugins, API versioning and validation, OpenAPI documentation, and logging.
+ *
+ * The function configures production-aware adapter options, registers Fastify plugins (compression, helmet, CSRF, rate limiting), installs global pipes/interceptors/filters, enables CORS and shutdown hooks, mounts Swagger UI at /api/docs, attaches an unhandled rejection logger, and begins listening on the configured host and port.
+ */
 async function bootstrap() {
-	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-		bufferLogs: false,
-	});
+  const isProduction = process.env.NODE_ENV === 'production';
 
-	// register global logger
-	const logger = LoggingModule.useLogger(app);
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter({
+      trustProxy: isProduction,
+      logger: false,
+      genReqId,
+    }),
+    { bufferLogs: true },
+  );
 
-	// get listen port
-	const { host, env, port } = app.get<NestAppConfigOptions>(appConfig.KEY);
+  // Fastify plugins
+  await app.register(compression);
+  await app.register(helmet);
+  await app.register(fastifyCsrf);
+  await app.register(fastifyRateLimit, {
+    max: +(process.env.APP_RATE_LIMIT || 100),
+    timeWindow: '1 minute',
+  });
 
-	app.enableShutdownHooks();
+  // register global logger
+  const logger = LoggingModule.useLogger(app);
 
-	app.setGlobalPrefix('api');
+  // get listen port
+  const { host, env, port } = appConfig;
 
-	app.enableVersioning({
-		defaultVersion: VERSION_NEUTRAL,
-		type: VersioningType.URI,
-	});
+  app.enableShutdownHooks();
 
-	app.useGlobalPipes(
-		new ValidationPipe({
-			transform: true,
-			whitelist: true,
-			forbidUnknownValues: true,
-			stopAtFirstError: true,
-		}),
-	);
+  app.setGlobalPrefix('api');
 
-	app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-	app.useGlobalFilters(new HttpExceptionFilter());
+  app.enableVersioning({
+    defaultVersion: VERSION_NEUTRAL,
+    type: VersioningType.URI,
+  });
 
-	useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidUnknownValues: true,
+      stopAtFirstError: true,
+    }),
+  );
 
-	app.use(helmet());
-	app.use(compression());
-	app.disable('x-powered-by');
-	app.enableCors({
-		origin: [`http://localhost:${port}`, `http://127.0.0.1:${port}`],
-		methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
-		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-		credentials: true,
-	});
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalFilters(new HttpExceptionFilter());
 
-	app.set('trust proxy', 1);
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-	// OpenAPI
-	const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
-		operationIdFactory: (_: string, methodKey: string) => methodKey,
-	});
-	SwaggerModule.setup('api/docs', app, document, {
-		ui: false,
-	});
+  app.enableCors({
+    origin: ['http://localhost:3000', `http://localhost:${port}`],
+    methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Correlation-ID'],
+    credentials: true,
+  });
 
-	app.use(
-		'/api/docs',
-		// Scalar requires custom config for CSP
-		// Apply only for Scalar Docs
-		helmet({
-			crossOriginEmbedderPolicy: false,
-			contentSecurityPolicy: {
-				directives: {
-					defaultSrc: ["'self'"],
-					styleSrc: [
-						"'self'",
-						"'unsafe-inline'",
-						'unpkg.com',
-						'cdn.jsdelivr.net',
-						'fonts.googleapis.com',
-						'fonts.scalar.com',
-					],
-					fontSrc: ["'self'", 'fonts.gstatic.com', 'fonts.scalar.com'],
-					scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'unpkg.com', 'cdn.jsdelivr.net'],
-					connectSrc: [
-						"'self'",
-						'unpkg.com',
-						'cdn.jsdelivr.net',
-						`http://localhost:${port}`,
-						`http://127.0.0.1:${port}`,
-					],
-					imgSrc: ["'self'", 'data:', 'cdn.jsdelivr.net'],
-				},
-			},
-		}),
-		apiReference({
-			theme: 'kepler',
-			_integration: 'nestjs',
-			darkMode: true,
-			defaultHttpClient: {
-				targetKey: 'node',
-				clientKey: 'axios',
-			},
-			persistAuth: true,
-			isLoading: true,
-			content: document,
-			showToolbar: 'never',
-			documentDownloadType: 'none',
-		}),
-	);
+  // OpenAPI
+  const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
+    operationIdFactory: (_: string, methodKey: string) => methodKey,
+  });
+  SwaggerModule.setup('api/docs', app, document, {
+    ui: true,
+  });
 
-	process.on('unhandledRejection', reason => {
-		logger.error(`Unhandled Rejection: ${inspect(reason)}`);
-	});
+  process.on('unhandledRejection', reason => {
+    logger.error(`Unhandled Rejection: ${inspect(reason)}`);
+  });
 
-	await app.listen(port, async () => {
-		logger.log(`🚀 Admin API is running in ${env} stage at: ${host}/api`);
-		logger.log(`📚 API documentation is running at ${host}/api/docs`);
-	});
+  await app.listen(port, '0.0.0.0', async () => {
+    logger.log(`🚀 Admin API is running in ${env} stage at: ${host}/api`);
+    logger.log(`📚 API documentation is running at ${host}/api/docs`);
+  });
 }
 
 void bootstrap();
