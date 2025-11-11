@@ -1,12 +1,12 @@
 import { join } from 'node:path';
 import { Logger, Module, OnApplicationShutdown } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { loggerConfig } from '@/config';
 import { AuthModule } from '@/modules/auth';
 import { DatabaseModule } from '@/modules/database';
 import { DatabaseHealthCheckProvider, HealthModule, RedisHealthCheckProvider } from '@/modules/health';
 import { LoggingModule } from '@/modules/logging';
 import { RedisModule } from '@/modules/redis';
-import { loggerConfig } from './config';
 
 @Module({
   imports: [

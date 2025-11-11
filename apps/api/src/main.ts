@@ -12,11 +12,11 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { SwaggerModule } from '@nestjs/swagger';
 import { ReadonlyVisitor } from '@nestjs/swagger/dist/plugin';
 import { useContainer } from 'class-validator';
+import { appConfig } from '@/config';
+import { HttpExceptionFilter } from '@/filters';
 import { LoggingModule } from '@/modules/logging';
+import { buildOpenApiConfig, genReqId } from '@/utils';
 import { AppModule } from './app.module';
-import { appConfig, genReqId } from './config';
-import { HttpExceptionFilter } from './filters';
-import { buildOpenApiConfig } from './utils';
 
 const generator = new PluginMetadataGenerator();
 generator.generate({
