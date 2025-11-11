@@ -49,7 +49,8 @@ export class AuthController {
 		type: ErrorResponseDto,
 	})
 	async signIn(@Req() req: FastifyRequest): Promise<AuthTokensDto> {
-		return this.authService.signIn(req.user);
+		// biome-ignore lint/style/noNonNullAssertion: authenticated route
+		return this.authService.signIn(req.user!);
 	}
 
 	@Post('refresh')
