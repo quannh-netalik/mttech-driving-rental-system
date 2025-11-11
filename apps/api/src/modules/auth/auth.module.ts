@@ -5,7 +5,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { Request as ExpressRequest } from 'express';
 import Redis from 'ioredis';
 
 import { UserRepository } from '@/modules/database/repositories';
@@ -20,7 +19,7 @@ import { EmailStrategy, JwtStrategy } from './strategies';
 	imports: [
 		ThrottlerModule.forRoot({
 			throttlers: [{ limit: 5, ttl: seconds(60) }],
-			skipIf: context => context.switchToHttp().getRequest<ExpressRequest>().path !== '/auth/sign-in',
+			skipIf: context => context.switchToHttp().getRequest().path !== '/auth/sign-in',
 			storage: new ThrottlerStorageRedisService(new Redis(createRedisOptions('mttech-throttle:'))),
 		}),
 		PassportModule.register({

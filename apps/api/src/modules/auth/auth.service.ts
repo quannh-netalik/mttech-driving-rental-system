@@ -72,7 +72,7 @@ export class AuthService {
 		return this.generateTokens(user);
 	}
 
-	async renewRefreshToken({ refreshToken }: RefreshTokenDto): Promise<AuthTokensDto> {
+	async refresh({ refreshToken }: RefreshTokenDto): Promise<AuthTokensDto> {
 		try {
 			const decoded = this.jwtService.verify<PayloadDto>(refreshToken, {
 				secret: this.jwtSecret,
@@ -129,6 +129,7 @@ export class AuthService {
 
 		const hashedRf = await user.getHashedRefreshToken(refreshToken);
 		await this.redisService.set(`user:${user.id}:rf`, hashedRf, this.jwtRfTTL * 60 * 1000);
+		await this.redisService.set(`user:${user.id}:ac`, hashedRf, this.jwtRfTTL * 60 * 1000);
 
 		this.logger.log('generated tokens successfully');
 

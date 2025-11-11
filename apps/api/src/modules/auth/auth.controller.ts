@@ -1,8 +1,6 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import type { Request } from 'express';
-
-import { UserEntity } from '@/modules/database/entities';
+import type { FastifyRequest } from 'fastify';
 import { ErrorResponseDto } from '../../types/error.type';
 import { AuthService } from './auth.service';
 import { AuthTokensDto, RefreshTokenDto, SignInDto, SignUpDto } from './dto';
@@ -50,11 +48,11 @@ export class AuthController {
 		description: 'Too Many Requests',
 		type: ErrorResponseDto,
 	})
-	async signIn(@Req() req: Request): Promise<AuthTokensDto> {
-		return this.authService.signIn(<UserEntity>req.user);
+	async signIn(@Req() req: FastifyRequest): Promise<AuthTokensDto> {
+		return this.authService.signIn(req.user);
 	}
 
-	@Post('renew-refresh-token')
+	@Post('refresh')
 	@ApiOperation({ summary: 'Refresh access token' })
 	@ApiResponse({ status: 200, description: 'Token successfully refreshed', type: AuthTokensDto })
 	@ApiResponse({
@@ -62,7 +60,7 @@ export class AuthController {
 		description: 'Invalid refresh token',
 		type: ErrorResponseDto,
 	})
-	async renewRefreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<AuthTokensDto> {
-		return this.authService.renewRefreshToken(refreshTokenDto);
+	async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<AuthTokensDto> {
+		return this.authService.refresh(refreshTokenDto);
 	}
 }

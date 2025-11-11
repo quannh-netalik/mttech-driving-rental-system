@@ -1,21 +1,21 @@
 import './env';
 
 import { inspect } from 'node:util';
+import compression from '@fastify/compress';
+import fastifyCsrf from '@fastify/csrf-protection';
+import helmet from '@fastify/helmet';
 import { PluginMetadataGenerator } from '@nestjs/cli/lib/compiler/plugins/plugin-metadata-generator';
 import { ClassSerializerInterceptor, ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { SwaggerModule } from '@nestjs/swagger';
 import { ReadonlyVisitor } from '@nestjs/swagger/dist/plugin';
-import { apiReference } from '@scalar/nestjs-api-reference';
 import { useContainer } from 'class-validator';
-import compression from 'compression';
-import helmet from 'helmet';
+import { FastifyInstance } from 'fastify';
 import { LoggingModule } from '@/modules/logging';
 import { AppModule } from './app.module';
-import { appConfig } from './config';
+import { appConfig, genReqId } from './config';
 import { HttpExceptionFilter } from './filters';
-import { NestAppConfigOptions } from './types';
 import { buildOpenApiConfig } from './utils';
 
 const generator = new PluginMetadataGenerator();
@@ -27,15 +27,29 @@ generator.generate({
 });
 
 async function bootstrap() {
-	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-		bufferLogs: false,
+	const isProduction = process.env.NODE_ENV === 'production';
+
+	const fastifyAdapter = new FastifyAdapter({
+		trustProxy: isProduction,
+		logger: false,
+		genReqId,
 	});
+
+	// Get the underlying Fastify instance
+	const instance = fastifyAdapter.getInstance() as FastifyInstance;
+
+	// Register plugins on the adapter's instance
+	await instance.register(compression);
+	await instance.register(helmet);
+	await instance.register(fastifyCsrf);
+
+	const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, { bufferLogs: true });
 
 	// register global logger
 	const logger = LoggingModule.useLogger(app);
 
 	// get listen port
-	const { host, env, port } = app.get<NestAppConfigOptions>(appConfig.KEY);
+	const { host, env, port } = appConfig;
 
 	app.enableShutdownHooks();
 
@@ -60,71 +74,22 @@ async function bootstrap() {
 
 	useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-	app.use(helmet());
-	app.use(compression());
-	app.disable('x-powered-by');
+	// await Promise.all([app.register(compression), app.register(helmet), app.register(fastifyCsrf)]);
+
 	app.enableCors({
-		origin: [`http://localhost:${port}`, `http://127.0.0.1:${port}`],
+		origin: ['http://localhost:3000', `http://localhost:${port}`],
 		methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
-		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Correlation-ID'],
 		credentials: true,
 	});
-
-	app.set('trust proxy', 1);
 
 	// OpenAPI
 	const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
 		operationIdFactory: (_: string, methodKey: string) => methodKey,
 	});
 	SwaggerModule.setup('api/docs', app, document, {
-		ui: false,
+		ui: true,
 	});
-
-	app.use(
-		'/api/docs',
-		// Scalar requires custom config for CSP
-		// Apply only for Scalar Docs
-		helmet({
-			crossOriginEmbedderPolicy: false,
-			contentSecurityPolicy: {
-				directives: {
-					defaultSrc: ["'self'"],
-					styleSrc: [
-						"'self'",
-						"'unsafe-inline'",
-						'unpkg.com',
-						'cdn.jsdelivr.net',
-						'fonts.googleapis.com',
-						'fonts.scalar.com',
-					],
-					fontSrc: ["'self'", 'fonts.gstatic.com', 'fonts.scalar.com'],
-					scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'unpkg.com', 'cdn.jsdelivr.net'],
-					connectSrc: [
-						"'self'",
-						'unpkg.com',
-						'cdn.jsdelivr.net',
-						`http://localhost:${port}`,
-						`http://127.0.0.1:${port}`,
-					],
-					imgSrc: ["'self'", 'data:', 'cdn.jsdelivr.net'],
-				},
-			},
-		}),
-		apiReference({
-			theme: 'kepler',
-			_integration: 'nestjs',
-			darkMode: true,
-			defaultHttpClient: {
-				targetKey: 'node',
-				clientKey: 'axios',
-			},
-			persistAuth: true,
-			isLoading: true,
-			content: document,
-			showToolbar: 'never',
-			documentDownloadType: 'none',
-		}),
-	);
 
 	process.on('unhandledRejection', reason => {
 		logger.error(`Unhandled Rejection: ${inspect(reason)}`);
