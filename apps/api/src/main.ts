@@ -77,8 +77,6 @@ async function bootstrap() {
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  // await Promise.all([app.register(compression), app.register(helmet), app.register(fastifyCsrf)]);
-
   app.enableCors({
     origin: ['http://localhost:3000', `http://localhost:${port}`],
     methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
