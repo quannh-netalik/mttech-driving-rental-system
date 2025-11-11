@@ -3,13 +3,10 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "entryFile": "main",
-  "plugins": ["@nestjs/swagger"],
   "compilerOptions": {
     "builder": "swc",
-    "typeCheck": true,
+    "typeCheck": false,
     "deleteOutDir": true,
-    "tsConfigPath": "./tsconfig.json",
-    "watchAssets": true,
-    "plugins": []
+    "watchAssets": true
   }
 }

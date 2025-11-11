@@ -1,4 +1,4 @@
-import { DynamicModule, INestApplicationContext, LoggerService, Module } from '@nestjs/common';
+import { DynamicModule, INestApplicationContext, LoggerService, Module, Logger as NestLogger } from '@nestjs/common';
 import { Logger, LoggerModule, Params } from 'nestjs-pino';
 import { LOGGING_LOGGER } from './logging.constant';
 
@@ -7,6 +7,19 @@ import { LOGGING_LOGGER } from './logging.constant';
  **/
 @Module({})
 export class LoggingModule {
+	public static forRoot(params: { appName: string } = { appName: LoggingModule.name }) {
+		return {
+			module: LoggingModule,
+			providers: [
+				{
+					provide: LOGGING_LOGGER,
+					useValue: new NestLogger(params.appName),
+				},
+			],
+			exports: [LOGGING_LOGGER],
+		};
+	}
+
 	public static forPino(params: Params = {}): DynamicModule {
 		return {
 			module: LoggingModule,

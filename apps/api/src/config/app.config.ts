@@ -1,20 +1,39 @@
-
 const env = process.env.NODE_ENV || 'development';
+
+const isProduction = env === 'production';
 
 // default listen port
 const port = +(process.env.API_PORT || 3030);
 
 const appHost = process.env.APP_HOST;
-if (env === 'production' && !appHost) {
-  throw new Error('APP_HOST is required in production');
+let originAllowList: string[] = [];
+
+if (isProduction) {
+	if (!appHost) {
+		throw new Error('APP_HOST is required in production');
+	}
+
+	if (!process.env.ORIGIN_ALLOW_LIST) {
+		throw new Error('APP_HOST is required in production');
+	}
+
+	const origins = process.env.ORIGIN_ALLOW_LIST.split(' ');
+	originAllowList = origins;
 }
 
-// biome-ignore lint/style/noNonNullAssertion: having null check above
-const host = env === 'production' ? process.env.APP_HOST! : `http://localhost:${port}`;
+const host = isProduction && appHost ? appHost : `http://localhost:${port}`;
+
+// Always use Pino in production mode
+const usePino = isProduction || Boolean(process.env.USE_PINO);
+
+const rateLimiting = +(process.env.APP_RATE_LIMIT || 100);
 
 export const appConfig: NestAppConfigOptions = {
-  env,
-  isProduction: env === 'production',
-  host,
-  port,
+	env,
+	isProduction,
+	host,
+	port,
+	originAllowList,
+	rateLimiting,
+	usePino,
 };

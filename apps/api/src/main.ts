@@ -5,106 +5,110 @@ import compression from '@fastify/compress';
 import fastifyCsrf from '@fastify/csrf-protection';
 import helmet from '@fastify/helmet';
 import fastifyRateLimit from '@fastify/rate-limit';
-import { PluginMetadataGenerator } from '@nestjs/cli/lib/compiler/plugins/plugin-metadata-generator';
 import { ClassSerializerInterceptor, ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { SwaggerModule } from '@nestjs/swagger';
-import { ReadonlyVisitor } from '@nestjs/swagger/dist/plugin';
 import { useContainer } from 'class-validator';
 import { appConfig } from '@/config';
 import { HttpExceptionFilter } from '@/filters';
 import { LoggingModule } from '@/modules/logging';
 import { buildOpenApiConfig, genReqId } from '@/utils';
+import pkg from '../package.json';
 import { AppModule } from './app.module';
 
-const generator = new PluginMetadataGenerator();
-generator.generate({
-  visitors: [new ReadonlyVisitor({ introspectComments: true, pathToSource: __dirname })],
-  outputDir: __dirname,
-  watch: true,
-  tsconfigPath: './tsconfig.json',
-});
-
 /**
- * Bootstraps and starts the NestJS application using a Fastify adapter, applying global configuration, security and rate-limit plugins, API versioning and validation, OpenAPI documentation, and logging.
- *
- * The function configures production-aware adapter options, registers Fastify plugins (compression, helmet, CSRF, rate limiting), installs global pipes/interceptors/filters, enables CORS and shutdown hooks, mounts Swagger UI at /api/docs, attaches an unhandled rejection logger, and begins listening on the configured host and port.
+ * Bootstraps and starts the NestJS application using a Fastify adapter, applying global configuration
+ * security and rate-limit plugins, API versioning and validation, OpenAPI documentation, and logging.
  */
 async function bootstrap() {
-  const isProduction = process.env.NODE_ENV === 'production';
+	const start = performance.now();
 
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter({
-      trustProxy: isProduction,
-      logger: false,
-      genReqId,
-    }),
-    { bufferLogs: true },
-  );
+	const { host, isProduction, env, port, originAllowList, rateLimiting, usePino } = appConfig;
 
-  // Fastify plugins
-  await app.register(compression);
-  await app.register(helmet);
-  await app.register(fastifyCsrf);
-  await app.register(fastifyRateLimit, {
-    max: +(process.env.APP_RATE_LIMIT || 100),
-    timeWindow: '1 minute',
-  });
+	const _AppModule = AppModule.forRoot({
+		appName: pkg.name,
+		usePino,
+	});
+	const app = await NestFactory.create<NestFastifyApplication>(
+		_AppModule,
+		new FastifyAdapter({
+			trustProxy: isProduction,
+			logger: false,
+			genReqId,
+		}),
+		{ bufferLogs: true },
+	);
 
-  // register global logger
-  const logger = LoggingModule.useLogger(app);
+	// Fastify plugins
+	await app.register(compression);
+	await app.register(helmet);
+	await app.register(fastifyCsrf);
+	await app.register(fastifyRateLimit, {
+		max: rateLimiting,
+		timeWindow: '1 minute',
+	});
 
-  // get listen port
-  const { host, env, port } = appConfig;
+	// register global logger
+	const logger = LoggingModule.useLogger(app);
 
-  app.enableShutdownHooks();
+	// get listen port
 
-  app.setGlobalPrefix('api');
+	app.enableShutdownHooks();
 
-  app.enableVersioning({
-    defaultVersion: VERSION_NEUTRAL,
-    type: VersioningType.URI,
-  });
+	app.setGlobalPrefix('api');
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidUnknownValues: true,
-      stopAtFirstError: true,
-    }),
-  );
+	app.enableVersioning({
+		defaultVersion: VERSION_NEUTRAL,
+		type: VersioningType.URI,
+	});
 
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  app.useGlobalFilters(new HttpExceptionFilter());
+	app.useGlobalPipes(
+		new ValidationPipe({
+			transform: true,
+			whitelist: true,
+			forbidUnknownValues: true,
+			stopAtFirstError: true,
+		}),
+	);
 
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+	app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+	app.useGlobalFilters(new HttpExceptionFilter());
 
-  app.enableCors({
-    origin: ['http://localhost:3000', `http://localhost:${port}`],
-    methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Correlation-ID'],
-    credentials: true,
-  });
+	useContainer(app.select(_AppModule), { fallbackOnErrors: true });
 
-  // OpenAPI
-  const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
-    operationIdFactory: (_: string, methodKey: string) => methodKey,
-  });
-  SwaggerModule.setup('api/docs', app, document, {
-    ui: true,
-  });
+	app.enableCors({
+		origin: isProduction ? originAllowList : '*splat',
+		methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-request-id'],
+		credentials: true,
+	});
 
-  process.on('unhandledRejection', reason => {
-    logger.error(`Unhandled Rejection: ${inspect(reason)}`);
-  });
+	// OpenAPI
+	const document = SwaggerModule.createDocument(app, buildOpenApiConfig(port), {
+		operationIdFactory: (_: string, methodKey: string) => methodKey,
+	});
+	SwaggerModule.setup('api/docs', app, document, {
+		ui: true,
+	});
 
-  await app.listen(port, '0.0.0.0', async () => {
-    logger.log(`🚀 Admin API is running in ${env} stage at: ${host}/api`);
-    logger.log(`📚 API documentation is running at ${host}/api/docs`);
-  });
+	process.on('unhandledRejection', reason => {
+		logger.error(`Unhandled Rejection: ${inspect(reason)}`);
+	});
+
+	// By default, Fastify listens only on the localhost 127.0.0.1 interface.
+	// Specify '0.0.0.0' to accept connections on other hosts
+	// https://fastify.dev/docs/latest/Guides/Getting-Started/#your-first-server
+	await app.listen(port, '0.0.0.0', async () => {
+		logger.log(`🚀 Admin API is running in ${env} stage at: ${host}/api`);
+		logger.log(`📚 API documentation is running at ${host}/api/docs`);
+
+		// Measuring
+		const duration = Number(performance.now() - start).toFixed(0);
+		logger.log(`✅ Bootstrap completed in ${duration}ms`);
+	});
+
+	return app;
 }
 
 void bootstrap();
