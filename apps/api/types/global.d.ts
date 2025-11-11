@@ -41,7 +41,7 @@ export declare global {
 			DB_HOST: string;
 			DB_PORT: string;
 			DB_USER: string;
-			DB_PASS;
+			DB_PASS: string;
 			DB_NAME: string;
 
 			// Redis Config
