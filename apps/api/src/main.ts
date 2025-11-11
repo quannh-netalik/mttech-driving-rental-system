@@ -26,6 +26,11 @@ generator.generate({
   tsconfigPath: './tsconfig.json',
 });
 
+/**
+ * Bootstraps and starts the NestJS application using a Fastify adapter, applying global configuration, security and rate-limit plugins, API versioning and validation, OpenAPI documentation, and logging.
+ *
+ * The function configures production-aware adapter options, registers Fastify plugins (compression, helmet, CSRF, rate limiting), installs global pipes/interceptors/filters, enables CORS and shutdown hooks, mounts Swagger UI at /api/docs, attaches an unhandled rejection logger, and begins listening on the configured host and port.
+ */
 async function bootstrap() {
   const isProduction = process.env.NODE_ENV === 'production';
 
