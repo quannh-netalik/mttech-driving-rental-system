@@ -78,7 +78,7 @@ async function bootstrap() {
 	useContainer(app.select(_AppModule), { fallbackOnErrors: true });
 
 	app.enableCors({
-		origin: isProduction ? originAllowList : '*splat',
+		origin: isProduction ? originAllowList : '*',
 		methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
 		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-request-id'],
 		credentials: true,
