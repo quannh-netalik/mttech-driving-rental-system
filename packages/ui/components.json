@@ -5,7 +5,8 @@
     "hooks": "@workspace/ui/hooks",
     "lib": "@workspace/ui/lib",
     "ui": "@workspace/ui/components",
-    "utils": "@workspace/ui/lib/utils"
+    "utils": "@workspace/ui/lib/utils",
+    "providers": "@workspace/ui/providers"
   },
   "iconLibrary": "lucide",
   "rsc": true,

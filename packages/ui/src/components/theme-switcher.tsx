@@ -1,4 +1,3 @@
-import { useThemeAnimation } from '@space-man/react-theme-animation';
 import { Button } from '@workspace/ui/components/button';
 import { useTheme } from '@workspace/ui/providers/theme.provider';
 import { MoonStar, SunIcon } from 'lucide-react';
@@ -17,16 +16,13 @@ export function ThemeSwitcher({
 	darkModeLabel = 'Đổi nền tối',
 }: Readonly<ThemeSwitcherProps>) {
 	const { theme, setTheme } = useTheme();
-	const { toggleTheme, ref } = useThemeAnimation();
 
 	return (
 		<Button
 			aria-label={theme === 'dark' ? lightModeLabel : darkModeLabel}
 			onClick={() => {
 				setTheme(theme === 'dark' ? 'light' : 'dark');
-				toggleTheme();
 			}}
-			ref={ref}
 			size="icon"
 			suppressHydrationWarning
 			type="button"
