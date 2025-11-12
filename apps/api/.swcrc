@@ -4,6 +4,17 @@
   "module": {
     "type": "commonjs"
   },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "__tests__",
+    "coverage",
+    ".*\\.spec\\.[tj]s$",
+    ".*\\.test\\.[tj]s$",
+    ".*\\.e2e-spec\\.[tj]s$",
+    ".*\\.map$"
+  ],
   "jsc": {
     "target": "es2024",
     "baseUrl": "./",
@@ -15,7 +26,11 @@
     "transform": {
       "legacyDecorator": true,
       "decoratorMetadata": true
+    },
+    "keepClassNames": true,
+    "minify": {
+      "compress": true
     }
   },
-  "minify": false
+  "minify": true
 }

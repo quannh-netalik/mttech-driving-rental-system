@@ -4,37 +4,24 @@ import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 import 'reflect-metadata';
 
-// Make sure any symlinks in the project folder are resolved:
-// https://github.com/facebookincubator/create-react-app/issues/637
-const appDirectory = fs.realpathSync(process.cwd());
-const envPath = path.resolve(appDirectory, '.env');
+const envBase = path.resolve(process.cwd(), '.env');
+const NODE_ENV = process.env.NODE_ENV ?? 'local';
 
-const NODE_ENV = process.env.NODE_ENV || 'local';
-
-// https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
+/**
+ * Priority order (highest → lowest):
+ *  1. .env.{NODE_ENV}.local
+ *  2. .env.{NODE_ENV}
+ *  3. .env.local  (only if NODE_ENV !== 'test')
+ *  4. .env
+ */
 const dotenvFiles = [
-	`${envPath}.${NODE_ENV}.local`,
-	`${envPath}.${NODE_ENV}`,
-	// Don't include `.env.local` for `test` environment
-	// since normally you expect tests to produce the same
-	// results for everyone
-	NODE_ENV !== 'test' && `${envPath}.local`,
-	envPath,
-].filter(Boolean);
+	`${envBase}.${NODE_ENV}.local`,
+	`${envBase}.${NODE_ENV}`,
+	NODE_ENV !== 'test' ? `${envBase}.local` : null,
+	envBase,
+].filter((f): f is string => !!f && fs.existsSync(f));
 
-// Load environment variables from .env* files. Suppress warnings using silent
-// if this file is missing. dotenv will never modify any environment variables
-// that have already been set.  Variable expansion is supported in .env files.
-// https://github.com/motdotla/dotenv
-// https://github.com/motdotla/dotenv-expand
-dotenvFiles.forEach(dotenvFile => {
-	if (typeof dotenvFile !== 'string') return;
-
-	if (fs.existsSync(dotenvFile)) {
-		dotenvExpand.expand(
-			dotenv.config({
-				path: dotenvFile,
-			}),
-		);
-	}
-});
+for (const file of dotenvFiles) {
+	const result = dotenv.config({ path: file, quiet: true });
+	dotenvExpand.expand(result);
+}

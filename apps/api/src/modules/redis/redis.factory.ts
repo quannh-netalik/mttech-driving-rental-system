@@ -6,7 +6,6 @@ import { createRedisOptions } from './redis.util';
 export class RedisFactory implements OnModuleInit, OnModuleDestroy {
 	private readonly logger: LoggerService = new Logger(RedisFactory.name);
 
-	private readonly clients: Set<Redis> = new Set();
 	private redisClient: Redis;
 
 	constructor() {
@@ -27,21 +26,26 @@ export class RedisFactory implements OnModuleInit, OnModuleDestroy {
 	}
 
 	async onModuleDestroy(): Promise<void> {
-		this.logger.log('Force disconnecting Redis connections for hot reload...');
+		this.logger.log('RedisFactory is destroyed, attempting disconnect clients', {
+			redisClient: this.redisClient.status,
+		});
 
-		// Use Promise.race to implement timeout for each disconnect
-		const safeDisconnect = (client: Redis): void => {
+		// Need to check for client's existence
+		// During HMR, onModuleDestroy() runs, but Nest reloads the same file (and cached import)
+		// so the new instance doesn’t reconnect because the Redis instance is never fully recreated.
+		if (this.redisClient) {
+			this.logger.log('Force disconnecting Redis connections for hot reload...', {
+				redisClient: this.redisClient.status,
+			});
 			try {
-				client.disconnect(false);
+				this.redisClient.disconnect(false);
 			} catch (error) {
 				const stack = error instanceof Error ? error.stack : JSON.stringify(error);
 				this.logger.error('Failed to disconnect Redis connection', stack);
 			}
-		};
 
-		// Disconnect all clients
-		this.clients.forEach(safeDisconnect);
-		this.logger.log('All Redis connections forcefully disconnected');
+			this.logger.log('Redis connection forcefully disconnected');
+		}
 	}
 
 	public getClient(): Redis {
@@ -57,9 +61,6 @@ export class RedisFactory implements OnModuleInit, OnModuleDestroy {
 		client.on('ready', () => this.logger.log('Redis instance is ready'));
 		client.on('close', () => this.logger.warn('Redis connection closed'));
 		client.on('error', err => this.logger.error('Redis connection error:', err));
-
-		// Track the client
-		this.clients.add(client);
 
 		return client;
 	}

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://swc.rs/schema.json",
+  "sourceMaps": true,
+  "module": {
+    "type": "commonjs"
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "__tests__",
+    "coverage",
+    ".*\\.spec\\.[tj]s$",
+    ".*\\.test\\.[tj]s$",
+    ".*\\.e2e-spec\\.[tj]s$",
+    ".*\\.map$"
+  ],
+  "jsc": {
+    "target": "es2024",
+    "baseUrl": "./",
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true,
+      "dynamicImport": false
+    },
+    "transform": {
+      "legacyDecorator": true,
+      "decoratorMetadata": true
+    },
+    "keepClassNames": true,
+    "minify": {
+      "compress": {
+        "arrows": true,
+        "booleans": true,
+        "collapse_vars": true,
+        "comparisons": true,
+        "computed_props": true,
+        "conditionals": true,
+        "dead_code": true,
+        "drop_console": true,
+        "drop_debugger": true,
+        "evaluate": true,
+        "hoist_props": true,
+        "if_return": true,
+        "join_vars": true,
+        "loops": true,
+        "negate_iife": true,
+        "passes": 2,
+        "properties": true,
+        "pure_funcs": ["console.info", "console.debug", "console.warn"],
+        "reduce_vars": true,
+        "sequences": true,
+        "side_effects": true,
+        "switches": true,
+        "toplevel": true,
+        "typeofs": true,
+        "unused": true
+      },
+      "mangle": {
+        "topLevel": true,
+        "keepClassNames": true
+      },
+      "format": {
+        "comments": false
+      }
+    }
+  },
+  "minify": true
+}

@@ -1,10 +1,8 @@
+const start = performance.now();
+
 import './env';
 
 import { inspect } from 'node:util';
-import compression from '@fastify/compress';
-import fastifyCsrf from '@fastify/csrf-protection';
-import helmet from '@fastify/helmet';
-import fastifyRateLimit from '@fastify/rate-limit';
 import { ClassSerializerInterceptor, ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -22,8 +20,6 @@ import { AppModule } from './app.module';
  * security and rate-limit plugins, API versioning and validation, OpenAPI documentation, and logging.
  */
 async function bootstrap() {
-	const start = performance.now();
-
 	const { host, isProduction, env, port, originAllowList, rateLimiting, usePino } = appConfig;
 
 	const _AppModule = AppModule.forRoot({
@@ -41,18 +37,20 @@ async function bootstrap() {
 	);
 
 	// Fastify plugins
-	await app.register(compression);
-	await app.register(helmet);
-	await app.register(fastifyCsrf);
-	await app.register(fastifyRateLimit, {
+	await app.register(import('@fastify/compress'));
+	await app.register(import('@fastify/helmet'));
+	await app.register(import('@fastify/csrf-protection'));
+	await app.register(import('@fastify/rate-limit'), {
 		max: rateLimiting,
 		timeWindow: '1 minute',
+		allowList(req, key) {
+			const _whitelist = key === '127.0.0.1' || req.url.startsWith('/api/docs/');
+			return _whitelist;
+		},
 	});
 
 	// register global logger
 	const logger = LoggingModule.useLogger(app);
-
-	// get listen port
 
 	app.enableShutdownHooks();
 
@@ -99,16 +97,14 @@ async function bootstrap() {
 	// By default, Fastify listens only on the localhost 127.0.0.1 interface.
 	// Specify '0.0.0.0' to accept connections on other hosts
 	// https://fastify.dev/docs/latest/Guides/Getting-Started/#your-first-server
-	await app.listen(port, '0.0.0.0', async () => {
-		logger.log(`🚀 Admin API is running in ${env} stage at: ${host}/api`);
-		logger.log(`📚 API documentation is running at ${host}/api/docs`);
+	await app.listen(port, '0.0.0.0');
 
-		// Measuring
-		const duration = Number(performance.now() - start).toFixed(0);
-		logger.log(`✅ Bootstrap completed in ${duration}ms`);
-	});
+	logger.log(`🚀 Admin API is running in ${env} stage at: ${host}/api`);
+	logger.log(`📚 API documentation is running at ${host}/api/docs`);
 
-	return app;
+	// Measuring bootstrapping time
+	const duration = Number(performance.now() - start).toFixed(0);
+	logger.log(`✅ Bootstrap completed in ${duration}ms`);
 }
 
 void bootstrap();
