@@ -8,6 +8,14 @@ export declare global {
 		isProduction: boolean;
 		env: AppEnvironment;
 		port: number;
+		originAllowList: string[];
+		rateLimiting: number;
+		usePino: boolean;
+	}
+
+	interface AppModuleConfig {
+		appName: string;
+		usePino: boolean;
 	}
 
 	interface ErrorResponse {
@@ -24,10 +32,30 @@ export declare global {
 	namespace NodeJS {
 		interface ProcessEnv {
 			NODE_ENV: AppEnvironment;
-			PORT: string;
 
-			DATABASE_URL: string;
+			// App Config
+			API_PORT: string;
+			ORIGIN_ALLOW_LIST: string;
+
+			// DB Config
+			DB_HOST: string;
+			DB_PORT: string;
+			DB_USER: string;
+			DB_PASS: string;
+			DB_NAME: string;
+
+			// Redis Config
+			REDIS_HOST: string;
+			REDIS_PORT: string;
+			REDIS_PASSWORD: string;
+			REDIS_TTL: string;
+
+			// Jwt Config
 			JWT_SECRET: string;
+			JWT_AC_TTL: string;
+			JWT_RF_TTL: string;
+
+			USE_PINO: string;
 		}
 	}
 }
