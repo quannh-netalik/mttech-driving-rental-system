@@ -1,5 +1,7 @@
 import { isServer, isValidCookieName, parseCookieString, sanitizeCookieValue, serializeCookie } from './utils';
 
+export * from './token';
+
 /**
  * Get cookie value by name (works on client and server)
  */

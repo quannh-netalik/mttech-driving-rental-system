@@ -1,12 +1,28 @@
 {
-  "extends": "@workspace/typescript-config/base.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "baseUrl": ".",
+    "declaration": true,
     "outDir": "./dist",
+    "rootDir": "./src",
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "incremental": false,
+    "isolatedModules": true,
+    "lib": ["ES2024"],
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "removeComments": true,
     "paths": {
       "@workspace/axios/*": ["./src/*"]
     }
   },
-  "include": ["."],
+  "include": ["src/**/*.ts", "types/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

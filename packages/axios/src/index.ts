@@ -1,25 +1,8 @@
-import { authStoreService } from '@workspace/axios/storages';
-import type { LoginResponseSchema } from '@workspace/schema';
-import axios, {
-	type AxiosInstance,
-	type AxiosRequestConfig,
-	type AxiosResponse,
-	type InternalAxiosRequestConfig,
-	type Method,
-} from 'axios';
+import { COOKIE_TOKENS, getCookie, removeCookie, setCookie } from '@workspace/cookie';
+import type { LoginResponseSchema } from '@workspace/schema/auth';
+import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
 import qs from 'qs';
-
-type RequestMethods = Extract<Method, 'get' | 'post' | 'put' | 'delete' | 'patch' | 'option' | 'head'>;
-
-interface PendingRequest {
-	resolve: (token: string) => void;
-	reject: (error: unknown) => void;
-}
-
-interface RetryableRequest extends InternalAxiosRequestConfig {
-	_retry?: boolean;
-}
 
 const DEFAULT_TIMEOUT = 30000;
 
@@ -64,14 +47,14 @@ export class HttpClient {
 	}
 
 	private setupInterceptors(): void {
-		// Request interceptor: Add auth token and correlation ID
+		// Request interceptor: Add auth token and request ID
 		this.axiosInstance.interceptors.request.use(
 			config => {
-				const accessToken = authStoreService.getAccessToken();
+				const accessToken = getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
 				if (accessToken) {
 					config.headers.Authorization = `Bearer ${accessToken}`;
 				}
-				config.headers['X-Correlation-Id'] = nanoid();
+				config.headers['X-Request-Id'] = nanoid();
 				return config;
 			},
 			error => Promise.reject(error),
@@ -89,7 +72,7 @@ export class HttpClient {
 		const originalRequest = axiosError.config;
 
 		// If no access token was sent, this is a real 401 (not auth issue)
-		const hasAccessToken = !!authStoreService.getAccessToken();
+		const hasAccessToken = !!getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
 
 		// Only handle 401 errors with valid config that haven't been retried or no tokens
 		if (!originalRequest || axiosError.response?.status !== 401 || originalRequest._retry || !hasAccessToken) {
@@ -97,7 +80,7 @@ export class HttpClient {
 		}
 
 		// Check if we have both access token (that failed) and refresh token
-		const refreshToken = authStoreService.getRefreshToken();
+		const refreshToken = getCookie(COOKIE_TOKENS.REFRESH_TOKEN);
 
 		// If we had access token but no refresh token, can't refresh - clear auth
 		if (!refreshToken) {
@@ -142,7 +125,7 @@ export class HttpClient {
 	}
 
 	private async performTokenRefresh(): Promise<string> {
-		const refreshToken = authStoreService.getRefreshToken();
+		const refreshToken = getCookie(COOKIE_TOKENS.REFRESH_TOKEN);
 
 		const response = await axios.post<LoginResponseSchema>(
 			`${this.axiosInstance.defaults.baseURL}${this.refreshEndpoint}`,
@@ -152,10 +135,9 @@ export class HttpClient {
 
 		const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-		authStoreService.setAccessToken(accessToken);
-		if (newRefreshToken) {
-			authStoreService.setRefreshToken(newRefreshToken);
-		}
+		// Set new tokens
+		setCookie(COOKIE_TOKENS.ACCESS_TOKEN, accessToken);
+		setCookie(COOKIE_TOKENS.REFRESH_TOKEN, newRefreshToken);
 
 		this.axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
@@ -177,38 +159,32 @@ export class HttpClient {
 	}
 
 	private handleAuthFailure(): void {
-		authStoreService.clearAccessToken();
-		authStoreService.clearRefreshToken();
+		removeCookie(COOKIE_TOKENS.ACCESS_TOKEN);
+		removeCookie(COOKIE_TOKENS.REFRESH_TOKEN);
 		this.onAuthFailure?.();
 	}
 
-	public request<T>(
-		method: RequestMethods,
-		url: string,
-		param?: AxiosRequestConfig,
-		axiosConfig?: AxiosRequestConfig,
-	): Promise<AxiosResponse<T>> {
+	public request<T>(method: RequestMethods, controller: UrlPath, url: UrlPath, param?: AxiosRequestConfig): Promise<T> {
 		return this.axiosInstance.request({
 			method,
-			url,
+			url: controller + url,
 			...param,
-			...axiosConfig,
 		});
 	}
 
-	public post<T>(url: string, params?: AxiosRequestConfig, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		return this.request<T>('post', url, params, config);
+	public post<T>(controller: UrlPath, url: UrlPath, params?: AxiosRequestConfig): Promise<T> {
+		return this.request<T>('post', controller, url, params);
 	}
 
-	public get<T>(url: string, params?: AxiosRequestConfig, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		return this.request<T>('get', url, params, config);
+	public get<T>(controller: UrlPath, url: UrlPath, params?: AxiosRequestConfig): Promise<T> {
+		return this.request<T>('get', controller, url, params);
 	}
 
-	public put<T>(url: string, params?: AxiosRequestConfig, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		return this.request<T>('put', url, params, config);
+	public put<T>(controller: UrlPath, url: UrlPath, params?: AxiosRequestConfig): Promise<T> {
+		return this.request<T>('put', controller, url, params);
 	}
 
-	public delete<T>(url: string, params?: AxiosRequestConfig, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		return this.request<T>('delete', url, params, config);
+	public delete<T>(controller: UrlPath, url: UrlPath, params?: AxiosRequestConfig): Promise<T> {
+		return this.request<T>('delete', controller, url, params);
 	}
 }

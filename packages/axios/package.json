@@ -3,16 +3,23 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
+  "files": ["dist"],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc --project tsconfig.json",
-    "dev": "tsc --watch",
-    "lint": "biome lint .",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "biome lint ."
   },
   "dependencies": {
     "@tanstack/react-query": "^5.87.1",
+    "@workspace/cookie": "workspace:*",
+    "@workspace/schema": "workspace:*",
     "axios": "^1.12.2",
     "nanoid": "^5.1.6",
     "qs": "^6.14.0",
@@ -23,13 +30,22 @@
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@vitest/ui": "^4.0.8",
-    "@workspace/schema": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "axios-mock-adapter": "^2.1.0",
+    "tsdown": "^0.16.4",
     "typescript": "^5.9.3",
     "vitest": "^4.0.8"
   },
   "exports": {
-    "./*": "./src/*/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "import": "./dist/api/index.mjs",
+      "require": "./dist/api/index.js"
+    }
   }
 }
