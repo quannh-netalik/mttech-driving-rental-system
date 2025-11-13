@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "description": "Universal cookie management for client and server (SSR-compatible)",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -12,6 +15,14 @@
     "dev": "tsdown src/index.ts --format cjs,esm --dts --watch",
     "lint": "biome lint ."
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
   "keywords": [
     "cookie",
     "cookies",
@@ -39,8 +50,5 @@
     "vinxi": {
       "optional": true
     }
-  },
-  "exports": {
-    "./*": "./src/*.ts"
   }
 }
