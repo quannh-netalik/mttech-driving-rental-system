@@ -1,19 +1,25 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "ES2024",
-    "module": "ESNext",
-    "lib": ["ES2024", "DOM"],
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true,
+    "declarationMap": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
+    "incremental": false,
+    "isolatedModules": true,
+    "lib": ["ES2024", "DOM"],
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "removeComments": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "types/**.d.ts"],
   "exclude": ["node_modules", "dist", "tests"]
 }

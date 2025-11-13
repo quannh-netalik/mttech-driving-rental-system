@@ -1,13 +1,28 @@
 {
-  "extends": "@workspace/typescript-config/react-library.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "dist",
     "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "incremental": false,
+    "isolatedModules": true,
+    "lib": ["ES2024"],
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "removeComments": true,
     "paths": {
       "@workspace/schema/*": ["./src/*"]
     }
   },
-  "include": ["./src"],
+  "include": ["src/**.ts"],
   "exclude": ["node_modules", "dist"]
 }
