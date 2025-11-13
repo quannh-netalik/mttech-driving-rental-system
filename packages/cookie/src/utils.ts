@@ -45,7 +45,7 @@ export function serializeCookie(name: string, value: string, options: CookieOpti
 	let cookie = `${name}=${encodeURIComponent(value)}`;
 	cookie += `; Path=${path}`;
 
-	if (maxAge) {
+	if (maxAge !== undefined && maxAge !== null) {
 		const expires = new Date(Date.now() + maxAge * 1000).toUTCString();
 		cookie += `; Expires=${expires}`;
 		cookie += `; Max-Age=${maxAge}`;
