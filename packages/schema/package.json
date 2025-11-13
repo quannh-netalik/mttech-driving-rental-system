@@ -4,9 +4,12 @@
   "type": "module",
   "private": true,
   "files": ["dist"],
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc --project tsconfig.json",
-    "dev": "tsc --watch",
+    "build": "tsdown src/**.ts",
+    "dev": "tsdown src/**.ts --watch",
     "lint": "biome lint ."
   },
   "dependencies": {
@@ -14,12 +17,19 @@
   },
   "devDependencies": {
     "@workspace/typescript-config": "workspace:*",
+    "tsdown": "^0.16.4",
     "typescript": "^5.9.3"
   },
   "exports": {
-    ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "./auth": {
+      "types": "./dist/auth.schema.d.ts",
+      "import": "./dist/auth.schema.mjs",
+      "require": "./dist/auth.schema.js"
+    },
+    "./user": {
+      "types": "./dist/user.schema.d.ts",
+      "import": "./dist/user.schema.mjs",
+      "require": "./dist/user.schema.js"
     }
   }
 }
