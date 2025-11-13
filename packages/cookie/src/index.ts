@@ -16,7 +16,7 @@ export async function getCookie(name: string): Promise<string | undefined> {
 		}
 
 		// Client-side: use document.cookie
-		const cookies = parseCookieString(document.cookie);
+		const cookies = parseCookieString(globalThis.document.cookie);
 		return cookies[name];
 	} catch (error) {
 		console.error(`Failed to get cookie "${name}":`, error);
@@ -45,7 +45,7 @@ export async function setCookie(name: string, value: string, options?: CookieOpt
 		// Client-side: use document.cookie
 		const cookieString = serializeCookie(name, sanitizedValue, options);
 		// biome-ignore lint/suspicious/noDocumentCookie: Direct cookie manipulation
-		document.cookie = cookieString;
+		globalThis.document.cookie = cookieString;
 	} catch (error) {
 		console.error(`Failed to set cookie "${name}":`, error);
 	}
@@ -76,7 +76,7 @@ export async function removeCookie(name: string, options?: Pick<CookieOptions, '
 		}
 
 		// biome-ignore lint/suspicious/noDocumentCookie: Direct cookie manipulation
-		document.cookie = cookie;
+		globalThis.document.cookie = cookie;
 	} catch (error) {
 		console.error(`Failed to remove cookie "${name}":`, error);
 	}
@@ -99,7 +99,7 @@ export async function getAllCookies(): Promise<Record<string, string>> {
 		return {};
 	}
 
-	return parseCookieString(document.cookie);
+	return parseCookieString(globalThis.document.cookie);
 }
 
 /**

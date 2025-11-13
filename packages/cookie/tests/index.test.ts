@@ -20,14 +20,14 @@ describe('Cookie Store', () => {
 		it('should handle errors gracefully and return undefined', async () => {
 			// Mock document to throw an error
 			await setCookie('test', 'any');
-			const originalDocument = global.document;
+			const originalDocument = globalThis.document;
 			// @ts-expect-error
-			delete global.document;
+			delete globalThis.document;
 
 			const result = await getCookie('test');
 			expect(result).toBeUndefined();
 
-			global.document = originalDocument;
+			globalThis.document = originalDocument;
 		});
 	});
 
@@ -56,8 +56,8 @@ describe('Cookie Store', () => {
 			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 			// Mock document to throw an error
-			const originalDocument = global.document;
-			Object.defineProperty(global, 'document', {
+			const originalDocument = globalThis.document;
+			Object.defineProperty(globalThis, 'document', {
 				get: () => {
 					throw new Error('Document error');
 				},
@@ -67,7 +67,7 @@ describe('Cookie Store', () => {
 			await setCookie('test', 'value');
 			expect(consoleErrorSpy).toHaveBeenCalled();
 
-			Object.defineProperty(global, 'document', {
+			Object.defineProperty(globalThis, 'document', {
 				value: originalDocument,
 				configurable: true,
 			});
@@ -93,7 +93,7 @@ describe('Cookie Store', () => {
 			});
 
 			expect(cookieSetter).toHaveBeenCalled();
-			const cookieString = cookieSetter.mock.calls[0][0];
+			const cookieString = cookieSetter.mock.calls[0]?.[0];
 
 			expect(cookieString).toContain('test=value');
 			expect(cookieString).toContain('Path=/custom');
@@ -137,8 +137,8 @@ describe('Cookie Store', () => {
 		it('should handle errors gracefully', async () => {
 			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-			const originalDocument = global.document;
-			Object.defineProperty(global, 'document', {
+			const originalDocument = globalThis.document;
+			Object.defineProperty(globalThis, 'document', {
 				get: () => {
 					throw new Error('Document error');
 				},
@@ -148,7 +148,7 @@ describe('Cookie Store', () => {
 			await removeCookie('test');
 			expect(consoleErrorSpy).toHaveBeenCalled();
 
-			Object.defineProperty(global, 'document', {
+			Object.defineProperty(globalThis, 'document', {
 				value: originalDocument,
 				configurable: true,
 			});

@@ -163,18 +163,74 @@ describe('Utils', () => {
 	});
 
 	describe('sanitizeCookieValue', () => {
-		it('should remove dangerous characters', () => {
+		it('should remove semicolons', () => {
 			expect(sanitizeCookieValue('value;with;semicolons')).toBe('valuewithsemicolons');
-			expect(sanitizeCookieValue('value\r\nwith\r\nnewlines')).toBe('valuewithnewlines');
-			expect(sanitizeCookieValue('safe-value_123')).toBe('safe-value_123');
+		});
+
+		it('should remove carriage return and line feed', () => {
+			expect(sanitizeCookieValue('value\r\nwith\rCRLF\n')).toBe('valuewithCRLF');
+		});
+
+		it('should remove control characters (0x00-0x1F)', () => {
+			expect(sanitizeCookieValue('value\x00\x01\x02\x1Fwith')).toBe('valuewith');
+			expect(sanitizeCookieValue('test\x09tab')).toBe('testtab'); // Tab character
+			expect(sanitizeCookieValue('test\x0Anewline')).toBe('testnewline'); // Line feed
+		});
+
+		it('should remove DEL character (0x7F)', () => {
+			expect(sanitizeCookieValue('value\x7Fwith\x7FDEL')).toBe('valuewithDEL');
+		});
+
+		it('should remove double quotes', () => {
+			expect(sanitizeCookieValue('"quoted"value"')).toBe('quotedvalue');
+		});
+
+		it('should remove commas', () => {
+			expect(sanitizeCookieValue('value,with,commas')).toBe('valuewithcommas');
+		});
+
+		it('should remove backslashes', () => {
+			expect(sanitizeCookieValue('value\\with\\backslashes')).toBe('valuewithbackslashes');
+		});
+
+		it('should remove multiple dangerous characters at once', () => {
+			expect(sanitizeCookieValue('test;\r\n",\\')).toBe('test');
+		});
+
+		it('should preserve safe characters', () => {
+			expect(sanitizeCookieValue('safe_value-123.ABC')).toBe('safe_value-123.ABC');
 		});
 
 		it('should handle empty string', () => {
 			expect(sanitizeCookieValue('')).toBe('');
 		});
 
-		it('should handle values with only dangerous characters', () => {
-			expect(sanitizeCookieValue(';\r\n')).toBe('');
+		it('should handle string with only dangerous characters', () => {
+			expect(sanitizeCookieValue(';\r\n",\\\x00\x7F')).toBe('');
+		});
+
+		it('should preserve spaces', () => {
+			expect(sanitizeCookieValue('value with spaces')).toBe('value with spaces');
+		});
+
+		it('should handle complex real-world value', () => {
+			const input = 'user@example.com\r\n; document.cookie="steal"';
+			const expected = 'user@example.com document.cookie=steal';
+			expect(sanitizeCookieValue(input)).toBe(expected);
+		});
+
+		it('should handle URL-encoded-like values safely', () => {
+			expect(sanitizeCookieValue('value%20with%20encoded')).toBe('value%20with%20encoded');
+		});
+
+		it('should remove all control characters including tab', () => {
+			expect(sanitizeCookieValue('before\tafter')).toBe('beforeafter');
+		});
+
+		it('should handle mix of valid and invalid characters', () => {
+			const input = 'valid-part123\x00invalid\x7Fpart;more"stuff,here\\end';
+			const expected = 'valid-part123invalidpartmorestuffhereend';
+			expect(sanitizeCookieValue(input)).toBe(expected);
 		});
 	});
 });
