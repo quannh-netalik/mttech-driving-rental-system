@@ -8,8 +8,11 @@ interface ThemeSwitcherProps {
 }
 
 /**
- * ThemeSwitcher toggles between light and dark modes only.
- * System mode is not included in the toggle cycle.
+ * Render a button that toggles the application's theme between light and dark.
+ *
+ * @param lightModeLabel - Accessible label used when activating light mode (shown when current theme is dark)
+ * @param darkModeLabel - Accessible label used when activating dark mode (shown when current theme is light)
+ * @returns The button element that toggles the theme between `"light"` and `"dark"`
  */
 export function ThemeSwitcher({
 	lightModeLabel = 'Đổi nền sáng',
