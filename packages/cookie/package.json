@@ -1,0 +1,46 @@
+{
+  "name": "@workspace/cookie",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Universal cookie management for client and server (SSR-compatible)",
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "build": "tsdown src/index.ts --format cjs,esm --dts",
+    "dev": "tsdown src/index.ts --format cjs,esm --dts --watch",
+    "lint": "biome lint ."
+  },
+  "keywords": [
+    "cookie",
+    "cookies",
+    "ssr",
+    "server-side-rendering",
+    "universal",
+    "isomorphic",
+    "tanstack",
+    "next",
+    "remix"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "4.0.8",
+    "jsdom": "^27.2.0",
+    "tsdown": "^0.16.4",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  },
+  "peerDependencies": {
+    "vinxi": "^0.3.0"
+  },
+  "peerDependenciesMeta": {
+    "vinxi": {
+      "optional": true
+    }
+  },
+  "exports": {
+    "./*": "./src/*.ts"
+  }
+}
