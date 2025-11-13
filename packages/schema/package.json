@@ -4,12 +4,9 @@
   "type": "module",
   "private": true,
   "files": ["dist"],
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsdown src/**.ts",
-    "dev": "tsdown src/**.ts --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "lint": "biome lint ."
   },
   "dependencies": {

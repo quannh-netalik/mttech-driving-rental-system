@@ -6,6 +6,6 @@ export default defineConfig({
 	platform: 'node',
 	dts: true,
 	onSuccess() {
-		console.info('🙏 Build succeeded!');
+		console.info('🙏 [@workspace/schema] Build succeeded!');
 	},
 });
