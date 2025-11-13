@@ -11,8 +11,8 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "build": "tsdown src/index.ts --format cjs,esm --dts",
-    "dev": "tsdown src/index.ts --format cjs,esm --dts --watch",
+    "build": "tsdown src/index.ts",
+    "dev": "tsdown src/index.ts --watch",
     "lint": "biome lint ."
   },
   "exports": {

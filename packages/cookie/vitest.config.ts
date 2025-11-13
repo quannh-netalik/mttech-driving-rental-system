@@ -9,7 +9,6 @@ export default defineConfig({
 			provider: 'v8',
 			reporter: ['text', 'json', 'html'],
 			exclude: ['node_modules/', 'tests/', 'dist/', '**/*.d.ts'],
-			all: true,
 		},
 		// Allow module mocking
 		mockReset: true,
