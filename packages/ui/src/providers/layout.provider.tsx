@@ -1,4 +1,4 @@
-import { getCookie, setCookie } from '@workspace/ui/lib';
+import { getCookie, setCookie } from '@workspace/ui/lib/cookie';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 export type Collapsible = 'offcanvas' | 'icon' | 'none';
 
@@ -58,7 +58,7 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
 		[resetLayout, collapsible, setCollapsible],
 	);
 
-	return <LayoutContext.Provider value={contextValue}>{children}</LayoutContext.Provider>;
+	return <LayoutContext value={contextValue}>{children}</LayoutContext>;
 }
 
 // Define the hook for the provider
