@@ -1,11 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "declaration": true,
-    "outDir": "./dist",
-    "declarationMap": true,
     "esModuleInterop": true,
-    "incremental": false,
     "jsx": "react-jsx",
     "module": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ES2024"],

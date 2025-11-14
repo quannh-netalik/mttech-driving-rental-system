@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
-import { apiClients } from './api.client';
+import { createServerApiClients } from './api.client';
 
 export const USER_PROFILE = 'USER_PROFILE';
 
@@ -13,5 +13,6 @@ export const getUserProfileOptions = () => {
 };
 
 export const getUserProfile = createServerFn({ method: 'GET' }).handler(async () => {
+	const apiClients = createServerApiClients();
 	return await apiClients.user.profile();
 });
