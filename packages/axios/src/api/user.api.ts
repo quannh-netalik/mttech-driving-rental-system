@@ -1,5 +1,5 @@
 import type { HttpClient } from '@workspace/axios/index';
-import type { ProfileSchema } from '@workspace/schema/user';
+import type { ProfileSchema } from '@workspace/schema';
 
 export class UserApi {
 	private readonly controller: UrlPath = '/users';

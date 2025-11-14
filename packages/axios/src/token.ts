@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { COOKIE_TOKENS } from '@workspace/cookie';
+ * import { COOKIE_TOKENS } from '@workspace/axios/token';
  *
  * const token = cookies.get(COOKIE_TOKENS.ACCESS_TOKEN);
  * ```
