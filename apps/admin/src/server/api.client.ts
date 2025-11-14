@@ -8,7 +8,6 @@ import { DEFAULT_COOKIE_OPTIONS } from './constant';
  * Creates a fresh set of server-side API clients with request-scoped context.
  *
  * ⚠️ Must be called inside each `createServerFn` handler** for proper request isolation.
- * DO NOT create as a singleton—this will leak cookies/headers between requests.
  *
  * **DO NOT** create a singleton instance at module scope, as this will cause
  * request context leakage where subsequent requests incorrectly inherit cookies

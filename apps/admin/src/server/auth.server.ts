@@ -9,7 +9,7 @@ import { errorHandler } from './middleware/error-handling.middleware';
 export const signInFn = createServerFn({ method: 'POST' })
 	.inputValidator(zLoginRequestSchema)
 	.middleware([errorHandler])
-	.handler(async ({ data }) => {
+	.handler(async ({ data }): Promise<void> => {
 		const apiClients = createServerApiClients();
 		const result = await apiClients.auth.signIn(data);
 
@@ -23,5 +23,5 @@ export const signInFn = createServerFn({ method: 'POST' })
 			maxAge: 7 * 24 * 60 * 60, // 7 days
 		});
 
-		return result;
+		return;
 	});
