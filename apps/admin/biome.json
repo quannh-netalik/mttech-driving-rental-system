@@ -6,6 +6,9 @@
     "rules": {
       "style": {
         "useComponentExportOnlyModules": "off"
+      },
+      "suspicious": {
+        "noAssignInExpressions": "off"
       }
     }
   },

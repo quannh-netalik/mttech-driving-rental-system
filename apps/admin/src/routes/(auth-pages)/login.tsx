@@ -1,12 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { createFileRoute, Link, redirect } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { type LoginRequestSchema, zLoginRequestSchema } from '@workspace/schema';
-import { Button, ErrorMessage, Input, Label, Separator, toast } from '@workspace/ui/components';
+import { Button } from '@workspace/ui/components/button';
+import { ErrorMessage } from '@workspace/ui/components/error-message';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
+import { Separator } from '@workspace/ui/components/separator';
+import { toast } from '@workspace/ui/components/sonner';
 import { EyeIcon, EyeOffIcon, KeyRound, LoaderCircle, MailSearchIcon, User } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
-import { signIn } from '@/lib/http';
+import { signInFn } from '@/server/auth.server';
+import { getUserProfileOptions } from '@/server/user.server';
 
 export const Route = createFileRoute('/(auth-pages)/login')({
 	component: LoginForm,
@@ -23,6 +29,7 @@ export const Route = createFileRoute('/(auth-pages)/login')({
  * @returns The rendered login form React element.
  */
 function LoginForm() {
+	const navigate = useNavigate();
 	const {
 		register,
 		handleSubmit,
@@ -41,10 +48,11 @@ function LoginForm() {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: async (data: { email: string; password: string }) => signIn(data),
-		onSuccess: (_data, _variables, _onMutateResult, _context) => {
-			// context.client.removeQueries({ queryKey: authQueryOptions().queryKey });
-			redirect({ to: '/' });
+		mutationFn: async (data: LoginRequestSchema) => signInFn({ data }),
+		onSuccess: async (_data, _variables, _onMutateResult, context) => {
+			await context.client.ensureQueryData(getUserProfileOptions());
+
+			navigate({ to: '/dashboard' });
 		},
 		onError: ({ message }) => {
 			toast.error(message || 'An error occurred while signing in.', {
