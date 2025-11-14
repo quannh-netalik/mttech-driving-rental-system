@@ -124,12 +124,17 @@ export class HttpClient {
 
 		// Wait for existing refresh or start new one
 		if (this.isRefreshing && this.refreshPromise) {
-			await this.refreshPromise;
-			const newToken = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
-			if (newToken) {
-				originalRequest.headers = originalRequest.headers || {};
-				originalRequest.headers.Authorization = `Bearer ${newToken}`;
-				return this.axiosInstance(originalRequest);
+			try {
+				await this.refreshPromise;
+				const newToken = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
+				if (newToken) {
+					originalRequest.headers = originalRequest.headers || {};
+					originalRequest.headers.Authorization = `Bearer ${newToken}`;
+					return this.axiosInstance(originalRequest);
+				}
+			} catch (error) {
+				this.handleAuthFailure();
+				return Promise.reject(error);
 			}
 		}
 
