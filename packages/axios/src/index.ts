@@ -43,15 +43,11 @@ export class HttpClient {
 
 	private refreshPromise: Promise<string> | null = null;
 
-	constructor({ baseURL, timeout, cookieProvider }: Partial<HttpClientConfig>) {
-		if (!baseURL) {
-			throw new Error('Base URL is required to create HttpClient instance');
-		}
-
-		if (!cookieProvider) {
-			throw new Error('Cookie provider is not provided');
-		}
-
+	constructor({
+		baseURL,
+		timeout,
+		cookieProvider,
+	}: Partial<HttpClientConfig> & Required<Pick<HttpClientConfig, 'baseURL' | 'cookieProvider'>>) {
 		this.cookieProvider = cookieProvider;
 
 		this.axiosInstance = axios.create({
@@ -61,10 +57,6 @@ export class HttpClient {
 		});
 
 		this.setupInterceptors();
-	}
-
-	public setRefreshEndpoint(endpoint: UrlPath): void {
-		this.refreshEndpoint = endpoint;
 	}
 
 	private setupInterceptors(): void {
@@ -123,15 +115,20 @@ export class HttpClient {
 		originalRequest._retry = true;
 
 		// Wait for existing refresh or start new one
-		if (this.isRefreshing && this.refreshPromise) {
+		if (this.isRefreshing && !!this.refreshPromise) {
 			try {
 				await this.refreshPromise;
+
 				const newToken = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
-				if (newToken) {
-					originalRequest.headers = originalRequest.headers || {};
-					originalRequest.headers.Authorization = `Bearer ${newToken}`;
-					return this.axiosInstance(originalRequest);
+				if (!newToken) {
+					this.handleAuthFailure();
+					throw new Error('Token unavailable after refresh');
 				}
+
+				originalRequest.headers = originalRequest.headers || {};
+				originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+				return this.axiosInstance(originalRequest);
 			} catch (error) {
 				this.handleAuthFailure();
 				return Promise.reject(error);
@@ -176,7 +173,7 @@ export class HttpClient {
 			throw new Error('Fetch failed');
 		}
 
-		this.logger.info(`Fetched new tokens successfully: ${response}`);
+		this.logger.info(`Fetched new tokens successfully`);
 
 		const { accessToken, refreshToken: newRefreshToken } = response;
 
