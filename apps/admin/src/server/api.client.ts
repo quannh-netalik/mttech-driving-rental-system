@@ -5,23 +5,16 @@ import { env } from '@/env/client';
 import { DEFAULT_COOKIE_OPTIONS } from './constant';
 
 /**
- * Creates a fresh set of server-side API clients with request-scoped context.
+ * Creates request-scoped server API clients with automatic cookie/header handling.
  *
- * ⚠️ Must be called inside each `createServerFn` handler** for proper request isolation.
- *
- * **DO NOT** create a singleton instance at module scope, as this will cause
- * request context leakage where subsequent requests incorrectly inherit cookies
- * and headers from the first request, leading to security vulnerabilities and
- * data leakage between users.
+ * ⚠️ Must be called inside each `createServerFn` handler for proper request isolation.
+ * Do not create a singleton at module scope to avoid leaking cookies/headers between requests.
  *
  * @example
- * ```typescript
- * export const getUserProfile = createServerFn({ method: 'GET' })
- *   .handler(async () => {
- *     const apiClients = createServerApiClients();
- *     return await apiClients.user.profile();
- *   });
- * ```
+ * export const getUserProfile = createServerFn({ method: 'GET' }).handler(async () => {
+ *   const apiClients = createServerApiClients();
+ *   return apiClients.user.profile();
+ * });
  */
 export const createServerApiClients = () => {
 	const httpClient = new HttpClient({
@@ -36,12 +29,15 @@ export const createServerApiClients = () => {
 		},
 	});
 
+	let _user: UserApi;
+	let _auth: AuthApi;
+
 	return {
 		get user() {
-			return new UserApi(httpClient);
+			return (_user ??= new UserApi(httpClient));
 		},
 		get auth() {
-			return new AuthApi(httpClient);
+			return (_auth ??= new AuthApi(httpClient));
 		},
 	};
 };

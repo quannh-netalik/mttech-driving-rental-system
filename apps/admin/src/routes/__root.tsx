@@ -1,22 +1,24 @@
 /// <reference types="vite/client" />
 
 import { TanStackDevtools } from '@tanstack/react-devtools';
-import type { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
-import { ThemeBackground } from '@workspace/ui/components/theme-background';
-import { AppProvider } from '@workspace/ui/providers';
+import { AppProvider } from '@workspace/ui/providers/app.provider';
 import appCss from '@workspace/ui/styles/globals.css?url';
-import { type AuthQueryResult, authQueryOptions } from '@/lib/auth/queries';
+import { getUserProfileOptions } from '@/server/user.server';
 
-export const Route = createRootRouteWithContext<{
-	queryClient: QueryClient;
-	user: AuthQueryResult;
-}>()({
-	beforeLoad: ({ context }) => {
-		// we're using react-query for client-side caching to reduce client-to-server calls, see /src/router.tsx
-		context.queryClient.prefetchQuery(authQueryOptions());
+export const Route = createRootRouteWithContext<RouterContext>()({
+	beforeLoad: async ({ context }) => {
+		// Prefetch once - all routes benefit from cache
+		await context.queryClient
+			.ensureQueryData(getUserProfileOptions())
+			.then(profile => {
+				context.user = profile;
+			})
+			.catch(() => {
+				// Silently fail - individual routes will handle auth
+			});
 	},
 	head: () => ({
 		meta: [
@@ -87,10 +89,7 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body suppressHydrationWarning>
-				<AppProvider>
-					<ThemeBackground />
-					{children}
-				</AppProvider>
+				<AppProvider>{children}</AppProvider>
 
 				<TanStackDevtools
 					plugins={[
