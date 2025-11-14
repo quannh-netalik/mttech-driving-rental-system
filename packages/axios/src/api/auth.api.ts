@@ -1,5 +1,5 @@
 import type { HttpClient } from '@workspace/axios/index';
-import type { LoginRequestSchema, LoginResponseSchema } from '@workspace/schema/auth';
+import type { LoginRequestSchema, LoginResponseSchema } from '@workspace/schema';
 
 export class AuthApi {
 	private readonly controller: UrlPath = '/auth';
