@@ -6,11 +6,6 @@ import { defineConfig } from 'vite';
 import tsConfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-	resolve: {
-		alias: {
-			'@workspace/schema': '../../packages/schema/src/index.ts',
-		},
-	},
 	plugins: [
 		devtools(),
 		tsConfigPaths({

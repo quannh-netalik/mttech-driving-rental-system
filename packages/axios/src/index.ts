@@ -38,7 +38,7 @@ export class HttpClient {
 	private readonly cookieProvider: CookieProvider;
 
 	private readonly refreshController: UrlPath = '/auth';
-	private refreshEndpoint: UrlPath = '/refresh';
+	private readonly refreshEndpoint: UrlPath = '/refresh';
 	private isRefreshing = false;
 
 	private refreshPromise: Promise<string> | null = null;
