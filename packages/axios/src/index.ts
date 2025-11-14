@@ -35,13 +35,15 @@ export class HttpClient {
 		msgPrefix: `[HttpClient] `,
 	});
 	private readonly axiosInstance: AxiosInstance;
-	private cookieProvider: CookieProvider;
+	private readonly cookieProvider: CookieProvider;
 
 	private readonly refreshController: UrlPath = '/auth';
 	private refreshEndpoint: UrlPath = '/refresh';
 	private isRefreshing = false;
 
-	constructor({ baseURL, timeout, cookieProvider }: Partial<HttpClientConfig> = {}) {
+	private refreshPromise: Promise<string> | null = null;
+
+	constructor({ baseURL, timeout, cookieProvider }: Partial<HttpClientConfig>) {
 		if (!baseURL) {
 			throw new Error('Base URL is required to create HttpClient instance');
 		}
@@ -110,7 +112,7 @@ export class HttpClient {
 		this.logger.info('Failed request detected - fetching new tokens...');
 		// Check if we have both access token (that failed) and refresh token
 		const refreshToken = this.cookieProvider.getCookie(COOKIE_TOKENS.REFRESH_TOKEN);
-		this.logger.info(`RefreshToken: ${refreshToken}`);
+
 		// If we had access token but no refresh token, can't refresh - clear auth
 		if (!refreshToken) {
 			this.logger.warn('Refresh token not found - rejecting...');
@@ -120,18 +122,27 @@ export class HttpClient {
 
 		originalRequest._retry = true;
 
-		// Ignore request if refresh is already in progress
-		if (!this.isRefreshing)
-			// Start token refresh
-			return this.refreshAndRetry(originalRequest);
-		else return;
+		// Wait for existing refresh or start new one
+		if (this.isRefreshing && this.refreshPromise) {
+			await this.refreshPromise;
+			const newToken = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
+			if (newToken) {
+				originalRequest.headers = originalRequest.headers || {};
+				originalRequest.headers.Authorization = `Bearer ${newToken}`;
+				return this.axiosInstance(originalRequest);
+			}
+		}
+
+		// Start token refresh
+		return this.refreshAndRetry(originalRequest);
 	}
 
 	private async refreshAndRetry(originalRequest: RetryableRequest): Promise<unknown> {
 		this.isRefreshing = true;
+		this.refreshPromise = this.performTokenRefresh();
 
 		try {
-			const newToken = await this.performTokenRefresh();
+			const newToken = await this.refreshPromise;
 			originalRequest.headers = originalRequest.headers || {};
 			originalRequest.headers.Authorization = `Bearer ${newToken}`;
 			return this.axiosInstance(originalRequest);
@@ -141,6 +152,7 @@ export class HttpClient {
 			throw error;
 		} finally {
 			this.isRefreshing = false;
+			this.refreshPromise = null;
 		}
 	}
 
@@ -174,7 +186,7 @@ export class HttpClient {
 			maxAge: 7 * 24 * 60 * 60, // 7 days
 		});
 
-		this.logger.info(`setCookie with new tokens - ac: ${accessToken}`);
+		this.logger.info('Successfully set new tokens in cookies');
 
 		return accessToken;
 	}
