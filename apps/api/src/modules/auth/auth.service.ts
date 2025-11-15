@@ -23,7 +23,7 @@ export class AuthService {
 		private readonly redisService: RedisService,
 	) {
 		this.jwtSecret = this.configService.getOrThrow<string>('JWT_SECRET');
-		this.jwtAcTTL = 2;
+		this.jwtAcTTL = 1000*60*30;
 		this.jwtRfTTL = +this.configService.getOrThrow<number>('JWT_RF_TTL');
 	}
 
@@ -130,7 +130,7 @@ export class AuthService {
 		const [accessToken, refreshToken] = await Promise.all([
 			this.jwtService.signAsync<PayloadDto>(_payload, {
 				secret: this.jwtSecret,
-				expiresIn: this.jwtAcTTL,
+				expiresIn: '30m',
 			}),
 			this.jwtService.signAsync<PayloadDto>(_payload, {
 				secret: this.jwtSecret,

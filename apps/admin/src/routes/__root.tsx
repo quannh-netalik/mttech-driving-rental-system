@@ -6,15 +6,41 @@ import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanst
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { AppProvider } from '@workspace/ui/providers/app.provider';
 import appCss from '@workspace/ui/styles/globals.css?url';
-import { getUserProfileOptions } from '@/server/user.server';
+import { getUserProfileOptions, userProfileQueryKey } from '@/server/user.server';
 
 export const Route = createRootRouteWithContext<RouterContext>()({
 	beforeLoad: async ({ context }) => {
-		try {
-			const user = await context.queryClient.ensureQueryData(getUserProfileOptions());
+		// Use exported stable query key
+		let user = context.queryClient.getQueryData(userProfileQueryKey);
+		
+		// Check if query is already in progress
+		const queryState = context.queryClient.getQueryState(userProfileQueryKey);
+		
+		// Early return if user already in context (from previous beforeLoad call)
+		if (context.user) {
+			return;
+		}
+		
+		// Only fetch if not in cache and not already fetching
+		if (!user && queryState?.status !== 'pending') {
+			console.log('Fetching user profile');
+			try {
+				user = await context.queryClient.ensureQueryData(getUserProfileOptions());
+			} catch (_error) {
+				// Silently fail
+			}
+		} else if (queryState?.status === 'pending') {
+			// Wait for existing fetch
+			try {
+				user = await context.queryClient.ensureQueryData(getUserProfileOptions());
+			} catch (_error) {
+				// Silently fail
+			}
+		}
+		
+		if (user) {
+			console.log('User profile fetched');
 			context.user = user;
-		} catch (_error) {
-			// Silently fail - individual routes will handle auth
 		}
 	},
 	head: () => ({

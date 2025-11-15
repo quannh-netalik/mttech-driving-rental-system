@@ -81,10 +81,17 @@ export class HttpClient {
 					config.headers.Cookie = cookies;
 				}
 
-				// Get access token
-				const accessToken = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
-				if (accessToken) {
-					config.headers.Authorization = `Bearer ${accessToken}`;
+				// Only set Authorization if not already set (e.g., during retry after refresh)
+				if (!config.headers.Authorization && !config.headers['X-Has-Auth-Token']) {
+					const accessToken = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
+					if (accessToken) {
+						config.headers.Authorization = `Bearer ${accessToken}`;
+					}
+				}
+
+				// Remove the marker header before sending
+				if (config.headers['X-Has-Auth-Token']) {
+					delete config.headers['X-Has-Auth-Token'];
 				}
 
 				config.headers['X-Request-Id'] = nanoid();
@@ -135,6 +142,8 @@ export class HttpClient {
 			// Update authorization header with new token
 			if (originalRequest.headers) {
 				originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+				// Mark that this request already has a token to prevent interceptor from overwriting
+				originalRequest.headers['X-Has-Auth-Token'] = 'true';
 			}
 
 			this.logger.info('Retrying request with new token');

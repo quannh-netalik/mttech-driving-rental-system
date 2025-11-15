@@ -4,11 +4,16 @@ import { createServerApiClients } from './api.client';
 
 export const USER_PROFILE = 'USER_PROFILE';
 
+// Export stable query key for direct use
+export const userProfileQueryKey = [USER_PROFILE] as const;
+
 export const getUserProfileOptions = () => {
 	return queryOptions({
-		queryKey: [USER_PROFILE],
+		queryKey: userProfileQueryKey,
 		queryFn: () => getUserProfile(),
 		placeholderData: keepPreviousData,
+		staleTime: 1000 * 60 * 5, // 5 minutes
+		gcTime: 1000 * 60 * 30, // 30 minutes
 	});
 };
 

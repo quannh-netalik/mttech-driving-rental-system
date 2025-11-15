@@ -2,7 +2,7 @@
 import { Params as PinoParams } from 'nestjs-pino';
 import { appConfig } from './app.config';
 
-const pretty = false;
+const pretty = true;
 
 export const loggerConfig: PinoParams = {
 	pinoHttp: {
