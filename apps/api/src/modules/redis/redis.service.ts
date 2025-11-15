@@ -18,6 +18,29 @@ export class RedisService {
 		}
 	}
 
+	public async acquireLock(key: string, ttl: number): Promise<boolean> {
+		try {
+			const result = await this.redis.set(key, '1', 'PX', ttl, 'NX');
+			return result === 'OK';
+		} catch (error) {
+			this.logger.error(`Failed to acquire lock for key "${key}"`, error);
+			return false;
+		}
+	}
+
+	public async setNX(key: string, value: string, ttl: number): Promise<boolean> {
+		try {
+			// SET key value PX milliseconds NX
+			// Returns 'OK' if successful, null if key already exists
+			const result = await this.redis.set(key, value, 'PX', ttl, 'NX');
+			return result === 'OK';
+		} catch (error) {
+			const stack = error instanceof Error ? error.stack : JSON.stringify(error);
+			this.logger.error(`Redis setNX operation failed for key "${key}"`, stack);
+			return false;
+		}
+	}
+
 	public async set<T>(key: string, value: T, ttl?: number): Promise<void> {
 		try {
 			// Safe serialization - handles circular references and undefined

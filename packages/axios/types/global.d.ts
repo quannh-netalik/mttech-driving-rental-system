@@ -6,12 +6,12 @@ export declare global {
 	// Axios Config Types
 	type RequestMethods = Extract<Method, 'get' | 'post' | 'put' | 'delete' | 'patch' | 'option' | 'head'>;
 
-	interface PendingRequest {
-		resolve: (token: string) => void;
-		reject: (error: unknown) => void;
-	}
-
 	interface RetryableRequest extends InternalAxiosRequestConfig {
 		_retry?: boolean;
+	}
+
+	interface QueuedRequest {
+		resolve: (value: string) => void;
+		reject: (reason: Error) => void;
 	}
 }

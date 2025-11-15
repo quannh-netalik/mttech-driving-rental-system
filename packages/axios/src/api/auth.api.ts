@@ -7,6 +7,8 @@ export class AuthApi {
 	constructor(private readonly httpClient: HttpClient) {}
 
 	signIn = async (data: LoginRequestSchema): Promise<LoginResponseSchema> => {
-		return await this.httpClient.post<LoginResponseSchema>(this.controller, '/sign-in', { data });
+		return await this.httpClient.post<LoginResponseSchema>(this.controller, '/sign-in', {
+			data: { email: 'john.doe+1@example.com', password: 'StrongP@ssw0rd' },
+		});
 	};
 }

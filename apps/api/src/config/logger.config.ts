@@ -2,7 +2,7 @@
 import { Params as PinoParams } from 'nestjs-pino';
 import { appConfig } from './app.config';
 
-const pretty = Boolean(process.env.PINO_PRETTY_FORMAT);
+const pretty = false;
 
 export const loggerConfig: PinoParams = {
 	pinoHttp: {
@@ -26,6 +26,7 @@ export const loggerConfig: PinoParams = {
 				url: req.url,
 				query: req.query,
 				params: req.params,
+				authorization: req.headers['authorization'],
 				['user-agent']: req.headers['user-agent'],
 			}),
 			res: res => ({

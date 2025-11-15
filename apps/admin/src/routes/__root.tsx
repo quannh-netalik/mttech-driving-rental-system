@@ -10,15 +10,12 @@ import { getUserProfileOptions } from '@/server/user.server';
 
 export const Route = createRootRouteWithContext<RouterContext>()({
 	beforeLoad: async ({ context }) => {
-		// Prefetch once - all routes benefit from cache
-		await context.queryClient
-			.ensureQueryData(getUserProfileOptions())
-			.then(profile => {
-				context.user = profile;
-			})
-			.catch(() => {
-				// Silently fail - individual routes will handle auth
-			});
+		try {
+			const user = await context.queryClient.ensureQueryData(getUserProfileOptions());
+			context.user = user;
+		} catch (_error) {
+			// Silently fail - individual routes will handle auth
+		}
 	},
 	head: () => ({
 		meta: [
