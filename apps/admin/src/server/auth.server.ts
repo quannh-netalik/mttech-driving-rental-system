@@ -22,6 +22,4 @@ export const signInFn = createServerFn({ method: 'POST' })
 			...DEFAULT_COOKIE_OPTIONS,
 			maxAge: 7 * 24 * 60 * 60, // 7 days
 		});
-
-		return;
 	});

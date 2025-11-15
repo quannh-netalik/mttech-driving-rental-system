@@ -1,8 +1,18 @@
-import { getCookie, getRequestHeaders, setCookie } from '@tanstack/react-start/server';
-import { HttpClient } from '@workspace/axios';
+import { deleteCookie, getCookie, getRequestHeaders, setCookie } from '@tanstack/react-start/server';
+import { type CookieProvider, HttpClient } from '@workspace/axios';
 import { AuthApi, UserApi } from '@workspace/axios/api';
 import { env } from '@/env/client';
 import { DEFAULT_COOKIE_OPTIONS } from './constant';
+
+const cookieProvider: CookieProvider = {
+	getCookie,
+	getRequestHeaders,
+	setCookie,
+	deleteCookie,
+	defaultCookieOptions: {
+		...DEFAULT_COOKIE_OPTIONS,
+	},
+};
 
 /**
  * Creates request-scoped server API clients with automatic cookie/header handling.
@@ -19,14 +29,7 @@ import { DEFAULT_COOKIE_OPTIONS } from './constant';
 export const createServerApiClients = () => {
 	const httpClient = new HttpClient({
 		baseURL: env.VITE_SERVER_URL,
-		cookieProvider: {
-			getCookie,
-			getRequestHeaders,
-			setCookie,
-			defaultCookieOptions: {
-				...DEFAULT_COOKIE_OPTIONS,
-			},
-		},
+		cookieProvider,
 	});
 
 	let _user: UserApi;
