@@ -207,7 +207,7 @@ export class HttpClient {
 		this.cookieProvider.deleteCookie(COOKIE_TOKENS.REFRESH_TOKEN);
 	}
 
-	public request<T>(method: string, controller: string, url: string, param?: AxiosRequestConfig): Promise<T> {
+	public request<T>(method: RequestMethods, controller: UrlPath, url: UrlPath, param?: AxiosRequestConfig): Promise<T> {
 		return this.axiosInstance.request({
 			method,
 			url: controller + url,
@@ -215,19 +215,19 @@ export class HttpClient {
 		});
 	}
 
-	public post<T>(controller: string, url: string, params?: AxiosRequestConfig): Promise<T> {
+	public post<T>(controller: UrlPath, url: UrlPath, params?: AxiosRequestConfig): Promise<T> {
 		return this.request<T>('post', controller, url, params);
 	}
 
-	public get<T>(controller: string, url: string, params?: AxiosRequestConfig): Promise<T> {
+	public get<T>(controller: UrlPath, url: UrlPath, params?: AxiosRequestConfig): Promise<T> {
 		return this.request<T>('get', controller, url, params);
 	}
 
-	public put<T>(controller: string, url: string, params?: AxiosRequestConfig): Promise<T> {
+	public put<T>(controller: UrlPath, url: UrlPath, params?: AxiosRequestConfig): Promise<T> {
 		return this.request<T>('put', controller, url, params);
 	}
 
-	public delete<T>(controller: string, url: string, params?: AxiosRequestConfig): Promise<T> {
+	public delete<T>(controller: UrlPath, url: UrlPath, params?: AxiosRequestConfig): Promise<T> {
 		return this.request<T>('delete', controller, url, params);
 	}
 }

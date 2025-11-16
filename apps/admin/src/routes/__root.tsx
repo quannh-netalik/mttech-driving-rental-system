@@ -10,37 +10,37 @@ import { getUserProfileOptions, userProfileQueryKey } from '@/server/user.server
 
 export const Route = createRootRouteWithContext<RouterContext>()({
 	beforeLoad: async ({ context }) => {
-		// Use exported stable query key
-		let user = context.queryClient.getQueryData(userProfileQueryKey);
-		
-		// Check if query is already in progress
-		const queryState = context.queryClient.getQueryState(userProfileQueryKey);
-		
-		// Early return if user already in context (from previous beforeLoad call)
+		// Early return if user already exists in context
 		if (context.user) {
 			return;
 		}
-		
-		// Only fetch if not in cache and not already fetching
-		if (!user && queryState?.status !== 'pending') {
-			console.log('Fetching user profile');
-			try {
-				user = await context.queryClient.ensureQueryData(getUserProfileOptions());
-			} catch (_error) {
-				// Silently fail
-			}
-		} else if (queryState?.status === 'pending') {
-			// Wait for existing fetch
-			try {
-				user = await context.queryClient.ensureQueryData(getUserProfileOptions());
-			} catch (_error) {
-				// Silently fail
-			}
+
+		// Check cache first
+		const cachedUser = context.queryClient.getQueryData(userProfileQueryKey);
+		if (cachedUser) {
+			context.user = cachedUser;
+			return;
 		}
-		
-		if (user) {
-			console.log('User profile fetched');
-			context.user = user;
+
+		// Check if query is already in progress
+		const queryState = context.queryClient.getQueryState(userProfileQueryKey);
+
+		// If already fetching, wait for it; otherwise, start a new fetch
+		if (queryState?.fetchStatus === 'fetching') {
+			try {
+				const user = await context.queryClient.ensureQueryData(getUserProfileOptions());
+				context.user = user;
+			} catch {
+				// Silently handle authentication errors
+			}
+		} else {
+			// No cache, no pending fetch - initiate new fetch
+			try {
+				const user = await context.queryClient.ensureQueryData(getUserProfileOptions());
+				context.user = user;
+			} catch {
+				// Silently handle authentication errors
+			}
 		}
 	},
 	head: () => ({
