@@ -1,6 +1,13 @@
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import { Button } from '@workspace/ui/components/button';
 
+/**
+ * Render a 401 Unauthorized Access screen with controls to return to the previous page or navigate home.
+ *
+ * @returns A JSX element containing a large "401" heading, explanatory text, and two buttons:
+ * - "Go Back": navigates back one history entry
+ * - "Back to Home": navigates to the root path (`/`)
+ */
 export function UnauthorizedError() {
 	const navigate = useNavigate();
 	const { history } = useRouter();

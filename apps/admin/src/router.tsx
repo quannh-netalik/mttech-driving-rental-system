@@ -4,12 +4,11 @@ import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query
 import { routeTree } from './routeTree.gen';
 
 /**
- * Creates and returns a configured TanStack Router wired to a QueryClient and SSR data integration.
+ * Create a TanStack Router configured with a QueryClient, sensible defaults, and SSR query integration.
  *
- * The returned router's context includes a `QueryClient` for data caching and a `user` initialized to `null`.
- * The router is configured with sensible preload, not-found, scroll restoration, and structural sharing defaults, and it is integrated with SSR query handling.
+ * The router's context includes a `queryClient` for react-query caching and a `user` initialized to `null`.
  *
- * @returns A configured TanStack Router instance with `queryClient` and `user` in its context.
+ * @returns The configured TanStack Router instance whose context contains `queryClient` and `user`.
  */
 export function getRouter() {
 	const queryClient = new QueryClient({
