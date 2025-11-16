@@ -7,6 +7,7 @@ import { DatabaseModule } from '@/modules/database';
 import { DatabaseHealthCheckProvider, HealthModule, RedisHealthCheckProvider } from '@/modules/health';
 import { LoggingModule } from '@/modules/logging';
 import { RedisModule } from '@/modules/redis';
+import { UserModule } from '@/modules/users/user.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { RedisModule } from '@/modules/redis';
 		DatabaseModule,
 		HealthModule.forRoot([DatabaseHealthCheckProvider, RedisHealthCheckProvider]),
 		AuthModule,
+		UserModule,
 	],
 	controllers: [],
 	providers: [],

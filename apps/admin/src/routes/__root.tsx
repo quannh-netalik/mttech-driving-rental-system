@@ -6,19 +6,28 @@ import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanst
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { AppProvider } from '@workspace/ui/providers/app.provider';
 import appCss from '@workspace/ui/styles/globals.css?url';
-import { getUserProfileOptions } from '@/server/user.server';
+import { getUserProfileOptions, userProfileQueryKey } from '@/server/user.server';
 
 export const Route = createRootRouteWithContext<RouterContext>()({
 	beforeLoad: async ({ context }) => {
-		// Prefetch once - all routes benefit from cache
-		await context.queryClient
-			.ensureQueryData(getUserProfileOptions())
-			.then(profile => {
-				context.user = profile;
-			})
-			.catch(() => {
-				// Silently fail - individual routes will handle auth
-			});
+		// Early return if user already exists in context
+		if (context.user) {
+			return;
+		}
+
+		// Check cache first
+		const cachedUser = context.queryClient.getQueryData(userProfileQueryKey);
+		if (cachedUser) {
+			context.user = cachedUser;
+			return;
+		}
+
+		try {
+			const user = await context.queryClient.ensureQueryData(getUserProfileOptions());
+			context.user = user;
+		} catch {
+			// Silently handle authentication errors
+		}
 	},
 	head: () => ({
 		meta: [

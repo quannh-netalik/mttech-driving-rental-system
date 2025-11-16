@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: mttech-driving-rental-system-db
+    environment:
+      POSTGRES_USER: mttech-driving-rental
+      POSTGRES_PASSWORD: 807eaff8-aae6-4a8c-88da-3ab56e6edcc9
+      POSTGRES_DB: mttech
+    ports:
+      - 5435:5432
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  redis:
+    image: bitnami/redis:latest
+    container_name: mttech-driving-rental-system-redis
+    environment:
+      REDIS_PORT_NUMBER: 7350
+      REDIS_PASSWORD: NLzYlFVX9c
+    ports:
+      - "6379:6379"
+      - "7350:7350"
+    restart: always
+    volumes:
+      - redis_data:/bitnami/redis/data
+
+volumes:
+  postgres_data:
+  redis_data:

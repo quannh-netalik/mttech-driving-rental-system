@@ -12,24 +12,23 @@ import { EyeIcon, EyeOffIcon, KeyRound, LoaderCircle, MailSearchIcon, User } fro
 import { useCallback, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { signInFn } from '@/server/auth.server';
-import { getUserProfileOptions } from '@/server/user.server';
 
-export const Route = createFileRoute('/(auth-pages)/login')({
+export const Route = createFileRoute('/(unauthenticated)/login')({
 	component: LoginForm,
 });
 
 /**
- * Render the admin login form for Miền Trung Tech.
+ * Renders the admin login form and handles user authentication.
  *
- * The form validates credentials using the configured Zod schema, trims the email on blur,
- * toggles password visibility, disables inputs while a sign-in request is pending, and
- * performs authentication via the sign-in mutation which redirects to the site root on success
- * or shows a toast error on failure.
+ * The form validates credentials with the configured schema, trims the email on blur,
+ * allows toggling password visibility, disables inputs while a sign-in request is pending,
+ * navigates to '/dashboard' on successful sign-in, and shows a toast error on failure.
  *
  * @returns The rendered login form React element.
  */
 function LoginForm() {
 	const navigate = useNavigate();
+
 	const {
 		register,
 		handleSubmit,
@@ -49,10 +48,8 @@ function LoginForm() {
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (data: LoginRequestSchema) => signInFn({ data }),
-		onSuccess: async (_data, _variables, _onMutateResult, context) => {
-			await context.client.ensureQueryData(getUserProfileOptions());
-
-			navigate({ to: '/dashboard' });
+		onSuccess: async (_data, _variables, _onMutateResult) => {
+			await navigate({ to: '/dashboard', replace: true });
 		},
 		onError: ({ message }) => {
 			toast.error(message || 'An error occurred while signing in.', {

@@ -5,6 +5,7 @@ export interface Payload {
 	id: number;
 	email: string;
 	firstName: string;
+	nonce: string;
 	lastName: string;
 	role: UserRole;
 }
@@ -13,6 +14,10 @@ export class PayloadDto implements Payload {
 	@IsNumber()
 	@IsNotEmpty()
 	id!: number;
+
+	@IsString()
+	@IsNotEmpty()
+	nonce!: string;
 
 	@IsEmail()
 	@IsNotEmpty()
@@ -30,9 +35,10 @@ export class PayloadDto implements Payload {
 	@IsNotEmpty()
 	role!: UserRole;
 
-	constructor({ id, email, firstName, lastName, role }: Payload) {
+	constructor({ id, email, nonce, firstName, lastName, role }: Payload) {
 		this.id = id;
 		this.email = email;
+		this.nonce = nonce;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.role = role;

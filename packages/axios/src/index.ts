@@ -1,5 +1,10 @@
 import type { LoginResponseSchema } from '@workspace/schema';
-import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
+import axios, {
+	type AxiosInstance,
+	type AxiosRequestConfig,
+	type AxiosResponse,
+	type InternalAxiosRequestConfig,
+} from 'axios';
 import type { CookieSerializeOptions } from 'cookie-es';
 import { nanoid } from 'nanoid';
 import pino from 'pino';
@@ -9,8 +14,13 @@ import { COOKIE_TOKENS } from './token';
 export interface CookieProvider {
 	getCookie: (name: string) => string | undefined;
 	setCookie: (name: string, value: string, options?: CookieSerializeOptions) => void;
+	deleteCookie: (name: string, options?: CookieSerializeOptions) => void;
 	defaultCookieOptions: CookieSerializeOptions;
 	getRequestHeaders: () => Headers;
+}
+
+interface RetryableRequest extends InternalAxiosRequestConfig {
+	_retry?: boolean;
 }
 
 export interface HttpClientConfig extends AxiosRequestConfig {
@@ -35,13 +45,12 @@ export class HttpClient {
 		msgPrefix: `[HttpClient] `,
 	});
 	private readonly axiosInstance: AxiosInstance;
-	private readonly cookieProvider: CookieProvider;
+	public readonly cookieProvider: CookieProvider;
 
-	private readonly refreshController: UrlPath = '/auth';
-	private readonly refreshEndpoint: UrlPath = '/refresh';
-	private isRefreshing = false;
+	private refreshEndpoint = '/auth/refresh';
 
-	private refreshPromise: Promise<string> | null = null;
+	// Use Promise instead of boolean to prevent race conditions
+	private refreshTokenPromise: Promise<string> | null = null;
 
 	constructor({
 		baseURL,
@@ -49,6 +58,8 @@ export class HttpClient {
 		cookieProvider,
 	}: Partial<HttpClientConfig> & Required<Pick<HttpClientConfig, 'baseURL' | 'cookieProvider'>>) {
 		this.cookieProvider = cookieProvider;
+
+		this.refreshEndpoint = `${baseURL}${this.refreshEndpoint}`;
 
 		this.axiosInstance = axios.create({
 			...defaultConfig,
@@ -62,7 +73,7 @@ export class HttpClient {
 	private setupInterceptors(): void {
 		// Request interceptor: Add auth token and request ID
 		this.axiosInstance.interceptors.request.use(
-			async config => {
+			async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
 				// Get all cookies if available
 				const headers = this.cookieProvider.getRequestHeaders();
 				const cookies = headers.get('cookie');
@@ -70,137 +81,130 @@ export class HttpClient {
 					config.headers.Cookie = cookies;
 				}
 
-				// Get access token
-				const token = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
-				if (token) {
-					config.headers.Authorization = `Bearer ${token}`;
+				// Only set Authorization if not already set (e.g., during retry after refresh)
+				if (!config.headers.Authorization && !config.headers['X-Has-Auth-Token']) {
+					const accessToken = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
+					if (accessToken) {
+						config.headers.Authorization = `Bearer ${accessToken}`;
+					}
+				}
+
+				// Remove the marker header before sending
+				if (config.headers['X-Has-Auth-Token']) {
+					delete config.headers['X-Has-Auth-Token'];
 				}
 
 				config.headers['X-Request-Id'] = nanoid();
 				return config;
 			},
-			error => Promise.reject(error),
+			(error: Error): Promise<never> => Promise.reject(error),
 		);
 
 		// Response interceptor: Handle 401 and token refresh
 		this.axiosInstance.interceptors.response.use(
-			response => response.data,
-			error => this.handleResponseError(error),
+			(response: AxiosResponse) => response.data,
+			async (error: unknown): Promise<AxiosResponse> => this.handleResponseError(error),
 		);
 	}
 
-	private async handleResponseError(error: unknown): Promise<unknown> {
-		const axiosError = error as AxiosError;
-		const originalRequest = axiosError.config as RetryableRequest | undefined;
-
-		// If no access token was sent, this is a real 401 (not auth issue)
-		const hasAccessToken = !!this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
-
-		// Only handle 401 errors with valid config that haven't been retried and have tokens
-		if (!originalRequest || axiosError.response?.status !== 401 || originalRequest._retry || !hasAccessToken) {
+	private async handleResponseError(error: unknown): Promise<AxiosResponse> {
+		if (!axios.isAxiosError(error)) {
 			return Promise.reject(error);
 		}
 
-		this.logger.info('Failed request detected - fetching new tokens...');
-		// Check if we have both access token (that failed) and refresh token
-		const refreshToken = this.cookieProvider.getCookie(COOKIE_TOKENS.REFRESH_TOKEN);
+		const originalRequest = error.config as RetryableRequest | undefined;
 
-		// If we had access token but no refresh token, can't refresh - clear auth
-		if (!refreshToken) {
-			this.logger.warn('Refresh token not found - rejecting...');
-			this.handleAuthFailure();
+		// Check if we have a valid config and it's a 401 error
+		if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
+			this.logger.info('Authentication failed!');
 			return Promise.reject(error);
 		}
 
+		// Mark this request as retried
 		originalRequest._retry = true;
 
-		// Wait for existing refresh or start new one
-		if (this.isRefreshing && !!this.refreshPromise) {
-			try {
-				await this.refreshPromise;
-
-				const newToken = this.cookieProvider.getCookie(COOKIE_TOKENS.ACCESS_TOKEN);
-				if (!newToken) {
-					this.handleAuthFailure();
-					throw new Error('Token unavailable after refresh');
-				}
-
-				originalRequest.headers = originalRequest.headers || {};
-				originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-				return this.axiosInstance(originalRequest);
-			} catch (error) {
-				this.handleAuthFailure();
-				return Promise.reject(error);
-			}
-		}
-
-		// Start token refresh
-		return this.refreshAndRetry(originalRequest);
-	}
-
-	private async refreshAndRetry(originalRequest: RetryableRequest): Promise<unknown> {
-		this.isRefreshing = true;
-		this.refreshPromise = this.performTokenRefresh();
-
 		try {
-			const newToken = await this.refreshPromise;
-			originalRequest.headers = originalRequest.headers || {};
-			originalRequest.headers.Authorization = `Bearer ${newToken}`;
+			// If refresh is already in progress, wait for it
+			// Otherwise, start a new refresh
+			if (!this.refreshTokenPromise) {
+				this.logger.info('Starting token refresh...');
+				this.refreshTokenPromise = this.refreshAccessToken().finally(() => {
+					// Clear the promise when done
+					this.refreshTokenPromise = null;
+				});
+			} else {
+				this.logger.info('Token refresh already in progress, waiting...');
+			}
+
+			// Wait for the refresh to complete (whether we started it or not)
+			const newAccessToken = await this.refreshTokenPromise;
+
+			// Update authorization header with new token
+			if (originalRequest.headers) {
+				originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+				// Mark that this request already has a token to prevent interceptor from overwriting
+				originalRequest.headers['X-Has-Auth-Token'] = 'true';
+			}
+
+			this.logger.info('Retrying request with new token');
+
+			// Retry original request
 			return this.axiosInstance(originalRequest);
-		} catch (error) {
-			this.logger.error(`Error in refetching token ${JSON.stringify(error)}`);
-			this.handleAuthFailure();
-			throw error;
-		} finally {
-			this.isRefreshing = false;
-			this.refreshPromise = null;
+		} catch (refreshError) {
+			this.logger.error('Token refresh failed');
+
+			// Clear the promise on error
+			this.refreshTokenPromise = null;
+
+			return Promise.reject(refreshError);
 		}
 	}
 
-	private async performTokenRefresh(): Promise<string> {
+	private async refreshAccessToken(): Promise<string> {
 		const refreshToken = this.cookieProvider.getCookie(COOKIE_TOKENS.REFRESH_TOKEN);
-
 		if (!refreshToken) {
 			throw new Error('No refresh token available');
 		}
 
-		const response = await this.post<LoginResponseSchema>(this.refreshController, this.refreshEndpoint, {
-			data: { refreshToken },
-		});
+		try {
+			this.logger.info('Calling refresh token endpoint...');
 
-		if (!response) {
-			throw new Error('Fetch failed');
+			// Use base axios instance (not the intercepted one) to avoid infinite loops
+			const response: AxiosResponse<LoginResponseSchema> = await axios.post(
+				this.refreshEndpoint,
+				{ refreshToken },
+				{
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			);
+
+			this.logger.info('Refresh token response received');
+
+			// Update cookies with new tokens (both are required)
+			this.cookieProvider.setCookie(COOKIE_TOKENS.ACCESS_TOKEN, response.data.accessToken, {
+				...this.cookieProvider.defaultCookieOptions,
+				maxAge: 15 * 60, // 15 minutes
+			});
+
+			this.cookieProvider.setCookie(COOKIE_TOKENS.REFRESH_TOKEN, response.data.refreshToken, {
+				...this.cookieProvider.defaultCookieOptions,
+				maxAge: 7 * 24 * 60 * 60, // 7 days
+			});
+
+			return response.data.accessToken;
+		} catch (error) {
+			this.logger.error('Refresh token request failed');
+
+			this.clearTokens();
+			throw error instanceof Error ? error : new Error('Failed to refresh access token');
 		}
-
-		this.logger.info(`Fetched new tokens successfully`);
-
-		const { accessToken, refreshToken: newRefreshToken } = response;
-
-		// Set new tokens via cookie provider
-		this.cookieProvider.setCookie(COOKIE_TOKENS.ACCESS_TOKEN, accessToken, {
-			...this.cookieProvider.defaultCookieOptions,
-			maxAge: 15 * 60, // 15 minutes
-		});
-
-		this.cookieProvider.setCookie(COOKIE_TOKENS.REFRESH_TOKEN, newRefreshToken, {
-			...this.cookieProvider.defaultCookieOptions,
-			maxAge: 7 * 24 * 60 * 60, // 7 days
-		});
-
-		this.logger.info('Successfully set new tokens in cookies');
-
-		return accessToken;
 	}
 
-	private handleAuthFailure(): void {
-		// Clear tokens
-		this.cookieProvider.setCookie(COOKIE_TOKENS.ACCESS_TOKEN, '', {
-			maxAge: -1,
-		});
-		this.cookieProvider.setCookie(COOKIE_TOKENS.REFRESH_TOKEN, '', {
-			maxAge: -1,
-		});
+	private clearTokens(): void {
+		this.cookieProvider.deleteCookie(COOKIE_TOKENS.ACCESS_TOKEN, this.cookieProvider.defaultCookieOptions);
+		this.cookieProvider.deleteCookie(COOKIE_TOKENS.REFRESH_TOKEN, this.cookieProvider.defaultCookieOptions);
 	}
 
 	public request<T>(method: RequestMethods, controller: UrlPath, url: UrlPath, param?: AxiosRequestConfig): Promise<T> {

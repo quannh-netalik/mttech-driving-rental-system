@@ -1,8 +1,7 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/(auth-pages)')({
+export const Route = createFileRoute('/(unauthenticated)')({
 	beforeLoad: async ({ context }) => {
-		// Return to dashboard for authenticated user
 		if (context.user) {
 			throw redirect({ to: '/dashboard' });
 		}

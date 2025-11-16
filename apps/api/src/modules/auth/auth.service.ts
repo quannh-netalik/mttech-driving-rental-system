@@ -2,139 +2,151 @@ import { ConflictException, Injectable, Logger, UnauthorizedException } from '@n
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { instanceToPlain } from 'class-transformer';
-
+import { nanoid } from 'nanoid';
 import { UserEntity } from '@/modules/database/entities';
 import { UserRepository } from '@/modules/database/repositories';
 import { RedisService } from '@/modules/redis';
-
 import { AuthTokensDto, PayloadDto, RefreshTokenDto, SignUpDto } from './dto';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
+	private readonly logger = new Logger(AuthService.name);
 
-  private readonly jwtSecret: string;
-  private readonly jwtAcTTL: number;
-  private readonly jwtRfTTL: number;
+	private readonly jwtSecret: string;
+	private readonly jwtAcTTL: number;
+	private readonly jwtRfTTL: number;
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly userRepository: UserRepository,
-    private readonly jwtService: JwtService,
-    private readonly redisService: RedisService,
-  ) {
-    this.jwtSecret = this.configService.getOrThrow<string>('JWT_SECRET');
-    this.jwtAcTTL = +this.configService.getOrThrow<number>('JWT_AC_TTL');
-    this.jwtRfTTL = +this.configService.getOrThrow<number>('JWT_RF_TTL');
-  }
+	constructor(
+		private readonly configService: ConfigService,
+		private readonly userRepository: UserRepository,
+		private readonly jwtService: JwtService,
+		private readonly redisService: RedisService,
+	) {
+		this.jwtSecret = this.configService.getOrThrow<string>('JWT_SECRET');
+		this.jwtAcTTL = +this.configService.getOrThrow<number>('JWT_AC_TTL');
+		this.jwtRfTTL = +this.configService.getOrThrow<number>('JWT_RF_TTL');
+	}
 
-  async verify({ id }: PayloadDto): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ id });
-    if (!user) {
-      throw new UnauthorizedException('Invalid or expired token');
-    }
-    this.logger.log(`user:${user.id} has verified successful`);
+	async verify({ id }: PayloadDto): Promise<UserEntity> {
+		const user = await this.userRepository.findOneBy({ id });
+		if (!user) {
+			throw new UnauthorizedException('Invalid or expired token');
+		}
+		this.logger.log(`user:${user.id} has verified successful`);
 
-    return user;
-  }
+		return user;
+	}
 
-  async validateUserForLogin(email: string, password: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
-      where: { email },
-    });
+	async validateUserForLogin(email: string, password: string): Promise<UserEntity> {
+		const user = await this.userRepository.findOne({
+			where: { email },
+		});
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+		if (!user) {
+			throw new UnauthorizedException('Invalid credentials');
+		}
 
-    const isPasswordMatch = await user.validatePassword(password);
-    if (isPasswordMatch) {
-      this.logger.log(`user:${user.id} logged in successful`);
-      return user;
-    }
+		const isPasswordMatch = await user.validatePassword(password);
+		if (isPasswordMatch) {
+			this.logger.log(`user:${user.id} logged in successful`);
+			return user;
+		}
 
-    throw new UnauthorizedException('Invalid credentials');
-  }
+		throw new UnauthorizedException('Invalid credentials');
+	}
 
-  async signUp(signUpDto: SignUpDto): Promise<AuthTokensDto> {
-    const existingUser = await this.userRepository.findOneBy({ email: signUpDto.email });
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
-    }
+	async signUp(signUpDto: SignUpDto): Promise<AuthTokensDto> {
+		const existingUser = await this.userRepository.findOneBy({
+			email: signUpDto.email,
+		});
+		if (existingUser) {
+			throw new ConflictException('Email already exists');
+		}
 
-    const user = this.userRepository.create(signUpDto);
-    const savedUser = await this.userRepository.save(user);
-    this.logger.log(`${user.id} has registered successfully`);
-    return this.generateTokens(savedUser);
-  }
+		const user = this.userRepository.create(signUpDto);
+		const savedUser = await this.userRepository.save(user);
+		this.logger.log(`${user.id} has registered successfully`);
+		return this.generateTokens(savedUser);
+	}
 
-  async signIn(user: UserEntity): Promise<AuthTokensDto> {
-    return this.generateTokens(user);
-  }
+	async signIn(user: UserEntity): Promise<AuthTokensDto> {
+		return this.generateTokens(user);
+	}
 
-  async refresh({ refreshToken }: RefreshTokenDto): Promise<AuthTokensDto> {
-    try {
-      const decoded = this.jwtService.verify<PayloadDto>(refreshToken, {
-        secret: this.jwtSecret,
-      });
+	async refresh({ refreshToken }: RefreshTokenDto): Promise<AuthTokensDto> {
+		try {
+			const decoded = this.jwtService.verify<PayloadDto>(refreshToken, {
+				secret: this.jwtSecret,
+			});
 
-      const [user, cachedRf] = await Promise.all([
-        this.userRepository.findOneBy({ id: decoded.id }),
-        this.redisService.get(`user:${decoded.id}:rf`),
-      ]);
+			// Get the cached refresh token using the nonce from the JWT
+			const tokenNonce = decoded.nonce;
+			if (!tokenNonce) {
+				throw new UnauthorizedException('Invalid refresh token format');
+			}
 
-      if (!user) {
-        throw new UnauthorizedException('Invalid or expired token');
-      }
+			const [user, cachedRf] = await Promise.all([
+				this.userRepository.findOneBy({ id: decoded.id }),
+				this.redisService.get(`user:${decoded.id}:rf:${tokenNonce}`),
+			]);
 
-      if (!cachedRf) {
-        throw new UnauthorizedException('Refresh token has expired');
-      }
+			if (!user || !cachedRf) {
+				this.logger.error('[refresh] - validation error');
+				throw new UnauthorizedException('Invalid or expired token');
+			}
 
-      const isRefreshTokenValid = await user.validateRefreshToken(refreshToken, cachedRf);
-      if (!isRefreshTokenValid) {
-        throw new UnauthorizedException('Invalid refresh token');
-      }
+			const isRefreshTokenValid = await user.validateRefreshToken(refreshToken, cachedRf);
+			if (!isRefreshTokenValid) {
+				this.logger.error('[refresh] - Invalid refreshToken');
+				throw new UnauthorizedException('Invalid refresh token');
+			}
 
-      return this.generateTokens(user);
-    } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
-      }
+			// Delete THIS specific token immediately after validation
+			await this.redisService.del(`user:${user.id}:rf:${tokenNonce}`);
 
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
+			// Generate new tokens with a NEW nonce
+			return await this.generateTokens(user);
+		} catch (error) {
+			if (error instanceof Error) {
+				this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
+			}
 
-      throw new UnauthorizedException('Invalid or expired refresh token');
-    }
-  }
+			if (error instanceof UnauthorizedException) {
+				throw error;
+			}
 
-  private async generateTokens(user: UserEntity): Promise<AuthTokensDto> {
-    this.logger.log('starting generating new tokens');
+			throw new UnauthorizedException('Invalid or expired refresh token');
+		}
+	}
 
-    const payload = new PayloadDto(user);
-    const _payload = instanceToPlain(payload) as PayloadDto;
+	private async generateTokens(user: UserEntity): Promise<AuthTokensDto> {
+		this.logger.log('starting generating new tokens');
 
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync<PayloadDto>(_payload, {
-        secret: this.jwtSecret,
-        expiresIn: this.jwtAcTTL,
-      }),
-      this.jwtService.signAsync<PayloadDto>(_payload, {
-        secret: this.jwtSecret,
-        expiresIn: this.jwtRfTTL,
-      }),
-    ]);
+		const tokenNonce = nanoid();
 
-    const hashedRf = await user.getHashedRefreshToken(refreshToken);
-    await this.redisService.set(`user:${user.id}:rf`, hashedRf, this.jwtRfTTL * 60 * 1000);
+		const payload = new PayloadDto({ ...user, nonce: tokenNonce });
+		const _payload = instanceToPlain(payload) as PayloadDto;
 
-    this.logger.log('generated tokens successfully');
+		const [accessToken, refreshToken] = await Promise.all([
+			this.jwtService.signAsync<PayloadDto>(_payload, {
+				secret: this.jwtSecret,
+				expiresIn: this.jwtAcTTL,
+			}),
+			this.jwtService.signAsync<PayloadDto>(_payload, {
+				secret: this.jwtSecret,
+				expiresIn: this.jwtRfTTL,
+			}),
+		]);
 
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
+		const hashedRf = await user.getHashedRefreshToken(refreshToken);
+		await this.redisService.set(`user:${user.id}:rf:${tokenNonce}`, hashedRf, this.jwtRfTTL * 60 * 1000);
+
+		this.logger.log('generated tokens successfully');
+
+		return {
+			nonce: tokenNonce,
+			accessToken,
+			refreshToken,
+		};
+	}
 }

@@ -26,6 +26,7 @@ export const loggerConfig: PinoParams = {
 				url: req.url,
 				query: req.query,
 				params: req.params,
+				authorization: req.headers['authorization'],
 				['user-agent']: req.headers['user-agent'],
 			}),
 			res: res => ({

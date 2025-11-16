@@ -31,7 +31,6 @@ import { EmailStrategy, JwtStrategy } from './strategies';
 			useFactory: (config: ConfigService) => ({
 				global: true,
 				secret: config.getOrThrow<string>('JWT_SECRET'),
-				signOptions: { expiresIn: +config.getOrThrow<number>('JWT_AC_TTL') },
 			}),
 		}),
 	],
