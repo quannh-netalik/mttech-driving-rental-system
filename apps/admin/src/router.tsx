@@ -31,7 +31,7 @@ export function getRouter() {
 			user: null,
 		},
 		defaultPreload: 'intent',
-		defaultPreloadStaleTime: 1000 * 60 * 5, // 5 minutes - same as query staleTime
+		defaultPreloadStaleTime: 1000 * 60 * 2,
 		// react-query will handle data fetching & caching
 		// https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#passing-all-loader-events-to-an-external-cache
 		// defaultErrorComponent: DefaultCatchBoundary,
