@@ -2,7 +2,6 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/(unauthenticated)')({
 	beforeLoad: async ({ context }) => {
-		console.log({ context, root: 'login' });
 		if (context.user) {
 			throw redirect({ to: '/dashboard' });
 		}
