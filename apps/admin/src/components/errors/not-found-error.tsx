@@ -1,6 +1,15 @@
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import { Button } from '@workspace/ui/components/button';
 
+/**
+ * Render a full-page 404 "Not Found" UI with actions to navigate away.
+ *
+ * The UI displays a large "404" heading, a brief explanatory message, and two action buttons:
+ * - "Go Back" navigates back in browser history.
+ * - "Back to Home" navigates to the application's root path (`/`).
+ *
+ * @returns A React element containing the 404 page UI.
+ */
 export function NotFoundError() {
 	const navigate = useNavigate();
 	const { history } = useRouter();

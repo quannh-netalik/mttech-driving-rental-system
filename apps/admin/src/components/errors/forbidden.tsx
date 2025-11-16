@@ -1,6 +1,11 @@
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import { Button } from '@workspace/ui/components/button';
 
+/**
+ * Render a 403 Access Forbidden page with actions for returning to the previous page or the home route.
+ *
+ * @returns A React element that displays a large "403" heading, an explanatory message, and two action buttons: "Go Back" (navigates one step back in history) and "Back to Home" (navigates to `/`).
+ */
 export function ForbiddenError() {
 	const navigate = useNavigate();
 	const { history } = useRouter();

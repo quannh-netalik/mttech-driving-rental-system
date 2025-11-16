@@ -18,12 +18,11 @@ export const Route = createFileRoute('/(unauthenticated)/login')({
 });
 
 /**
- * Render the admin login form for Miền Trung Tech.
+ * Renders the admin login form and handles user authentication.
  *
- * The form validates credentials using the configured Zod schema, trims the email on blur,
- * toggles password visibility, disables inputs while a sign-in request is pending, and
- * performs authentication via the sign-in mutation which redirects to the site root on success
- * or shows a toast error on failure.
+ * The form validates credentials with the configured schema, trims the email on blur,
+ * allows toggling password visibility, disables inputs while a sign-in request is pending,
+ * navigates to '/dashboard' on successful sign-in, and shows a toast error on failure.
  *
  * @returns The rendered login form React element.
  */
