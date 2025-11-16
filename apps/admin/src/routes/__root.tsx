@@ -22,25 +22,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			return;
 		}
 
-		// Check if query is already in progress
-		const queryState = context.queryClient.getQueryState(userProfileQueryKey);
-
-		// If already fetching, wait for it; otherwise, start a new fetch
-		if (queryState?.fetchStatus === 'fetching') {
-			try {
-				const user = await context.queryClient.ensureQueryData(getUserProfileOptions());
-				context.user = user;
-			} catch {
-				// Silently handle authentication errors
-			}
-		} else {
-			// No cache, no pending fetch - initiate new fetch
-			try {
-				const user = await context.queryClient.ensureQueryData(getUserProfileOptions());
-				context.user = user;
-			} catch {
-				// Silently handle authentication errors
-			}
+		try {
+			const user = await context.queryClient.ensureQueryData(getUserProfileOptions());
+			context.user = user;
+		} catch {
+			// Silently handle authentication errors
 		}
 	},
 	head: () => ({
