@@ -203,8 +203,8 @@ export class HttpClient {
 	}
 
 	private clearTokens(): void {
-		this.cookieProvider.deleteCookie(COOKIE_TOKENS.ACCESS_TOKEN);
-		this.cookieProvider.deleteCookie(COOKIE_TOKENS.REFRESH_TOKEN);
+		this.cookieProvider.deleteCookie(COOKIE_TOKENS.ACCESS_TOKEN, this.cookieProvider.defaultCookieOptions);
+		this.cookieProvider.deleteCookie(COOKIE_TOKENS.REFRESH_TOKEN, this.cookieProvider.defaultCookieOptions);
 	}
 
 	public request<T>(method: RequestMethods, controller: UrlPath, url: UrlPath, param?: AxiosRequestConfig): Promise<T> {

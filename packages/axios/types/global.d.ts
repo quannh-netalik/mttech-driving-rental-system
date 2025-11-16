@@ -10,8 +10,8 @@ export declare global {
 		_retry?: boolean;
 	}
 
-	interface QueuedRequest {
-		resolve: (value: string) => void;
-		reject: (reason: Error) => void;
+	interface QueuedRequest<T = string> {
+		resolve: (value: T) => void;
+		reject: (reason: unknown) => void;
 	}
 }
