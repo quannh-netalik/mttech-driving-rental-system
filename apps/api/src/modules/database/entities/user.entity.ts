@@ -2,8 +2,10 @@ import { Logger } from '@nestjs/common';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import argon2 from 'argon2';
 import { Exclude, Expose } from 'class-transformer';
-import { BeforeInsert, BeforeUpdate, Column, Entity, Index, Unique } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, OneToMany, Unique } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import type { ClassEntity } from './class.entity';
+import type { ScheduleEntity } from './schedule.entity';
 
 export enum UserRole {
 	ADMIN = 'admin',
@@ -44,6 +46,20 @@ export class UserEntity extends BaseEntity {
 		nullable: false,
 	})
 	role!: UserRole;
+
+	@ApiProperty()
+	@OneToMany(
+		() => require('./class.entity').ClassEntity,
+		(classEntity: ClassEntity) => classEntity.createdBy,
+	)
+	classes!: ClassEntity[];
+
+	@ApiProperty()
+	@OneToMany(
+		() => require('./schedule.entity').ScheduleEntity,
+		(classEntity: ScheduleEntity) => classEntity.createdBy,
+	)
+	schedules!: ScheduleEntity[];
 
 	@ApiProperty()
 	@Expose()
