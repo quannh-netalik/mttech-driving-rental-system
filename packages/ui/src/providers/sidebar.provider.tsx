@@ -13,7 +13,7 @@ export interface SidebarContextValue {
 
 export const SidebarContext = React.createContext<SidebarContextValue | null>(null);
 
-export function SidebarConfigProvider({ children }: { children: React.ReactNode }) {
+export function SidebarConfigProvider({ children }: Readonly<{ children: React.ReactNode }>) {
 	const [config, setConfig] = React.useState<SidebarConfig>({
 		variant: 'inset',
 		collapsible: 'offcanvas',
@@ -24,7 +24,9 @@ export function SidebarConfigProvider({ children }: { children: React.ReactNode 
 		setConfig(prev => ({ ...prev, ...newConfig }));
 	}, []);
 
-	return <SidebarContext.Provider value={{ config, updateConfig }}>{children}</SidebarContext.Provider>;
+	const value = React.useMemo(() => ({ config, updateConfig }), [config, updateConfig]);
+
+	return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>;
 }
 
 export function useSidebarConfig() {

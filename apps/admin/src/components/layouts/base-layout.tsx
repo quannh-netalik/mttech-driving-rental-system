@@ -11,7 +11,7 @@ interface BaseLayoutProps {
 	description?: string;
 }
 
-export function BaseLayout({ children, title, description }: BaseLayoutProps) {
+export function BaseLayout({ children, title, description }: Readonly<BaseLayoutProps>) {
 	const { config } = useSidebarConfig();
 
 	return (
