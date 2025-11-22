@@ -15,7 +15,7 @@ import { ChevronRight, type LucideIcon } from 'lucide-react';
 export function NavMain({
 	label,
 	items,
-}: {
+}: Readonly<{
 	label: string;
 	items: {
 		title: string;
@@ -28,7 +28,7 @@ export function NavMain({
 			isActive?: boolean;
 		}[];
 	}[];
-}) {
+}>) {
 	const location = useLocation();
 
 	// Check if any subitem is active to determine if parent should be open

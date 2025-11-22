@@ -14,13 +14,12 @@ import { Logo } from '@/components/layouts/logo';
 
 export function NavUser({
 	user,
-}: {
+}: Readonly<{
 	user: {
 		name: string;
 		email: string;
-		avatar: string;
 	};
-}) {
+}>) {
 	const { isMobile } = useSidebar();
 
 	return (
