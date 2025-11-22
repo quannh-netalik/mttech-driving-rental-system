@@ -1,10 +1,10 @@
 import { join } from 'node:path';
 import { DataSourceOptions } from 'typeorm';
+import { SeederOptions } from 'typeorm-extension';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-
 import { createRedisOptions } from '@/modules/redis';
-
 import { ConfigGetter, EnvConfigGetter } from './data-source.util';
+import '@/env';
 
 /**
  * Build a TypeORM DataSourceOptions object configured for PostgreSQL using values from `config`.
@@ -14,7 +14,7 @@ import { ConfigGetter, EnvConfigGetter } from './data-source.util';
  * @param config - Configuration accessor used to read required database and environment values (e.g., `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`, `NODE_ENV`).
  * @returns A fully populated `DataSourceOptions` object ready to initialize a TypeORM DataSource for PostgreSQL.
  */
-export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions {
+export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions & SeederOptions {
 	const isProduction = config.get('NODE_ENV') === 'production';
 
 	return {
@@ -31,6 +31,8 @@ export function createDataSourceOptions(config: ConfigGetter): DataSourceOptions
 		connectTimeoutMS: 5000,
 		entities: [join(__dirname, '..', '/entities/*.entity.{ts,js}')],
 		migrations: [join(__dirname, '..', '/migrations/*.ts')],
+		seeds: [join(__dirname, '..', '/seeders/*.seeder.{ts,js}')],
+		seedTracking: false,
 		extra: {
 			idleTimeoutMillis: 30000,
 			maxUses: 7500,
