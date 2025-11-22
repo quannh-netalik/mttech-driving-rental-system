@@ -56,7 +56,8 @@ export async function setCookie(name: string, value: string, maxAge: number = DE
 
 	if (typeof document !== 'undefined') {
 		const expires = new Date(Date.now() + maxAge * 1000).toUTCString();
-		const secureFlag = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
+		const secureFlag =
+			typeof globalThis.window !== 'undefined' && globalThis.window.location.protocol === 'https:' ? '; Secure' : '';
 		// biome-ignore lint/suspicious/noDocumentCookie: Fallback: traditional document.cookie
 		document.cookie = `${name}=${value}; path=/; SameSite=Lax${secureFlag}; expires=${expires}`;
 	}

@@ -9,6 +9,13 @@
       },
       "suspicious": {
         "noAssignInExpressions": "off"
+      },
+      "a11y": {
+        "noStaticElementInteractions": "off",
+        "useKeyWithClickEvents": "off"
+      },
+      "complexity": {
+        "useOptionalChain": "off"
       }
     }
   },

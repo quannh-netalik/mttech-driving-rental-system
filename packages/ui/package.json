@@ -66,6 +66,7 @@
   },
   "exports": {
     "./providers/*": "./src/providers/*.tsx",
+    "./types/*": "./src/types/*.ts",
     "./components/*": "./src/components/*.tsx",
     "./globals.css": "./src/styles/globals.css",
     "./hooks/*": "./src/hooks/*.ts",
