@@ -69,5 +69,5 @@ export class ScheduleEntity extends BaseEntity {
 		() => require('./invoice.entity').InvoiceEntity,
 		(invoice: InvoiceEntity) => invoice.schedule,
 	)
-	invoice!: InvoiceEntity;
+	invoices!: InvoiceEntity[];
 }

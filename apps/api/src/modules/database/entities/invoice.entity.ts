@@ -28,9 +28,11 @@ export class InvoiceEntity extends BaseEntity {
 	@Column({ type: 'enum', enum: InvoiceSource, nullable: false })
 	source!: InvoiceSource;
 
+	@ApiProperty()
 	@ManyToOne(
 		() => ScheduleEntity,
-		(schedule: ScheduleEntity) => schedule.invoice,
+		(schedule: ScheduleEntity) => schedule.invoices,
+		{ nullable: false },
 	)
 	@JoinColumn({ name: 'schedule_id' })
 	schedule!: ScheduleEntity;

@@ -24,7 +24,7 @@ export class ClassEntity extends BaseEntity {
 	@ManyToOne(
 		() => UserEntity,
 		(user: UserEntity) => user.classes,
-		{ nullable: true }, // will update to not nullable later
+		{ nullable: false },
 	)
 	@JoinColumn({ name: 'created_by' })
 	createdBy!: UserEntity;

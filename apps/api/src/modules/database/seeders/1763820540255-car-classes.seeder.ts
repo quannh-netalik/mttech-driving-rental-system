@@ -16,23 +16,34 @@ export default class CarClasses1763820540255 implements Seeder {
 				return;
 			}
 
-			for (const { title, price, cars } of DRIVING_CLASSES_SEED_DATA) {
-				const classData = classRepo.create({
-					title: title,
-					price: price,
-				});
-				await classRepo.save(classData);
-
-				for (const car of cars) {
-					const carData = carRepo.create({
-						class: classData,
-						type: car.type,
-						category: car.category,
-						status: car.status,
+			await dataSource.transaction(async manager => {
+				const classData = DRIVING_CLASSES_SEED_DATA.map(({ title, price }) => {
+					return manager.create(ClassEntity, {
+						title,
+						price,
+						createdBy: { id: 1 },
 					});
-					await carRepo.save(carData);
-				}
-			}
+				});
+				const newClasses = await manager.save(ClassEntity, classData);
+
+				const carData: CarEntity[] = [];
+				DRIVING_CLASSES_SEED_DATA.forEach(({ cars }, index) => {
+					for (const car of cars) {
+						const carEntity = carRepo.create({
+							class: newClasses[index],
+							...car,
+						});
+
+						carData.push(carEntity);
+					}
+				});
+				const newCars = await manager.save(CarEntity, carData);
+
+				return {
+					newClasses,
+					newCars,
+				};
+			});
 		} catch (error) {
 			console.error('Error in CarClasses1763820540255 seeder:', error);
 			throw error;

@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Unique } from 'typeorm';
 import { BaseEntity } from './base.entity';
@@ -46,17 +46,17 @@ export class CarEntity extends BaseEntity {
 	})
 	category!: CarCategory;
 
-	@ApiProperty()
+	@ApiPropertyOptional()
 	@Column({ type: 'varchar', length: 255, nullable: true })
-	customId!: string;
+	customId?: string | null;
 
-	@ApiProperty()
+	@ApiPropertyOptional()
 	@Column({ type: 'varchar', length: 255, nullable: true })
-	reason!: string;
+	reason?: string | null;
 
-	@ApiProperty()
+	@ApiPropertyOptional()
 	@Column({ type: 'varchar', length: 255, nullable: true })
-	place!: string;
+	place?: string | null;
 
 	@ApiProperty()
 	@Column({
@@ -76,6 +76,7 @@ export class CarEntity extends BaseEntity {
 	@JoinColumn({ name: 'class_id' })
 	class!: ClassEntity;
 
+	@ApiProperty()
 	@OneToMany(
 		() => require('./schedule.entity').ScheduleEntity,
 		(schedule: ScheduleEntity) => schedule.car,

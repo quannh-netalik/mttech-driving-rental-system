@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToMany, Unique } from 'typeorm';
 import { BaseEntity } from './base.entity';
@@ -20,13 +20,13 @@ export class CandidateEntity extends BaseEntity {
 	@Column({ type: 'varchar', length: 255, nullable: false })
 	phone!: string;
 
-	@ApiProperty()
+	@ApiPropertyOptional()
 	@Column({ type: 'varchar', length: 255, nullable: true })
-	email!: string;
+	email?: string | null;
 
-	@ApiProperty()
+	@ApiPropertyOptional()
 	@Column({ type: 'varchar', length: 255, nullable: true })
-	address!: string;
+	address?: string | null;
 
 	@ApiProperty()
 	@OneToMany(
