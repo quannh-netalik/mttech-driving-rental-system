@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { decimalTransformer } from '../helpers';
 import { BaseEntity } from './base.entity';
 import { ScheduleEntity } from './schedule.entity';
 
@@ -17,7 +18,13 @@ export class InvoiceEntity extends BaseEntity {
 	logger = new Logger(InvoiceEntity.name);
 
 	@ApiProperty()
-	@Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
+	@Column({
+		type: 'decimal',
+		precision: 15,
+		scale: 2,
+		nullable: false,
+		transformer: decimalTransformer,
+	})
 	amount!: number;
 
 	@ApiProperty()

@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { decimalTransformer } from '../helpers';
 import { BaseEntity } from './base.entity';
 import { CandidateEntity } from './candidate.entity';
 import { CarEntity } from './car.entity';
@@ -30,7 +31,13 @@ export class ScheduleEntity extends BaseEntity {
 	to!: Date;
 
 	@ApiProperty()
-	@Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
+	@Column({
+		type: 'decimal',
+		precision: 15,
+		scale: 2,
+		nullable: false,
+		transformer: decimalTransformer,
+	})
 	overtimePrice!: number;
 
 	@ApiProperty()
