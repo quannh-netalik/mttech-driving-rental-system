@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { BaseLayout } from '@/components/layouts/base-layout';
 
 export const Route = createFileRoute('/(authenticated)')({
 	beforeLoad: async ({ context }) => {
@@ -10,5 +11,9 @@ export const Route = createFileRoute('/(authenticated)')({
 });
 
 function RouteComponent() {
-	return <Outlet />;
+	return (
+		<BaseLayout>
+			<Outlet />
+		</BaseLayout>
+	);
 }
